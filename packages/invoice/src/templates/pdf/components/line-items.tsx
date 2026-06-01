@@ -31,30 +31,34 @@ export function LineItems({
   includeLineItemTax = false,
   lineItemTaxLabel = "Tax",
 }: Props) {
-  const maximumFractionDigits = includeDecimals ? 2 : 0;
+  const detailsWidth = includeLineItemTax ? "42.857%" : "50%";
 
   return (
     <View style={{ marginTop: 20 }}>
       <View
         style={{
           flexDirection: "row",
+          alignItems: "flex-start",
           borderBottomWidth: 0.5,
           borderBottomColor: "#000",
-          paddingBottom: 5,
-          marginBottom: 5,
+          minHeight: 15,
+          paddingBottom: 7,
+          marginBottom: 6,
         }}
       >
-        <Text style={{ flex: 3, fontSize: 9, fontWeight: 500 }}>
+        <Text style={{ flex: 3, fontSize: 9, lineHeight: 11, fontWeight: 500 }}>
           {descriptionLabel}
         </Text>
-        <Text style={{ flex: 1, fontSize: 9, fontWeight: 500 }}>
+        <Text style={{ flex: 1, fontSize: 9, lineHeight: 11, fontWeight: 500 }}>
           {quantityLabel}
         </Text>
-        <Text style={{ flex: 1, fontSize: 9, fontWeight: 500 }}>
+        <Text style={{ flex: 1, fontSize: 9, lineHeight: 11, fontWeight: 500 }}>
           {priceLabel}
         </Text>
         {includeLineItemTax && (
-          <Text style={{ flex: 1, fontSize: 9, fontWeight: 500 }}>
+          <Text
+            style={{ flex: 1, fontSize: 9, lineHeight: 11, fontWeight: 500 }}
+          >
             {lineItemTaxLabel}
           </Text>
         )}
@@ -62,6 +66,7 @@ export function LineItems({
           style={{
             flex: 1,
             fontSize: 9,
+            lineHeight: 11,
             fontWeight: 500,
             textAlign: "right",
           }}
@@ -72,58 +77,83 @@ export function LineItems({
       {lineItems.map((item, index) => (
         <View
           key={`line-item-${index.toString()}`}
-          wrap={false}
-          style={{
-            flexDirection: "row",
-            paddingVertical: 5,
-            alignItems: "flex-start",
-          }}
+          style={{ paddingVertical: 5 }}
         >
-          <View style={{ flex: 3, paddingRight: 20 }}>
-            <Description content={item.name} />
-            <LineItemDetails item={item} locale={locale} />
+          <View
+            wrap={false}
+            style={{
+              flexDirection: "row",
+              alignItems: "flex-start",
+            }}
+          >
+            <View style={{ flex: 3, paddingRight: 20 }}>
+              <Description content={item.name} />
+            </View>
+
+            <Text style={{ flex: 1, fontSize: 9 }}>
+              {String(item.quantity ?? 0)}
+            </Text>
+
+            <Text style={{ flex: 1, fontSize: 9 }}>
+              {currency &&
+                formatCurrencyForPDF({
+                  amount: item.price ?? 0,
+                  currency,
+                  locale,
+                  maximumFractionDigits: getCurrencyFractionDigits(
+                    item.price ?? 0,
+                    includeDecimals,
+                  ),
+                })}
+              {includeUnits && item.unit ? ` / ${item.unit}` : null}
+            </Text>
+
+            {includeLineItemTax && (
+              <Text style={{ flex: 1, fontSize: 9 }}>
+                {item.taxRate != null ? `${item.taxRate}%` : "0%"}
+              </Text>
+            )}
+
+            <Text style={{ flex: 1, fontSize: 9, textAlign: "right" }}>
+              {currency &&
+                formatCurrencyForPDF({
+                  amount: calculateLineItemTotal({
+                    price: item.price,
+                    quantity: item.quantity,
+                  }),
+                  currency,
+                  locale,
+                  maximumFractionDigits: getCurrencyFractionDigits(
+                    calculateLineItemTotal({
+                      price: item.price,
+                      quantity: item.quantity,
+                    }),
+                    includeDecimals,
+                  ),
+                })}
+            </Text>
           </View>
 
-          <Text style={{ flex: 1, fontSize: 9 }}>
-            {String(item.quantity ?? 0)}
-          </Text>
-
-          <Text style={{ flex: 1, fontSize: 9 }}>
-            {currency &&
-              formatCurrencyForPDF({
-                amount: item.price ?? 0,
-                currency,
-                locale,
-                maximumFractionDigits,
-              })}
-            {includeUnits && item.unit ? ` / ${item.unit}` : null}
-          </Text>
-
-          {includeLineItemTax && (
-            <Text style={{ flex: 1, fontSize: 9 }}>
-              {item.taxRate != null ? `${item.taxRate}%` : "0%"}
-            </Text>
-          )}
-
-          <Text style={{ flex: 1, fontSize: 9, textAlign: "right" }}>
-            {currency &&
-              formatCurrencyForPDF({
-                amount: calculateLineItemTotal({
-                  price: item.price,
-                  quantity: item.quantity,
-                }),
-                currency,
-                locale,
-                maximumFractionDigits,
-              })}
-          </Text>
+          <LineItemDetails item={item} locale={locale} width={detailsWidth} />
         </View>
       ))}
     </View>
   );
 }
 
-function LineItemDetails({ item, locale }: { item: LineItem; locale: string }) {
+function getCurrencyFractionDigits(amount: number, includeDecimals?: boolean) {
+  return includeDecimals || !Number.isInteger(amount) ? 2 : 0;
+}
+
+function LineItemDetails({
+  item,
+  locale,
+  width,
+}: {
+  item: LineItem;
+  locale: string;
+  width: string;
+}) {
   const details = item.details?.filter(
     (detail) =>
       detail.date || detail.title || detail.description || detail.hours != null,
@@ -134,7 +164,7 @@ function LineItemDetails({ item, locale }: { item: LineItem; locale: string }) {
   }
 
   return (
-    <View style={{ marginTop: 4 }}>
+    <View style={{ marginTop: 4, width, paddingRight: 20 }}>
       {details.map((detail, index) => (
         <View
           key={`${detail.date ?? ""}-${detail.title ?? ""}-${index.toString()}`}
@@ -152,6 +182,7 @@ function LineItemDetails({ item, locale }: { item: LineItem; locale: string }) {
                     year: "numeric",
                     month: "short",
                     day: "numeric",
+                    timeZone: "UTC",
                   }).format(new Date(detail.date))
                 : null,
               detail.title,

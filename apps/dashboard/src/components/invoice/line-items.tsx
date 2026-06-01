@@ -342,7 +342,7 @@ function LineItemRow({
                 </div>
                 <input
                   type="number"
-                  step="0.25"
+                  step="any"
                   min="0"
                   placeholder="Hours"
                   {...register(

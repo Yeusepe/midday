@@ -2,6 +2,7 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import type { Database } from "./client";
 import * as schema from "./schema";
+import { getDatabaseSslConfig } from "./ssl";
 
 const isDevelopment = process.env.NODE_ENV === "development";
 
@@ -19,6 +20,7 @@ export const createJobDb = () => {
     connectionTimeoutMillis: 15000,
     maxUses: 0,
     allowExitOnIdle: true,
+    ssl: getDatabaseSslConfig(isDevelopment),
   });
 
   const db = drizzle(jobPool, {

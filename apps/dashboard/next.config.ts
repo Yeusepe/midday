@@ -1,10 +1,11 @@
 import { withSentryConfig } from "@sentry/nextjs";
 
 const apiRewriteUrl =
-  process.env.API_REWRITE_URL || "https://midday-api-github.zeabur.app";
+  process.env.API_REWRITE_URL ||
+  "http://service-6a1d1aef2cc61de70f4dc1b6:8080";
 const supabaseRewriteUrl =
   process.env.SUPABASE_REWRITE_URL ||
-  "https://midday-supabase.zeabur.app";
+  "http://service-6a1d1a052cc61de70f4dc0a9:8000";
 
 /** @type {import("next").NextConfig} */
 const config = {

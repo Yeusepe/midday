@@ -47,6 +47,8 @@ type PresetOption = {
   dateRange: DateRange;
 };
 
+type TimeEntryMode = "grouped" | "separate";
+
 const getPresetOptions = (weekStartsOnMonday: boolean): PresetOption[] => {
   const now = new TZDate(new Date(), "UTC");
   const weekStartsOn = weekStartsOnMonday ? 1 : 0;
@@ -106,6 +108,7 @@ export function TrackerCreateInvoice({ projectId }: Props) {
   const [date, setDate] = useState<DateRange | undefined>(
     defaultPresetOption?.dateRange,
   );
+  const [timeEntryMode, setTimeEntryMode] = useState<TimeEntryMode>("grouped");
 
   const createInvoiceFromTrackerMutation = useMutation(
     trpc.invoice.createFromTracker.mutationOptions({
@@ -183,6 +186,7 @@ export function TrackerCreateInvoice({ projectId }: Props) {
       projectId,
       dateFrom: formatISO(date.from, { representation: "date" }),
       dateTo: formatISO(date.to, { representation: "date" }),
+      timeEntryMode,
     });
   };
 
@@ -219,6 +223,23 @@ export function TrackerCreateInvoice({ projectId }: Props) {
                 defaultMonth={date?.from}
                 weekStartsOn={weekStartsOnMonday ? 1 : 0}
               />
+
+              <Select
+                value={timeEntryMode}
+                onValueChange={(value) =>
+                  setTimeEntryMode(value as TimeEntryMode)
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Line items" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="grouped">Grouped with details</SelectItem>
+                  <SelectItem value="separate">
+                    One line per time entry
+                  </SelectItem>
+                </SelectContent>
+              </Select>
 
               <SubmitButton
                 onClick={handleCreateInvoice}

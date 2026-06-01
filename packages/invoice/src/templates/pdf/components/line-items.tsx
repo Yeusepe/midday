@@ -81,6 +81,7 @@ export function LineItems({
         >
           <View style={{ flex: 3, paddingRight: 20 }}>
             <Description content={item.name} />
+            <LineItemDetails item={item} locale={locale} />
           </View>
 
           <Text style={{ flex: 1, fontSize: 9 }}>
@@ -116,6 +117,54 @@ export function LineItems({
                 maximumFractionDigits,
               })}
           </Text>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+function LineItemDetails({ item, locale }: { item: LineItem; locale: string }) {
+  const details = item.details?.filter(
+    (detail) =>
+      detail.date || detail.title || detail.description || detail.hours != null,
+  );
+
+  if (!details?.length) {
+    return null;
+  }
+
+  return (
+    <View style={{ marginTop: 4 }}>
+      {details.map((detail, index) => (
+        <View
+          key={`${detail.date ?? ""}-${detail.title ?? ""}-${index.toString()}`}
+          style={{
+            borderLeftWidth: 0.5,
+            borderLeftColor: "#878787",
+            paddingLeft: 5,
+            marginTop: 3,
+          }}
+        >
+          <Text style={{ fontSize: 7, color: "#878787" }}>
+            {[
+              detail.date
+                ? new Intl.DateTimeFormat(locale, {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  }).format(new Date(detail.date))
+                : null,
+              detail.title,
+              detail.hours != null ? `${detail.hours}h` : null,
+            ]
+              .filter(Boolean)
+              .join(" · ")}
+          </Text>
+          {detail.description && (
+            <Text style={{ fontSize: 7, color: "#878787", marginTop: 2 }}>
+              {detail.description}
+            </Text>
+          )}
         </View>
       ))}
     </View>

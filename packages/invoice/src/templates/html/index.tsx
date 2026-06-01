@@ -29,10 +29,14 @@ export function HtmlTemplate({ data, width, height }: Props) {
     fromDetails,
     paymentDetails,
     noteDetails,
+    amount,
     currency,
     exchangeRate,
     convertedCurrency,
     convertedAmount,
+    subtotal,
+    tax,
+    vat,
     discount,
     customerName,
     topBlock,
@@ -89,7 +93,7 @@ export function HtmlTemplate({ data, width, height }: Props) {
 
         <LineItems
           lineItems={lineItems}
-          currency={currency}
+          currency={convertedCurrency ?? currency}
           descriptionLabel={template.descriptionLabel}
           quantityLabel={template.quantityLabel}
           priceLabel={template.priceLabel}
@@ -112,6 +116,10 @@ export function HtmlTemplate({ data, width, height }: Props) {
             exchangeRate={exchangeRate}
             convertedCurrency={convertedCurrency}
             convertedAmount={convertedAmount}
+            amount={amount}
+            subtotal={subtotal}
+            tax={tax}
+            vat={vat}
             vatLabel={template.vatLabel}
             taxLabel={template.taxLabel}
             totalLabel={template.totalSummaryLabel}

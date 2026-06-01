@@ -25,6 +25,11 @@ export function ProductAwareUnitInput({
   const currentProductId = watch(`lineItems.${lineItemIndex}.productId`);
   const currentUnit = watch(`lineItems.${lineItemIndex}.unit`);
   const currency = watch("template.currency");
+  const convertedCurrency = watch("convertedCurrency");
+  const lineItemCurrency =
+    convertedCurrency && convertedCurrency !== currency
+      ? convertedCurrency
+      : currency;
 
   // Mutation for saving line item as product
   const saveLineItemAsProductMutation = useMutation(
@@ -46,7 +51,7 @@ export function ProductAwareUnitInput({
         price: currentPrice !== undefined ? currentPrice : null,
         unit: currentUnit || null,
         productId: currentProductId,
-        currency: currency || null,
+        currency: lineItemCurrency || null,
       });
     }
   };

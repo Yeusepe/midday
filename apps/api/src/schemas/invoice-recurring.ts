@@ -116,7 +116,7 @@ export const createInvoiceRecurringSchema = z
     }),
     exchangeRate: z.number().positive().nullable().optional().openapi({
       description:
-        "Locked exchange rate from invoice currency to converted currency",
+        "Locked exchange rate from rate currency to invoice currency",
       example: 535.25,
     }),
     exchangeRateSource: z
@@ -133,12 +133,12 @@ export const createInvoiceRecurringSchema = z
       example: "2026-06-01T12:00:00.000Z",
     }),
     convertedCurrency: z.string().nullable().optional().openapi({
-      description: "Currency code used for the converted invoice display total",
-      example: "CRC",
+      description: "Currency code used for line item rates before conversion",
+      example: "USD",
     }),
     convertedAmount: z.number().nullable().optional().openapi({
-      description: "Converted invoice display total",
-      example: 802875,
+      description: "Invoice total in the line item rate currency",
+      example: 1500,
     }),
     lineItems: z.array(draftLineItemSchema).nullable().optional().openapi({
       description: "Line items for the invoice",
@@ -719,8 +719,7 @@ export const invoiceRecurringResponseSchema = z.object({
     example: "USD",
   }),
   exchangeRate: z.number().nullable().openapi({
-    description:
-      "Locked exchange rate from invoice currency to converted currency",
+    description: "Locked exchange rate from rate currency to invoice currency",
     example: 535.25,
   }),
   exchangeRateSource: z.enum(["automatic", "manual"]).nullable().openapi({
@@ -733,12 +732,12 @@ export const invoiceRecurringResponseSchema = z.object({
     example: "2026-06-01T12:00:00.000Z",
   }),
   convertedCurrency: z.string().nullable().openapi({
-    description: "Currency code used for the converted invoice display total",
-    example: "CRC",
+    description: "Currency code used for line item rates before conversion",
+    example: "USD",
   }),
   convertedAmount: z.number().nullable().openapi({
-    description: "Converted invoice display total",
-    example: 802875,
+    description: "Invoice total in the line item rate currency",
+    example: 1500,
   }),
   customerId: z.string().uuid().nullable().openapi({
     description: "Customer ID",

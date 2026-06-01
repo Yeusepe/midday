@@ -74,6 +74,7 @@ export async function PdfTemplate(
     exchangeRate,
     convertedCurrency,
     convertedAmount,
+    subtotal,
     vat,
     tax,
     amount,
@@ -173,7 +174,7 @@ export async function PdfTemplate(
 
         <LineItems
           lineItems={lineItems}
-          currency={currency}
+          currency={convertedCurrency ?? currency}
           descriptionLabel={template.descriptionLabel}
           quantityLabel={template.quantityLabel}
           priceLabel={template.priceLabel}
@@ -202,6 +203,7 @@ export async function PdfTemplate(
               exchangeRate={exchangeRate}
               convertedCurrency={convertedCurrency}
               convertedAmount={convertedAmount}
+              subtotal={subtotal}
               totalLabel={template.totalSummaryLabel}
               taxLabel={template.taxLabel}
               vatLabel={template.vatLabel}

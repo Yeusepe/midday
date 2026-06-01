@@ -60,6 +60,97 @@ const logger = createLoggerWithContext("trpc:invoice");
 
 // Use the shared default template from @midday/invoice
 const defaultTemplate = DEFAULT_TEMPLATE;
+const trackerLineItemModeSchema = z.enum(["grouped", "separate"]);
+
+type TrackerInvoiceEntry = {
+  date?: string | null;
+  description?: string | null;
+  duration?: number | null;
+  start?: string | Date | null;
+  stop?: string | Date | null;
+  user?: {
+    fullName?: string | null;
+    name?: string | null;
+  } | null;
+};
+
+const durationToHours = (duration?: number | null) =>
+  Math.round(((duration ?? 0) / 3600) * 100) / 100;
+
+const getTrackerEntryDate = (entry: TrackerInvoiceEntry) => {
+  if (entry.date) {
+    return entry.date;
+  }
+
+  if (!entry.start) {
+    return null;
+  }
+
+  const startDate = new Date(entry.start);
+
+  if (Number.isNaN(startDate.getTime())) {
+    return null;
+  }
+
+  return startDate.toISOString().slice(0, 10);
+};
+
+const formatTrackerEntryTime = (value?: string | Date | null) => {
+  if (!value) {
+    return null;
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  return format(date, "HH:mm");
+};
+
+const buildTrackerEntryDetail = (
+  entry: TrackerInvoiceEntry,
+  fallbackTitle: string,
+) => {
+  const startTime = formatTrackerEntryTime(entry.start);
+  const stopTime = formatTrackerEntryTime(entry.stop);
+  const userName = entry.user?.fullName ?? entry.user?.name ?? null;
+  const description = [
+    startTime && stopTime ? `${startTime} - ${stopTime}` : null,
+    userName,
+  ]
+    .filter(Boolean)
+    .join(" - ");
+  const title = entry.description?.trim() || fallbackTitle;
+
+  return {
+    date: getTrackerEntryDate(entry),
+    title,
+    description: description || null,
+    hours: durationToHours(entry.duration),
+  };
+};
+
+const getTrackerEntryLineItemName = (
+  entry: TrackerInvoiceEntry,
+  projectName: string,
+  userDateFormat: string,
+) => {
+  const description = entry.description?.trim();
+
+  if (description) {
+    return description;
+  }
+
+  const entryDate = getTrackerEntryDate(entry);
+
+  if (!entryDate) {
+    return projectName;
+  }
+
+  return `${projectName} (${format(parseISO(entryDate), userDateFormat)})`;
+};
 
 export const invoiceRouter = createTRPCRouter({
   get: protectedProcedure
@@ -140,10 +231,12 @@ export const invoiceRouter = createTRPCRouter({
         projectId: z.string().uuid(),
         dateFrom: z.string(),
         dateTo: z.string(),
+        timeEntryMode: trackerLineItemModeSchema.optional(),
       }),
     )
     .mutation(async ({ ctx: { db, teamId, session }, input }) => {
       const { projectId, dateFrom, dateTo } = input;
+      const timeEntryMode = input.timeEntryMode ?? "grouped";
 
       // Get project data and tracker entries
       const [projectData, trackerData] = await Promise.all([
@@ -179,8 +272,12 @@ export const invoiceRouter = createTRPCRouter({
         });
       }
 
-      // Calculate total hours from tracker entries
-      const allEntries = Object.values(trackerData.result || {}).flat();
+      const allEntries = Object.values(
+        trackerData.result || {},
+      ).flat() as TrackerInvoiceEntry[];
+      const billableEntries = allEntries.filter(
+        (entry) => (entry.duration ?? 0) > 0,
+      );
       const totalDuration = allEntries.reduce(
         (sum, entry) => sum + (entry.duration || 0),
         0,
@@ -210,6 +307,7 @@ export const invoiceRouter = createTRPCRouter({
         ]);
 
       const invoiceId = uuidv4();
+      const projectName = projectData.name ?? "Tracked time";
       const currency = projectData.currency || team?.baseCurrency || "USD";
       const amount = totalHours * Number(projectData.rate);
 
@@ -221,7 +319,34 @@ export const invoiceRouter = createTRPCRouter({
       // Use parseISO to avoid timezone shifts when parsing date strings
       const formattedDateFrom = format(parseISO(dateFrom), userDateFormat);
       const formattedDateTo = format(parseISO(dateTo), userDateFormat);
-      const dateRangeDescription = `${projectData.name} (${formattedDateFrom} - ${formattedDateTo})`;
+      const dateRangeDescription = `${projectName} (${formattedDateFrom} - ${formattedDateTo})`;
+      const entryDetails = billableEntries.map((entry) =>
+        buildTrackerEntryDetail(entry, projectName),
+      );
+      const lineItems =
+        timeEntryMode === "separate"
+          ? billableEntries.map((entry) => ({
+              name: getTrackerEntryLineItemName(
+                entry,
+                projectName,
+                userDateFormat,
+              ),
+              quantity: durationToHours(entry.duration),
+              price: Number(projectData.rate),
+              unit: "hours",
+              vat: 0,
+              details: [buildTrackerEntryDetail(entry, projectName)],
+            }))
+          : [
+              {
+                name: dateRangeDescription,
+                quantity: totalHours,
+                price: Number(projectData.rate),
+                unit: "hours",
+                vat: 0,
+                details: entryDetails,
+              },
+            ];
 
       // Create draft invoice with tracker data
       const templateData = {
@@ -256,14 +381,7 @@ export const invoiceRouter = createTRPCRouter({
         invoiceNumber: nextInvoiceNumber,
         currency: currency.toUpperCase(),
         amount,
-        lineItems: [
-          {
-            name: dateRangeDescription,
-            quantity: totalHours,
-            price: Number(projectData.rate),
-            vat: 0,
-          },
-        ],
+        lineItems,
         issueDate: new Date().toISOString(),
         dueDate: addDays(
           new Date(),

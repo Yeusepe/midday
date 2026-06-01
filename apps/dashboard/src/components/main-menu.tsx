@@ -63,7 +63,10 @@ const items = [
   {
     path: "/tracker",
     name: "Tracker",
-    children: [{ path: "/tracker?create=true", name: "Create new" }],
+    children: [
+      { path: "/tracker/stopwatch", name: "Stopwatch" },
+      { path: "/tracker?create=true", name: "Create new" },
+    ],
   },
   {
     path: "/customers",

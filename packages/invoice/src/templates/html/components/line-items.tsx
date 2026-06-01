@@ -59,6 +59,7 @@ export function LineItems({
         >
           <div className="self-start">
             <Description content={item.name} />
+            <LineItemDetails item={item} locale={locale} />
           </div>
           <div className="text-[11px] self-start">{item.quantity ?? 0}</div>
           <div className="text-[11px] self-start">
@@ -94,6 +95,49 @@ export function LineItems({
                 locale,
               })}
           </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function LineItemDetails({ item, locale }: { item: LineItem; locale: string }) {
+  const details = item.details?.filter(
+    (detail) =>
+      detail.date || detail.title || detail.description || detail.hours != null,
+  );
+
+  if (!details?.length) {
+    return null;
+  }
+
+  return (
+    <div className="mt-2 space-y-1 text-[10px] text-[#878787]">
+      {details.map((detail, index) => (
+        <div
+          key={`${detail.date ?? ""}-${detail.title ?? ""}-${index.toString()}`}
+          className="border-l border-border pl-2"
+        >
+          <div className="flex flex-wrap gap-x-2">
+            {detail.date && (
+              <span>
+                {new Intl.DateTimeFormat(locale, {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                }).format(new Date(detail.date))}
+              </span>
+            )}
+            {detail.title && (
+              <span className="text-primary">{detail.title}</span>
+            )}
+            {detail.hours != null && <span>{detail.hours}h</span>}
+          </div>
+          {detail.description && (
+            <div className="whitespace-pre-wrap leading-4">
+              {detail.description}
+            </div>
+          )}
         </div>
       ))}
     </div>

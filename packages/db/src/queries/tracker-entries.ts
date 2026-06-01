@@ -407,6 +407,7 @@ export type StopTimerParams = {
   entryId?: string;
   assignedId?: string | null;
   stop?: string;
+  description?: string | null;
 };
 
 export type GetCurrentTimerParams = {
@@ -493,7 +494,7 @@ export async function startTimer(db: Database, params: StartTimerParams) {
  * Stop the current running timer
  */
 export async function stopTimer(db: Database, params: StopTimerParams) {
-  const { teamId, entryId, assignedId, stop } = params;
+  const { teamId, entryId, assignedId, stop, description } = params;
 
   const stopTime = stop || new Date().toISOString();
 
@@ -579,6 +580,7 @@ export async function stopTimer(db: Database, params: StopTimerParams) {
     .set({
       stop: stopTime,
       duration,
+      ...(description !== undefined ? { description } : {}),
     })
     .where(eq(trackerEntries.id, targetEntryId));
 

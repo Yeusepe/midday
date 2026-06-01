@@ -401,6 +401,16 @@ export const stopTimerSchema = z.object({
         "Stop time in ISO 8601 format. If not provided, will use current time",
       example: "2024-04-15T17:00:00.000Z",
     }),
+  description: z
+    .string()
+    .optional()
+    .nullable()
+    .describe("Description for the completed timer session")
+    .openapi({
+      description:
+        "Optional description or notes to save on the tracker entry when stopping the timer",
+      example: "Implemented stopwatch screen and wired up timer notes",
+    }),
 });
 
 export const getCurrentTimerSchema = z.object({

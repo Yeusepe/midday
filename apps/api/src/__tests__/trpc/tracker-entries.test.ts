@@ -338,6 +338,19 @@ describe("tRPC: trackerEntries.stopTimer", () => {
       }),
     );
   });
+
+  test("passes description when provided", async () => {
+    const description = "Implemented stopwatch screen";
+    const caller = createCaller(createTestContext());
+    await caller.stopTimer({ description });
+
+    expect(mocks.stopTimer).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        description,
+      }),
+    );
+  });
 });
 
 describe("tRPC: trackerEntries.getCurrentTimer", () => {

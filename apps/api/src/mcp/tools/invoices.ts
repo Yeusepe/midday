@@ -29,14 +29,14 @@ import {
   searchInvoiceNumber,
   updateInvoice,
 } from "@midday/db/queries";
+import { calculateTotal } from "@midday/invoice/calculate";
 import { DEFAULT_TEMPLATE } from "@midday/invoice/defaults";
 import { PdfTemplate } from "@midday/invoice/templates/pdf";
-import { calculateTotal } from "@midday/invoice/calculate";
 import { transformCustomerToContent } from "@midday/invoice/utils";
 import { triggerJob } from "@midday/job-client";
 import { registerAppTool } from "@modelcontextprotocol/ext-apps/server";
 import { renderToStream } from "@react-pdf/renderer";
-import { addDays } from "date-fns";
+import { addDays, format, parseISO } from "date-fns";
 import { v4 as uuidv4 } from "uuid";
 import { z } from "zod";
 import {
@@ -94,6 +94,95 @@ async function embedLogoAsDataUrl(
     return invoice;
   }
 }
+
+type TrackerInvoiceEntry = {
+  date?: string | null;
+  description?: string | null;
+  duration?: number | null;
+  start?: string | Date | null;
+  stop?: string | Date | null;
+  user?: {
+    fullName?: string | null;
+    name?: string | null;
+  } | null;
+};
+
+const durationToHours = (duration?: number | null) =>
+  Math.round(((duration ?? 0) / 3600) * 100) / 100;
+
+const getTrackerEntryDate = (entry: TrackerInvoiceEntry) => {
+  if (entry.date) {
+    return entry.date;
+  }
+
+  if (!entry.start) {
+    return null;
+  }
+
+  const startDate = new Date(entry.start);
+
+  if (Number.isNaN(startDate.getTime())) {
+    return null;
+  }
+
+  return startDate.toISOString().slice(0, 10);
+};
+
+const formatTrackerEntryTime = (value?: string | Date | null) => {
+  if (!value) {
+    return null;
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  return format(date, "HH:mm");
+};
+
+const buildTrackerEntryDetail = (
+  entry: TrackerInvoiceEntry,
+  fallbackTitle: string,
+) => {
+  const startTime = formatTrackerEntryTime(entry.start);
+  const stopTime = formatTrackerEntryTime(entry.stop);
+  const userName = entry.user?.fullName ?? entry.user?.name ?? null;
+  const description = [
+    startTime && stopTime ? `${startTime} - ${stopTime}` : null,
+    userName,
+  ]
+    .filter(Boolean)
+    .join(" - ");
+  const title = entry.description?.trim() || fallbackTitle;
+
+  return {
+    date: getTrackerEntryDate(entry),
+    title,
+    description: description || null,
+    hours: durationToHours(entry.duration),
+  };
+};
+
+const getTrackerEntryLineItemName = (
+  entry: TrackerInvoiceEntry,
+  projectName: string,
+) => {
+  const description = entry.description?.trim();
+
+  if (description) {
+    return description;
+  }
+
+  const entryDate = getTrackerEntryDate(entry);
+
+  if (!entryDate) {
+    return projectName;
+  }
+
+  return `${projectName} (${format(parseISO(entryDate), "yyyy-MM-dd")})`;
+};
 
 export const registerInvoiceTools: RegisterTools = (server, ctx) => {
   const { db, teamId, userId, apiUrl } = ctx;
@@ -1676,6 +1765,12 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
             .describe(
               "Currency code override (defaults to the project's currency)",
             ),
+          timeEntryMode: z
+            .enum(["grouped", "separate"])
+            .optional()
+            .describe(
+              "Use grouped to create one line item with entry details, or separate to create one line item per time entry. Defaults to grouped.",
+            ),
           issueDate: z
             .string()
             .optional()
@@ -1785,7 +1880,12 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
             projectId: params.projectId,
           });
 
-          const allEntries = Object.values(trackerData.result).flat() as any[];
+          const allEntries = Object.values(
+            trackerData.result,
+          ).flat() as TrackerInvoiceEntry[];
+          const billableEntries = allEntries.filter(
+            (entry) => (entry.duration ?? 0) > 0,
+          );
 
           if (allEntries.length === 0) {
             return {
@@ -1800,25 +1900,40 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
           }
 
           const rate = project.rate ?? 0;
+          const projectName = project.name ?? "Tracked time";
           const projectCurrency = project.currency ?? "USD";
           const currency =
             params.currency?.toUpperCase() ?? projectCurrency.toUpperCase();
 
           const totalDuration = allEntries.reduce(
-            (sum: number, e: any) => sum + (e.duration ?? 0),
+            (sum, entry) => sum + (entry.duration ?? 0),
             0,
           );
           const totalHours = Math.round((totalDuration / 3600) * 100) / 100;
-
-          const lineItems = [
-            {
-              name: `${project.name} — ${params.dateFrom} to ${params.dateTo} (${totalHours}h)`,
-              quantity: totalHours,
-              price: rate,
-              unit: "hours",
-              taxRate: undefined as number | undefined,
-            },
-          ];
+          const entryDetails = billableEntries.map((entry) =>
+            buildTrackerEntryDetail(entry, projectName),
+          );
+          const timeEntryMode = params.timeEntryMode ?? "grouped";
+          const lineItems =
+            timeEntryMode === "separate"
+              ? billableEntries.map((entry) => ({
+                  name: getTrackerEntryLineItemName(entry, projectName),
+                  quantity: durationToHours(entry.duration),
+                  price: rate,
+                  unit: "hours",
+                  taxRate: undefined as number | undefined,
+                  details: [buildTrackerEntryDetail(entry, projectName)],
+                }))
+              : [
+                  {
+                    name: `${projectName} - ${params.dateFrom} to ${params.dateTo} (${totalHours}h)`,
+                    quantity: totalHours,
+                    price: rate,
+                    unit: "hours",
+                    taxRate: undefined as number | undefined,
+                    details: entryDetails,
+                  },
+                ];
 
           const savedTemplate = await getInvoiceTemplate(db, teamId);
           const paymentTermsDays = savedTemplate?.paymentTermsDays ?? 30;
@@ -1921,6 +2036,7 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
               price: item.price,
               unit: item.unit ?? null,
               taxRate: item.taxRate ?? null,
+              details: item.details,
             })),
             subtotal: subTotal,
             amount: total,

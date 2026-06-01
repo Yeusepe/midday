@@ -56,6 +56,13 @@ export const invoiceTemplateSchema = z.object({
   emailButtonText: z.string().optional().nullable(),
 });
 
+export const lineItemDetailSchema = z.object({
+  date: z.string().nullable().optional(),
+  title: z.string().nullable().optional(),
+  description: z.string().nullable().optional(),
+  hours: z.number().min(0, "Hours must be at least 0").nullable().optional(),
+});
+
 export const lineItemSchema = z.object({
   name: z.string().min(1, "Name is required"),
   quantity: z.number().min(0, "Quantity must be at least 0"),
@@ -64,6 +71,7 @@ export const lineItemSchema = z.object({
   vat: z.number().min(0, "VAT must be at least 0").optional(),
   tax: z.number().min(0, "Tax must be at least 0").optional(),
   taxRate: z.number().min(0).max(100).optional().nullable(),
+  details: z.array(lineItemDetailSchema).optional(),
 });
 
 export const recurringConfigSchema = z
@@ -211,39 +219,53 @@ export const recurringConfigSchema = z
     }
   });
 
-export const invoiceFormSchema = z.object({
-  id: z.string().uuid(),
-  status: z.string(),
-  template: invoiceTemplateSchema,
-  fromDetails: z.any(),
-  customerDetails: z.any(),
-  customerId: z.string().uuid(),
-  customerName: z.string().optional(),
-  paymentDetails: z.any(),
-  noteDetails: z.any().optional(),
-  dueDate: z.string(),
-  issueDate: z.string(),
-  invoiceNumber: z.string(),
-  logoUrl: z.string().nullable().optional(),
-  vat: z.number().nullable().optional(),
-  tax: z.number().nullable().optional(),
-  discount: z.number().nullable().optional(),
-  subtotal: z.number().nullable().optional(),
-  topBlock: z.any().nullable().optional(),
-  bottomBlock: z.any().nullable().optional(),
-  amount: z.number(),
-  exchangeRate: z.number().positive().nullable().optional(),
-  exchangeRateSource: z.enum(["automatic", "manual"]).nullable().optional(),
-  exchangeRateUpdatedAt: z.string().nullable().optional(),
-  convertedCurrency: z.string().nullable().optional(),
-  convertedAmount: z.number().nullable().optional(),
-  lineItems: z.array(lineItemSchema).min(1),
-  token: z.string().optional(),
-  scheduledAt: z.string().nullable().optional(),
-  recurringConfig: recurringConfigSchema.nullable().optional(),
-  // Recurring series link (set when invoice is part of a recurring series)
-  invoiceRecurringId: z.string().uuid().nullable().optional(),
-});
+export const invoiceFormSchema = z
+  .object({
+    id: z.string().uuid(),
+    status: z.string(),
+    template: invoiceTemplateSchema,
+    fromDetails: z.any(),
+    customerDetails: z.any(),
+    customerId: z.string().uuid(),
+    customerName: z.string().optional(),
+    paymentDetails: z.any(),
+    noteDetails: z.any().optional(),
+    dueDate: z.string(),
+    issueDate: z.string(),
+    invoiceNumber: z.string(),
+    logoUrl: z.string().nullable().optional(),
+    vat: z.number().nullable().optional(),
+    tax: z.number().nullable().optional(),
+    discount: z.number().nullable().optional(),
+    subtotal: z.number().nullable().optional(),
+    topBlock: z.any().nullable().optional(),
+    bottomBlock: z.any().nullable().optional(),
+    amount: z.number(),
+    exchangeRate: z.number().positive().nullable().optional(),
+    exchangeRateSource: z.enum(["automatic", "manual"]).nullable().optional(),
+    exchangeRateUpdatedAt: z.string().nullable().optional(),
+    convertedCurrency: z.string().nullable().optional(),
+    convertedAmount: z.number().nullable().optional(),
+    lineItems: z.array(lineItemSchema).min(1),
+    token: z.string().optional(),
+    scheduledAt: z.string().nullable().optional(),
+    recurringConfig: recurringConfigSchema.nullable().optional(),
+    // Recurring series link (set when invoice is part of a recurring series)
+    invoiceRecurringId: z.string().uuid().nullable().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (
+      data.convertedCurrency &&
+      data.convertedCurrency !== data.template.currency &&
+      !data.exchangeRate
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Exchange rate is required",
+        path: ["exchangeRate"],
+      });
+    }
+  });
 
 export type InvoiceFormValues = z.infer<typeof invoiceFormSchema>;
 

@@ -64,6 +64,11 @@ export function ProductAutocomplete({
   const currentUnit = watch(`lineItems.${index}.unit`);
   const currentProductId = watch(`lineItems.${index}.productId`);
   const currency = watch("template.currency");
+  const convertedCurrency = watch("convertedCurrency");
+  const lineItemCurrency =
+    convertedCurrency && convertedCurrency !== currency
+      ? convertedCurrency
+      : currency;
   const locale = watch("template.locale");
   const includeDecimals = watch("template.includeDecimals");
 
@@ -119,7 +124,7 @@ export function ProductAutocomplete({
   const { data: allProducts = [] } = useQuery(
     trpc.invoiceProducts.get.queryOptions(
       {
-        currency,
+        currency: lineItemCurrency,
       },
       {
         staleTime: 300000, // Cache for 5 minutes
@@ -236,7 +241,7 @@ export function ProductAutocomplete({
         price: currentPrice !== undefined ? currentPrice : null,
         unit: currentUnit || null,
         productId: currentProductId || undefined,
-        currency: currency || null,
+        currency: lineItemCurrency || null,
       });
     }
   }, [
@@ -244,7 +249,7 @@ export function ProductAutocomplete({
     currentPrice,
     currentUnit,
     currentProductId,
-    currency,
+    lineItemCurrency,
     saveLineItemAsProductMutation,
   ]);
 

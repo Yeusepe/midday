@@ -3,10 +3,18 @@ export type LineItem = {
   quantity?: number;
   price?: number;
   unit?: string;
+  details?: LineItemDetail[];
   // Optional product reference for smart autocomplete
   productId?: string;
   // Per-line-item tax rate (percentage, 0-100)
   taxRate?: number;
+};
+
+export type LineItemDetail = {
+  date?: string | null;
+  title?: string | null;
+  description?: string | null;
+  hours?: number | null;
 };
 
 export type InvoiceProduct = {
@@ -48,6 +56,7 @@ export type Invoice = {
   paidAt: string | null;
   vat: number | null;
   tax: number | null;
+  subtotal: number | null;
   filePath: string[] | null;
   status:
     | "draft"

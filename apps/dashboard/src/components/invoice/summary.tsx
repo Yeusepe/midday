@@ -109,17 +109,17 @@ export function Summary() {
     discount: discount ?? 0,
   });
 
-  const hasConvertedCurrency =
-    convertedCurrency && convertedCurrency !== currency;
+  const hasRateCurrency = Boolean(
+    convertedCurrency && convertedCurrency !== currency,
+  );
 
-  const shouldFetchRate =
-    Boolean(currency && hasConvertedCurrency) && !exchangeRate;
+  const shouldFetchRate = Boolean(currency && hasRateCurrency) && !exchangeRate;
 
   const exchangeRateQuery = useQuery(
     trpc.invoice.exchangeRate.queryOptions(
       {
-        base: currency,
-        target: convertedCurrency ?? currency,
+        base: convertedCurrency ?? currency,
+        target: currency,
       },
       {
         enabled: shouldFetchRate,
@@ -128,19 +128,44 @@ export function Summary() {
     ),
   );
 
-  const convertedAmount =
-    hasConvertedCurrency && exchangeRate
+  const convertedSubtotal = hasRateCurrency
+    ? exchangeRate
+      ? calculateConvertedAmount({ amount: subTotal, exchangeRate })
+      : null
+    : subTotal;
+  const convertedTotalVAT = hasRateCurrency
+    ? exchangeRate
+      ? calculateConvertedAmount({ amount: totalVAT, exchangeRate })
+      : null
+    : totalVAT;
+  const convertedTotalTax = hasRateCurrency
+    ? exchangeRate
+      ? calculateConvertedAmount({ amount: totalTax, exchangeRate })
+      : null
+    : totalTax;
+  const invoiceTotal = hasRateCurrency
+    ? exchangeRate
       ? calculateConvertedAmount({ amount: total, exchangeRate })
-      : null;
+      : null
+    : total;
+  const sourceAmount = hasRateCurrency ? total : null;
 
   const updateFormValues = useCallback(() => {
-    setValue("amount", total, { shouldValidate: true });
-    setValue("vat", totalVAT, { shouldValidate: true });
-    setValue("tax", totalTax, { shouldValidate: true });
-    setValue("subtotal", subTotal, { shouldValidate: true });
+    setValue("amount", invoiceTotal ?? 0, { shouldValidate: true });
+    setValue("vat", convertedTotalVAT ?? 0, { shouldValidate: true });
+    setValue("tax", convertedTotalTax ?? 0, { shouldValidate: true });
+    setValue("subtotal", convertedSubtotal ?? 0, { shouldValidate: true });
     setValue("discount", discount ?? 0, { shouldValidate: true });
-    setValue("convertedAmount", convertedAmount, { shouldValidate: true });
-  }, [total, totalVAT, totalTax, subTotal, discount, convertedAmount]);
+    setValue("convertedAmount", sourceAmount, { shouldValidate: true });
+  }, [
+    invoiceTotal,
+    convertedTotalVAT,
+    convertedTotalTax,
+    convertedSubtotal,
+    discount,
+    sourceAmount,
+    setValue,
+  ]);
 
   useEffect(() => {
     updateFormValues();
@@ -224,7 +249,7 @@ export function Summary() {
   }, [convertedCurrency, currency, setValue]);
 
   useEffect(() => {
-    if (!exchangeRateQuery.data || exchangeRate || !hasConvertedCurrency) {
+    if (!exchangeRateQuery.data || exchangeRate || !hasRateCurrency) {
       return;
     }
 
@@ -240,7 +265,7 @@ export function Summary() {
       shouldValidate: true,
       shouldDirty: true,
     });
-  }, [exchangeRateQuery.data, exchangeRate, hasConvertedCurrency, setValue]);
+  }, [exchangeRateQuery.data, exchangeRate, hasRateCurrency, setValue]);
 
   return (
     <div className="w-[320px] flex flex-col">
@@ -254,7 +279,7 @@ export function Summary() {
         />
         <span className="text-right text-[11px] text-[#878787]">
           <FormatAmount
-            amount={subTotal}
+            amount={convertedSubtotal ?? 0}
             maximumFractionDigits={maximumFractionDigits}
             currency={currency}
             locale={locale}
@@ -296,7 +321,7 @@ export function Summary() {
 
           <span className="text-right text-[11px] text-[#878787]">
             <FormatAmount
-              amount={totalVAT}
+              amount={convertedTotalVAT ?? 0}
               maximumFractionDigits={2}
               currency={currency}
               locale={locale}
@@ -321,7 +346,7 @@ export function Summary() {
 
           <span className="text-right text-[11px] text-[#878787]">
             <FormatAmount
-              amount={totalTax}
+              amount={convertedTotalTax ?? 0}
               maximumFractionDigits={2}
               currency={currency}
               locale={locale}
@@ -342,7 +367,7 @@ export function Summary() {
 
           <span className="text-right text-[11px] text-[#878787]">
             <FormatAmount
-              amount={totalTax}
+              amount={convertedTotalTax ?? 0}
               maximumFractionDigits={2}
               currency={currency}
               locale={locale}
@@ -360,7 +385,7 @@ export function Summary() {
         />
         <span className="text-right font-medium text-[21px]">
           <AnimatedNumber
-            value={total}
+            value={invoiceTotal ?? 0}
             currency={currency}
             maximumFractionDigits={
               includeTax || includeVat || includeLineItemTax
@@ -374,7 +399,7 @@ export function Summary() {
       <div className="border-t border-border pt-3 space-y-2">
         <div className="flex justify-between items-center gap-4 py-1">
           <span className="text-[11px] text-[#878787] font-mono">
-            Display currency
+            Rate currency
           </span>
           <SelectCurrency
             currencies={uniqueCurrencies}
@@ -405,12 +430,12 @@ export function Summary() {
           />
         </div>
 
-        {hasConvertedCurrency && (
+        {hasRateCurrency && (
           <>
             <div className="flex justify-between items-center gap-4 py-1">
               <span className="text-[11px] text-[#878787] font-mono">Rate</span>
               <div className="flex items-center gap-1 text-[11px] text-[#878787]">
-                <span>1 {currency} =</span>
+                <span>1 {convertedCurrency} =</span>
                 <AmountInput
                   name="exchangeRate"
                   placeholder="0"
@@ -431,18 +456,18 @@ export function Summary() {
                     );
                   }}
                 />
-                <span>{convertedCurrency}</span>
+                <span>{currency}</span>
               </div>
             </div>
 
             <div className="flex justify-between items-center py-1">
               <span className="text-[11px] text-[#878787] font-mono">
-                Converted total
+                {convertedCurrency} total
               </span>
               <span className="text-right text-[13px] font-medium">
-                {convertedAmount != null ? (
+                {sourceAmount != null ? (
                   <FormatAmount
-                    amount={convertedAmount}
+                    amount={sourceAmount}
                     maximumFractionDigits={2}
                     currency={convertedCurrency}
                     locale={locale}

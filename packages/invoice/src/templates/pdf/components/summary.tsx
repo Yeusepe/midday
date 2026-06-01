@@ -1,9 +1,13 @@
 import { Text, View } from "@react-pdf/renderer";
-import { calculateTotal } from "../../../utils/calculate";
+import {
+  calculateConvertedAmount,
+  calculateTotal,
+} from "../../../utils/calculate";
 import { formatCurrencyForPDF } from "../../../utils/pdf-format";
 
 interface SummaryProps {
   amount?: number | null;
+  subtotal?: number | null;
   tax?: number | null;
   taxRate?: number;
   vat?: number | null;
@@ -29,6 +33,7 @@ interface SummaryProps {
 
 export function Summary({
   amount,
+  subtotal,
   tax,
   taxRate,
   vat,
@@ -64,11 +69,41 @@ export function Summary({
     includeLineItemTax,
   });
 
-  const displayTotal = amount ?? 0;
-  const displaySubtotal = calculatedSubtotal;
-  const displayVat = vat ?? 0;
-  // Use calculated tax for line item tax mode, otherwise use the passed tax
-  const displayTax = includeLineItemTax ? calculatedTax : (tax ?? 0);
+  const hasRateCurrency =
+    convertedCurrency && convertedCurrency !== currency && exchangeRate;
+  const displayTotal =
+    amount ??
+    (hasRateCurrency
+      ? calculateConvertedAmount({
+          amount:
+            calculatedSubtotal +
+            (includeVat ? (calculatedSubtotal * (vatRate ?? 0)) / 100 : 0) +
+            calculatedTax -
+            (discount ?? 0),
+          exchangeRate,
+        })
+      : 0);
+  const displaySubtotal =
+    subtotal ??
+    (hasRateCurrency
+      ? calculateConvertedAmount({ amount: calculatedSubtotal, exchangeRate })
+      : calculatedSubtotal);
+  const displayDiscount = hasRateCurrency
+    ? calculateConvertedAmount({ amount: discount ?? 0, exchangeRate })
+    : (discount ?? 0);
+  const displayVat =
+    vat ??
+    (hasRateCurrency
+      ? calculateConvertedAmount({
+          amount: (calculatedSubtotal * (vatRate ?? 0)) / 100,
+          exchangeRate,
+        })
+      : 0);
+  const displayTax =
+    tax ??
+    (hasRateCurrency
+      ? calculateConvertedAmount({ amount: calculatedTax, exchangeRate })
+      : calculatedTax);
 
   return (
     <View
@@ -85,7 +120,7 @@ export function Summary({
         <Text style={{ fontSize: 9, textAlign: "right" }}>
           {currency &&
             formatCurrencyForPDF({
-              amount: displaySubtotal,
+              amount: displaySubtotal ?? 0,
               currency,
               locale,
               maximumFractionDigits,
@@ -99,7 +134,7 @@ export function Summary({
           <Text style={{ fontSize: 9, textAlign: "right" }}>
             {currency &&
               formatCurrencyForPDF({
-                amount: discount,
+                amount: displayDiscount ?? 0,
                 currency,
                 locale,
                 maximumFractionDigits,
@@ -116,7 +151,7 @@ export function Summary({
           <Text style={{ fontSize: 9, textAlign: "right" }}>
             {currency &&
               formatCurrencyForPDF({
-                amount: displayVat,
+                amount: displayVat ?? 0,
                 currency,
                 locale,
                 maximumFractionDigits: 2,
@@ -133,7 +168,7 @@ export function Summary({
           <Text style={{ fontSize: 9, textAlign: "right" }}>
             {currency &&
               formatCurrencyForPDF({
-                amount: displayTax,
+                amount: displayTax ?? 0,
                 currency,
                 locale,
                 maximumFractionDigits: 2,
@@ -142,13 +177,13 @@ export function Summary({
         </View>
       )}
 
-      {includeLineItemTax && displayTax > 0 && (
+      {includeLineItemTax && (displayTax ?? 0) > 0 && (
         <View style={{ flexDirection: "row", marginBottom: 5, width: "100%" }}>
           <Text style={{ fontSize: 9, flex: 1 }}>{taxLabel}</Text>
           <Text style={{ fontSize: 9, textAlign: "right" }}>
             {currency &&
               formatCurrencyForPDF({
-                amount: displayTax,
+                amount: displayTax ?? 0,
                 currency,
                 locale,
                 maximumFractionDigits: 2,
@@ -173,7 +208,7 @@ export function Summary({
         <Text style={{ fontSize: 21 }}>
           {currency &&
             formatCurrencyForPDF({
-              amount: displayTotal,
+              amount: displayTotal ?? 0,
               currency,
               locale,
               maximumFractionDigits:
@@ -200,15 +235,17 @@ export function Summary({
             <View style={{ flexDirection: "row", marginBottom: 5 }}>
               <Text style={{ fontSize: 9, flex: 1 }}>Exchange rate</Text>
               <Text style={{ fontSize: 9, textAlign: "right" }}>
-                1 {currency} ={" "}
+                1 {convertedCurrency} ={" "}
                 {new Intl.NumberFormat(locale, {
                   maximumFractionDigits: 8,
                 }).format(exchangeRate)}{" "}
-                {convertedCurrency}
+                {currency}
               </Text>
             </View>
             <View style={{ flexDirection: "row" }}>
-              <Text style={{ fontSize: 9, flex: 1 }}>Converted total</Text>
+              <Text style={{ fontSize: 9, flex: 1 }}>
+                {convertedCurrency} total
+              </Text>
               <Text style={{ fontSize: 15, textAlign: "right" }}>
                 {formatCurrencyForPDF({
                   amount: convertedAmount,

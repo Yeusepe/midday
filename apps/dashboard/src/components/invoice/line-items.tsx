@@ -18,6 +18,11 @@ import { QuantityInput } from "./quantity-input";
 export function LineItems() {
   const { control } = useFormContext();
   const currency = useWatch({ control, name: "template.currency" });
+  const convertedCurrency = useWatch({ control, name: "convertedCurrency" });
+  const lineItemCurrency =
+    convertedCurrency && convertedCurrency !== currency
+      ? convertedCurrency
+      : currency;
   const { updateTemplate } = useTemplateUpdate();
 
   const includeDecimals = useWatch({
@@ -142,7 +147,7 @@ export function LineItems() {
             index={index}
             handleRemove={handleRemove}
             isReorderable={fields.length > 1}
-            currency={currency}
+            currency={lineItemCurrency}
             maximumFractionDigits={maximumFractionDigits}
             includeUnits={includeUnits}
             includeLineItemTax={includeLineItemTax}
@@ -191,7 +196,7 @@ function LineItemRow({
   gridCols: string;
 }) {
   const controls = useDragControls();
-  const { control, watch, setValue } = useFormContext();
+  const { control, watch, setValue, register } = useFormContext();
 
   const locale = useWatch({ control, name: "template.locale" });
 
@@ -206,6 +211,15 @@ function LineItemRow({
   });
 
   const lineItemName = watch(`lineItems.${index}.name`);
+
+  const {
+    fields: detailFields,
+    append: appendDetail,
+    remove: removeDetail,
+  } = useFieldArray({
+    control,
+    name: `lineItems.${index}.details`,
+  });
 
   return (
     <Reorder.Item
@@ -292,6 +306,83 @@ function LineItemRow({
           <Icons.Close />
         </Button>
       )}
+
+      <div className="col-span-full">
+        {detailFields.length > 0 && (
+          <div className="mt-1 mb-2 space-y-2 border-l border-border pl-3">
+            {detailFields.map((detail, detailIndex) => (
+              <div
+                key={detail.id}
+                className="grid grid-cols-[104px_1fr_72px_24px] gap-2 items-start"
+              >
+                <input
+                  type="date"
+                  {...register(
+                    `lineItems.${index}.details.${detailIndex}.date`,
+                  )}
+                  className="h-7 bg-transparent border-0 border-b border-border px-0 text-[11px] font-mono text-[#878787] outline-none"
+                />
+                <div className="space-y-1">
+                  <input
+                    type="text"
+                    placeholder="Work completed"
+                    {...register(
+                      `lineItems.${index}.details.${detailIndex}.title`,
+                    )}
+                    className="h-7 w-full bg-transparent border-0 border-b border-border px-0 text-[11px] font-mono outline-none"
+                  />
+                  <textarea
+                    rows={2}
+                    placeholder="Detailed notes"
+                    {...register(
+                      `lineItems.${index}.details.${detailIndex}.description`,
+                    )}
+                    className="w-full resize-none bg-transparent border-0 border-b border-border px-0 py-1 text-[11px] font-mono outline-none"
+                  />
+                </div>
+                <input
+                  type="number"
+                  step="0.25"
+                  min="0"
+                  placeholder="Hours"
+                  {...register(
+                    `lineItems.${index}.details.${detailIndex}.hours`,
+                    {
+                      setValueAs: (value) =>
+                        value === "" || value == null ? null : Number(value),
+                    },
+                  )}
+                  className="h-7 bg-transparent border-0 border-b border-border px-0 text-right text-[11px] font-mono outline-none"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="size-7 p-0 text-[#878787] hover:bg-transparent"
+                  onClick={() => removeDetail(detailIndex)}
+                >
+                  <Icons.Close />
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <button
+          type="button"
+          onClick={() =>
+            appendDetail({
+              date: "",
+              title: "",
+              description: "",
+              hours: null,
+            })
+          }
+          className="flex items-center space-x-2 text-xs text-[#878787] font-mono"
+        >
+          <Icons.Add />
+          <span className="text-[11px]">Add detail</span>
+        </button>
+      </div>
     </Reorder.Item>
   );
 }

@@ -732,10 +732,10 @@ export default function PrivacyPage() {
                   <p className="text-foreground leading-relaxed">
                     By email:{" "}
                     <a
-                      href="mailto:support@midday.ai"
+                      href="mailto:contact@yucp.club"
                       className="text-foreground hover:text-muted-foreground transition-colors"
                     >
-                      support@midday.ai
+                      contact@yucp.club
                     </a>
                   </p>
                 </section>

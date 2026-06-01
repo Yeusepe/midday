@@ -277,14 +277,14 @@ describe("tRPC: invoice.draft", () => {
       id: INVOICE_ID,
       dueDate: "2026-06-30T23:59:59.000Z",
       issueDate: "2026-06-01T00:00:00.000Z",
-      template: { currency: "USD" },
+      template: { currency: "CRC" },
       lineItems: [{ name: "Consulting", quantity: 1, price: 1500, vat: 0 }],
-      amount: 1500,
+      amount: 802875,
       exchangeRate: 535.25,
       exchangeRateSource: "automatic",
       exchangeRateUpdatedAt: "2026-06-01T12:00:00.000Z",
-      convertedCurrency: "CRC",
-      convertedAmount: 802875,
+      convertedCurrency: "USD",
+      convertedAmount: 1500,
     });
 
     expect(mocks.draftInvoice).toHaveBeenCalledWith(
@@ -293,10 +293,160 @@ describe("tRPC: invoice.draft", () => {
         exchangeRate: 535.25,
         exchangeRateSource: "automatic",
         exchangeRateUpdatedAt: "2026-06-01T12:00:00.000Z",
-        convertedCurrency: "CRC",
-        convertedAmount: 802875,
+        convertedCurrency: "USD",
+        convertedAmount: 1500,
       }),
     );
+  });
+});
+
+describe("tRPC: invoice.createFromTracker", () => {
+  beforeEach(() => {
+    mocks.draftInvoice.mockReset();
+    mocks.getTrackerProjectById.mockReset();
+    mocks.getTrackerRecordsByRange.mockReset();
+    mocks.getNextInvoiceNumber.mockReset();
+    mocks.getInvoiceTemplate.mockReset();
+    mocks.getTeamById.mockReset();
+    mocks.getCustomerById.mockReset();
+    mocks.getUserById.mockReset();
+
+    mocks.draftInvoice.mockImplementation((_, args: { id: string }) => ({
+      id: args.id,
+      invoiceNumber: "INV-TRACKER",
+      status: "draft",
+    }));
+    mocks.getNextInvoiceNumber.mockImplementation(() => "INV-TRACKER");
+    mocks.getInvoiceTemplate.mockImplementation(() => ({
+      dateFormat: "yyyy-MM-dd",
+      paymentTermsDays: 14,
+      size: "a4",
+      deliveryType: "create",
+    }));
+    mocks.getTeamById.mockImplementation(() => ({ baseCurrency: "CRC" }));
+    mocks.getCustomerById.mockImplementation(() => ({
+      id: "customer-id",
+      name: "Acme Corp",
+    }));
+    mocks.getUserById.mockImplementation(() => ({
+      dateFormat: "yyyy-MM-dd",
+    }));
+    mocks.getTrackerProjectById.mockImplementation(() => ({
+      id: "11111111-1111-4111-8111-111111111111",
+      name: "Client Work",
+      billable: true,
+      rate: 100,
+      currency: "USD",
+      customerId: "customer-id",
+    }));
+    mocks.getTrackerRecordsByRange.mockImplementation(() => ({
+      meta: {
+        totalDuration: 10_800,
+        totalAmount: 300,
+        from: "2026-05-01",
+        to: "2026-05-31",
+      },
+      result: {
+        "2026-05-01": [
+          {
+            date: "2026-05-01",
+            description: "Planning",
+            duration: 3600,
+            start: "2026-05-01T13:00:00.000Z",
+            stop: "2026-05-01T14:00:00.000Z",
+            user: { fullName: "Test User" },
+          },
+        ],
+        "2026-05-02": [
+          {
+            date: "2026-05-02",
+            description: "Implementation",
+            duration: 7200,
+            start: "2026-05-02T15:00:00.000Z",
+            stop: "2026-05-02T17:00:00.000Z",
+            user: { fullName: "Test User" },
+          },
+        ],
+      },
+    }));
+  });
+
+  test("creates grouped tracker invoice with entry details by default", async () => {
+    const caller = createCaller(createTestContext());
+    await caller.createFromTracker({
+      projectId: "11111111-1111-4111-8111-111111111111",
+      dateFrom: "2026-05-01",
+      dateTo: "2026-05-31",
+    });
+
+    const [, draftArgs] = mocks.draftInvoice.mock.calls[0] as [
+      unknown,
+      { lineItems: Array<Record<string, unknown>>; amount: number },
+    ];
+
+    expect(draftArgs.amount).toBe(300);
+    expect(draftArgs.lineItems).toHaveLength(1);
+    expect(draftArgs.lineItems[0]).toMatchObject({
+      name: "Client Work (2026-05-01 - 2026-05-31)",
+      quantity: 3,
+      price: 100,
+      unit: "hours",
+      details: [
+        expect.objectContaining({
+          date: "2026-05-01",
+          title: "Planning",
+          hours: 1,
+        }),
+        expect.objectContaining({
+          date: "2026-05-02",
+          title: "Implementation",
+          hours: 2,
+        }),
+      ],
+    });
+  });
+
+  test("creates one tracker invoice line per time entry when requested", async () => {
+    const caller = createCaller(createTestContext());
+    await caller.createFromTracker({
+      projectId: "11111111-1111-4111-8111-111111111111",
+      dateFrom: "2026-05-01",
+      dateTo: "2026-05-31",
+      timeEntryMode: "separate",
+    });
+
+    const [, draftArgs] = mocks.draftInvoice.mock.calls[0] as [
+      unknown,
+      { lineItems: Array<Record<string, unknown>> },
+    ];
+
+    expect(draftArgs.lineItems).toHaveLength(2);
+    expect(draftArgs.lineItems[0]).toMatchObject({
+      name: "Planning",
+      quantity: 1,
+      price: 100,
+      unit: "hours",
+      details: [
+        expect.objectContaining({
+          date: "2026-05-01",
+          title: "Planning",
+          hours: 1,
+        }),
+      ],
+    });
+    expect(draftArgs.lineItems[1]).toMatchObject({
+      name: "Implementation",
+      quantity: 2,
+      price: 100,
+      unit: "hours",
+      details: [
+        expect.objectContaining({
+          date: "2026-05-02",
+          title: "Implementation",
+          hours: 2,
+        }),
+      ],
+    });
   });
 });
 

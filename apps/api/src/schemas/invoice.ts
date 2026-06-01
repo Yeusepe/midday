@@ -149,6 +149,13 @@ export const restUpsertInvoiceTemplateSchema = baseInvoiceTemplateSchema.extend(
 );
 
 // Base line item schema with common fields
+const lineItemDetailSchema = z.object({
+  date: z.string().nullable().optional(),
+  title: z.string().nullable().optional(),
+  description: z.string().nullable().optional(),
+  hours: z.number().min(0, "Hours must be at least 0").nullable().optional(),
+});
+
 const baseDraftLineItemSchema = z.object({
   quantity: z.number().min(0, "Quantity must be at least 0").optional(),
   unit: z.string().optional().nullable(),
@@ -156,6 +163,7 @@ const baseDraftLineItemSchema = z.object({
   vat: z.number().min(0, "VAT must be at least 0").nullable().optional(),
   tax: z.number().min(0, "Tax must be at least 0").nullable().optional(),
   taxRate: z.number().min(0).max(100).optional().nullable(),
+  details: z.array(lineItemDetailSchema).optional(),
 });
 
 // tRPC-compatible line item schema (uses string for name field)
@@ -250,8 +258,7 @@ const baseDraftInvoiceSchema = z.object({
     example: 1500.75,
   }),
   exchangeRate: z.number().positive().nullable().optional().openapi({
-    description:
-      "Locked exchange rate from invoice currency to converted currency",
+    description: "Locked exchange rate from rate currency to invoice currency",
     example: 535.25,
   }),
   exchangeRateSource: z
@@ -268,12 +275,12 @@ const baseDraftInvoiceSchema = z.object({
     example: "2026-06-01T12:00:00.000Z",
   }),
   convertedCurrency: z.string().nullable().optional().openapi({
-    description: "Currency code used for the converted invoice display total",
-    example: "CRC",
+    description: "Currency code used for line item rates before conversion",
+    example: "USD",
   }),
   convertedAmount: z.number().nullable().optional().openapi({
-    description: "Converted invoice display total",
-    example: 802875,
+    description: "Invoice total in the line item rate currency",
+    example: 1500,
   }),
   token: z.string().optional().openapi({
     description:
@@ -438,6 +445,7 @@ export const lineItemSchema = z.object({
   vat: z.number().min(0, "VAT must be at least 0").optional(),
   tax: z.number().min(0, "Tax must be at least 0").optional(),
   taxRate: z.number().min(0).max(100).optional(),
+  details: z.array(lineItemDetailSchema).optional(),
   // Optional product reference
   productId: z.string().uuid().optional(),
 });
@@ -886,7 +894,7 @@ export const createInvoiceRequestSchema = z
     }),
     exchangeRate: z.number().positive().nullable().optional().openapi({
       description:
-        "Locked exchange rate from invoice currency to converted currency",
+        "Locked exchange rate from rate currency to invoice currency",
       example: 535.25,
     }),
     exchangeRateSource: z
@@ -903,12 +911,12 @@ export const createInvoiceRequestSchema = z
       example: "2026-06-01T12:00:00.000Z",
     }),
     convertedCurrency: z.string().nullable().optional().openapi({
-      description: "Currency code used for the converted invoice display total",
-      example: "CRC",
+      description: "Currency code used for line item rates before conversion",
+      example: "USD",
     }),
     convertedAmount: z.number().nullable().optional().openapi({
-      description: "Converted invoice display total",
-      example: 802875,
+      description: "Invoice total in the line item rate currency",
+      example: 1500,
     }),
     lineItems: z.array(restDraftLineItemSchema).optional().openapi({
       description: "List of line items for the invoice",
@@ -1325,7 +1333,7 @@ export const invoiceResponseSchema = z
     }),
     exchangeRate: z.number().nullable().openapi({
       description:
-        "Locked exchange rate from invoice currency to converted currency",
+        "Locked exchange rate from rate currency to invoice currency",
       example: 535.25,
     }),
     exchangeRateSource: z.enum(["automatic", "manual"]).nullable().openapi({
@@ -1338,12 +1346,12 @@ export const invoiceResponseSchema = z
       example: "2026-06-01T12:00:00.000Z",
     }),
     convertedCurrency: z.string().nullable().openapi({
-      description: "Currency code used for the converted invoice display total",
-      example: "CRC",
+      description: "Currency code used for line item rates before conversion",
+      example: "USD",
     }),
     convertedAmount: z.number().nullable().openapi({
-      description: "Converted invoice display total",
-      example: 802875,
+      description: "Invoice total in the line item rate currency",
+      example: 1500,
     }),
     customer: z
       .object({

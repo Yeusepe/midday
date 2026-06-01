@@ -731,6 +731,12 @@ type DraftInvoiceLineItemParams = {
   quantity?: number;
   unit?: string | null;
   price?: number;
+  details?: Array<{
+    date?: string | null;
+    title?: string | null;
+    description?: string | null;
+    hours?: number | null;
+  }>;
   vat?: number | null;
   tax?: number | null;
   taxRate?: number | null;

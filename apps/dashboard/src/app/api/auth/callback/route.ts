@@ -1,3 +1,5 @@
+import { db } from "@midday/db/client";
+import { users } from "@midday/db/schema";
 import { LogEvents } from "@midday/events/events";
 import { setupAnalytics } from "@midday/events/server";
 import { getSession } from "@midday/supabase/cached-queries";
@@ -36,20 +38,22 @@ async function ensureUserProfile(session: Session) {
   const email =
     session.user.email ?? getStringMetadata(metadata, ["email"]) ?? null;
 
-  const supabaseAdmin = await createClient({ admin: true });
-  const { error } = await supabaseAdmin.from("users").upsert(
-    {
+  await db
+    .insert(users)
+    .values({
       id: session.user.id,
       email,
-      ...(fullName ? { full_name: fullName } : {}),
-      ...(avatarUrl ? { avatar_url: avatarUrl } : {}),
-    },
-    { onConflict: "id" },
-  );
-
-  if (error) {
-    throw error;
-  }
+      ...(fullName ? { fullName } : {}),
+      ...(avatarUrl ? { avatarUrl } : {}),
+    })
+    .onConflictDoUpdate({
+      target: users.id,
+      set: {
+        email,
+        ...(fullName ? { fullName } : {}),
+        ...(avatarUrl ? { avatarUrl } : {}),
+      },
+    });
 }
 
 export async function GET(req: NextRequest) {

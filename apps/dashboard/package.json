@@ -25,6 +25,7 @@
     "@midday/api": "workspace:*",
     "@midday/app-store": "workspace:*",
     "@midday/connectors": "workspace:*",
+    "@midday/db": "workspace:*",
     "@midday/desktop-client": "workspace:*",
     "@midday/documents": "workspace:*",
     "@midday/events": "workspace:*",

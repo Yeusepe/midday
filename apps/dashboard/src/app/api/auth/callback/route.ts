@@ -3,6 +3,7 @@ import { setupAnalytics } from "@midday/events/server";
 import { getSession } from "@midday/supabase/cached-queries";
 import { createClient } from "@midday/supabase/server";
 import { sanitizeRedirectPath } from "@midday/utils/sanitize-redirect";
+import type { Session } from "@supabase/supabase-js";
 import { addSeconds, addYears } from "date-fns";
 import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
@@ -10,6 +11,46 @@ import { NextResponse } from "next/server";
 import { getTRPCClient } from "@/trpc/server";
 import { Cookies } from "@/utils/constants";
 import { getUrl } from "@/utils/environment";
+
+function getStringMetadata(
+  metadata: Record<string, unknown>,
+  keys: string[],
+): string | undefined {
+  for (const key of keys) {
+    const value = metadata[key];
+
+    if (typeof value === "string" && value.length > 0) {
+      return value;
+    }
+  }
+}
+
+async function ensureUserProfile(session: Session) {
+  const metadata = session.user.user_metadata ?? {};
+  const fullName = getStringMetadata(metadata, [
+    "full_name",
+    "global_name",
+    "name",
+  ]);
+  const avatarUrl = getStringMetadata(metadata, ["avatar_url", "picture"]);
+  const email =
+    session.user.email ?? getStringMetadata(metadata, ["email"]) ?? null;
+
+  const supabaseAdmin = await createClient({ admin: true });
+  const { error } = await supabaseAdmin.from("users").upsert(
+    {
+      id: session.user.id,
+      email,
+      ...(fullName ? { full_name: fullName } : {}),
+      ...(avatarUrl ? { avatar_url: avatarUrl } : {}),
+    },
+    { onConflict: "id" },
+  );
+
+  if (error) {
+    throw error;
+  }
+}
 
 export async function GET(req: NextRequest) {
   const cookieStore = await cookies();
@@ -36,13 +77,19 @@ export async function GET(req: NextRequest) {
 
   if (code) {
     const supabase = await createClient();
-    await supabase.auth.exchangeCodeForSession(code);
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+
+    if (error) {
+      return NextResponse.redirect(`${origin}/login`);
+    }
 
     const {
       data: { session },
     } = await getSession();
 
     if (session) {
+      await ensureUserProfile(session);
+
       // Set cookie to force primary database reads for subsequent client-side
       // requests after redirect. This prevents replication lag issues when the
       // user record hasn't replicated to read replicas yet.

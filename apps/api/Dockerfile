@@ -32,7 +32,7 @@ WORKDIR /app
 
 COPY --from=builder /app/out/json/ .
 COPY bunfig.toml .
-RUN CI=false bun install --production
+RUN bun install --production --no-frozen-lockfile
 
 # Runner stage - clean image
 FROM oven/bun:1.3.10 AS runner

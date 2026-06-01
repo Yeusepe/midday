@@ -1,4 +1,3 @@
-import { createClient } from "@midday/supabase/server";
 import { Icons } from "@midday/ui/icons";
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
@@ -7,27 +6,14 @@ import { LoginVideoBackground } from "@/components/login-video-background";
 import { OAuthSignIn } from "@/components/oauth-sign-in";
 import { SunsetBanner } from "@/components/sunset-banner";
 import { Cookies } from "@/utils/constants";
-import { isBlockedNewUser } from "@/utils/new-user-gate";
 
 export const metadata: Metadata = {
   title: "Login | Midday",
 };
 
-type Props = {
-  searchParams: Promise<{ waitlist?: string }>;
-};
-
-export default async function Page({ searchParams }: Props) {
-  const { waitlist: waitlistParam } = await searchParams;
+export default async function Page() {
   const cookieStore = await cookies();
   const preferred = cookieStore.get(Cookies.PreferredSignInProvider);
-
-  const supabase = await createClient();
-  const {
-    data: { user: authUser },
-  } = await supabase.auth.getUser();
-  const showQueueNotice =
-    waitlistParam === "1" || isBlockedNewUser(authUser?.created_at);
 
   return (
     <div className="min-h-screen bg-background flex relative">
@@ -55,38 +41,23 @@ export default async function Page({ searchParams }: Props) {
       <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-8 lg:p-12 pb-2">
         <div className="w-full max-w-md flex flex-col h-full">
           <div className="space-y-8 flex-1 flex flex-col justify-center">
-            {showQueueNotice ? (
-              <div className="text-center space-y-2">
-                <h1 className="text-lg lg:text-xl mb-4 font-serif">
-                  You're on the waitlist
-                </h1>
-                <p className="font-sans text-sm text-[#878787]">
-                  Midday is not accepting new sign-ups right now. You've been
-                  added to our queue and we'll email you as soon as a spot opens
-                  up.
-                </p>
-              </div>
-            ) : (
-              <>
-                {/* Header */}
-                <div className="text-center space-y-2">
-                  <h1 className="text-lg lg:text-xl mb-4 font-serif">
-                    Welcome to Midday
-                  </h1>
-                  <p className="font-sans text-sm text-[#878787]">
-                    Sign in or create an account
-                  </p>
-                </div>
+            {/* Header */}
+            <div className="text-center space-y-2">
+              <h1 className="text-lg lg:text-xl mb-4 font-serif">
+                Welcome to Midday
+              </h1>
+              <p className="font-sans text-sm text-[#878787]">
+                Sign in or create an account
+              </p>
+            </div>
 
-                {/* Sign In Options */}
-                <div className="space-y-3 flex items-center justify-center w-full">
-                  <OAuthSignIn
-                    provider="discord"
-                    showLastUsed={preferred?.value === "discord"}
-                  />
-                </div>
-              </>
-            )}
+            {/* Sign In Options */}
+            <div className="space-y-3 flex items-center justify-center w-full">
+              <OAuthSignIn
+                provider="discord"
+                showLastUsed={preferred?.value === "discord"}
+              />
+            </div>
           </div>
 
           {/* Terms and Privacy Policy - Bottom aligned */}

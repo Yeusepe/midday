@@ -1,5 +1,8 @@
 import { withSentryConfig } from "@sentry/nextjs";
 
+const apiRewriteUrl = process.env.API_REWRITE_URL;
+const supabaseRewriteUrl = process.env.SUPABASE_REWRITE_URL;
+
 /** @type {import("next").NextConfig} */
 const config = {
   output: "standalone",
@@ -56,6 +59,26 @@ const config = {
           },
         ],
       },
+    ];
+  },
+  async rewrites() {
+    return [
+      ...(apiRewriteUrl
+        ? [
+            {
+              source: "/backend/:path*",
+              destination: `${apiRewriteUrl}/:path*`,
+            },
+          ]
+        : []),
+      ...(supabaseRewriteUrl
+        ? [
+            {
+              source: "/supabase/:path*",
+              destination: `${supabaseRewriteUrl}/:path*`,
+            },
+          ]
+        : []),
     ];
   },
 };

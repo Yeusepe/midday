@@ -42,6 +42,7 @@ yarn-error.log*
 
 # turbo
 .turbo
+.turbo-prune-*
 
 # react-email
 .react-email

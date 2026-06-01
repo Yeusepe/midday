@@ -1,6 +1,8 @@
 .git
 .github
 .turbo
+.turbo-prune-*
+.vscode
 .next
 node_modules
 coverage
@@ -10,3 +12,4 @@ dist
 .env.*
 Dockerfile
 docker-compose*.yml
+github.png

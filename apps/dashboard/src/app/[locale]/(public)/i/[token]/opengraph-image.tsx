@@ -23,8 +23,8 @@ export default async function Image({ params }: Props) {
     return new Response("Not found", { status: 404 });
   }
 
-  const hedvigSansFont = fetch(
-    "https://cdn.midday.ai/fonts/HedvigSans/HedvigLettersSans-Regular.ttf",
+  const airbnbCerealFont = fetch(
+    "https://cdn.jsdelivr.net/npm/airbnbcereal@1.1.0/AirbnbCerealApp-Book.ttf",
   ).then((res) => res.arrayBuffer());
 
   const logoUrl = getWebsiteLogo(invoice.customer?.website);
@@ -38,8 +38,8 @@ export default async function Image({ params }: Props) {
       height: 630,
       fonts: [
         {
-          name: "hedvig-sans",
-          data: await hedvigSansFont,
+          name: "airbnb-cereal",
+          data: await airbnbCerealFont,
           style: "normal",
           weight: 400,
         },

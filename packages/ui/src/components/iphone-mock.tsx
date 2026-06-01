@@ -147,7 +147,7 @@ function SilentBanner() {
               fontSize: 15,
               fontWeight: 600,
               fontFamily:
-                '-apple-system, "SF Pro Text", "SF Pro Display", system-ui, sans-serif',
+                '"Airbnb Cereal App", "Airbnb Cereal App Book", system-ui, sans-serif',
               letterSpacing: -0.2,
             }}
           >

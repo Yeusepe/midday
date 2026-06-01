@@ -32,12 +32,12 @@ export default async function Image({ params }: Props) {
     notFound();
   }
 
-  const hedvigSerifFont = fetch(
-    "https://cdn.midday.ai/fonts/HedvigSerif/HedvigLettersSerif-Regular.ttf?c=1",
+  const airbnbCerealFont = fetch(
+    "https://cdn.jsdelivr.net/npm/airbnbcereal@1.1.0/AirbnbCerealApp-Book.ttf",
   ).then((res) => res.arrayBuffer());
 
-  const hedvigSansFont = fetch(
-    "https://cdn.midday.ai/fonts/HedvigSans/HedvigLettersSans-Regular.ttf",
+  const airbnbCerealBoldFont = fetch(
+    "https://cdn.jsdelivr.net/npm/airbnbcereal@1.1.0/AirbnbCerealApp-Bold.ttf",
   ).then((res) => res.arrayBuffer());
 
   const chartName = getChartDisplayName(report.type as any);
@@ -65,16 +65,16 @@ export default async function Image({ params }: Props) {
       height: 630,
       fonts: [
         {
-          name: "hedvig-sans",
-          data: await hedvigSansFont,
+          name: "airbnb-cereal",
+          data: await airbnbCerealFont,
           style: "normal",
           weight: 400,
         },
         {
-          name: "hedvig-serif",
-          data: await hedvigSerifFont,
+          name: "airbnb-cereal",
+          data: await airbnbCerealBoldFont,
           style: "normal",
-          weight: 400,
+          weight: 700,
         },
       ],
     },
@@ -117,7 +117,7 @@ function ReportOgTemplate({
         {/* Report Type */}
         <h1
           tw="text-[80px] text-white mb-6 text-center"
-          style={{ fontFamily: "hedvig-serif" }}
+          style={{ fontFamily: "airbnb-cereal" }}
         >
           {chartName}
         </h1>
@@ -125,7 +125,7 @@ function ReportOgTemplate({
         {/* Company Name */}
         <h2
           tw="text-[36px] text-white mb-8 text-center"
-          style={{ fontFamily: "hedvig-sans" }}
+          style={{ fontFamily: "airbnb-cereal" }}
         >
           {teamName}
         </h2>
@@ -133,7 +133,7 @@ function ReportOgTemplate({
         {/* Date Range */}
         <p
           tw="text-[28px] text-[#858585] text-center"
-          style={{ fontFamily: "hedvig-sans" }}
+          style={{ fontFamily: "airbnb-cereal" }}
         >
           {dateRangeDisplay}
         </p>

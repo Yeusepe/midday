@@ -8,8 +8,12 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const competitorName = searchParams.get("name");
 
-  const hedvigSansFont = fetch(
-    "https://cdn.midday.ai/fonts/HedvigSans/HedvigLettersSans-Regular.ttf",
+  const airbnbCerealFont = fetch(
+    "https://cdn.jsdelivr.net/npm/airbnbcereal@1.1.0/AirbnbCerealApp-Book.ttf",
+  ).then((res) => res.arrayBuffer());
+
+  const airbnbCerealBoldFont = fetch(
+    "https://cdn.jsdelivr.net/npm/airbnbcereal@1.1.0/AirbnbCerealApp-Bold.ttf",
   ).then((res) => res.arrayBuffer());
 
   const title = competitorName
@@ -23,7 +27,7 @@ export async function GET(request: NextRequest) {
   return new ImageResponse(
     <div
       tw="h-full w-full flex flex-col bg-[#0C0C0C] p-16"
-      style={{ fontFamily: "hedvig-sans" }}
+      style={{ fontFamily: "airbnb-cereal" }}
     >
       {/* Header with logo */}
       <div tw="flex items-center mb-12">
@@ -67,10 +71,16 @@ export async function GET(request: NextRequest) {
       height: 630,
       fonts: [
         {
-          name: "hedvig-sans",
-          data: await hedvigSansFont,
+          name: "airbnb-cereal",
+          data: await airbnbCerealFont,
           style: "normal",
           weight: 400,
+        },
+        {
+          name: "airbnb-cereal",
+          data: await airbnbCerealBoldFont,
+          style: "normal",
+          weight: 700,
         },
       ],
     },

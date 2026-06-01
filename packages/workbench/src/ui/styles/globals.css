@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Airbnb Cereal App";
+  src: url("https://cdn.jsdelivr.net/npm/airbnbcereal@1.1.0/AirbnbCerealApp-Book.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer base {
   :root {
     /* Light theme - Neutral UI with vibrant data colors */
@@ -112,8 +121,8 @@
 
   html {
     font-family:
-      "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-      Ubuntu, sans-serif;
+      "Airbnb Cereal App", "Airbnb Cereal App Book", -apple-system,
+      BlinkMacSystemFont, "Segoe UI", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -232,12 +241,10 @@
 
 @theme inline {
   --font-sans:
-    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-    Ubuntu, sans-serif;
-  --font-serif: "Playfair Display", Georgia, serif;
-  --font-mono:
-    "Geist Mono", "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Menlo,
-    monospace;
+    "Airbnb Cereal App", "Airbnb Cereal App Book", -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-serif: var(--font-sans);
+  --font-mono: var(--font-sans);
 
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));

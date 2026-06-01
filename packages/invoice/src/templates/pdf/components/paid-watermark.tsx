@@ -39,7 +39,7 @@ export function PaidWatermark({
             style={{
               fontSize: 28,
               fontWeight: 700,
-              fontFamily: "Inter",
+              fontFamily: "Airbnb Cereal App",
               color: "#DC2626",
               letterSpacing: 4,
             }}

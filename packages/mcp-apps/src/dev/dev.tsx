@@ -21,7 +21,7 @@ function InvoiceDevPreview() {
         margin: "0 auto",
         padding: "24px 16px",
         fontFamily:
-          '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+          '"Airbnb Cereal App", "Airbnb Cereal App Book", system-ui, sans-serif',
       }}
     >
       <div

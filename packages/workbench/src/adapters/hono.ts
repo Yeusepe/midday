@@ -131,8 +131,17 @@ function getIndexHtml(title: string, basePath: string): string {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>${title}</title>
     <style>
+      @import url("https://cdn.jsdelivr.net/npm/airbnbcereal@1.1.0/stylesheet.min.css");
+      @font-face {
+        font-family: "Airbnb Cereal App";
+        src: url("https://cdn.jsdelivr.net/npm/airbnbcereal@1.1.0/AirbnbCerealApp-Book.woff2") format("woff2");
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+      }
+
       body {
-        font-family: system-ui, sans-serif;
+        font-family: "Airbnb Cereal App", "Airbnb Cereal App Book", system-ui, sans-serif;
         display: flex;
         align-items: center;
         justify-content: center;

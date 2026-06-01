@@ -234,7 +234,8 @@ export function PaymentModal({
         colorText: isDark ? "#F5F5F3" : "#121212",
         colorTextSecondary: isDark ? "#A1A1A1" : "#666666",
         colorDanger: "#EF4444",
-        fontFamily: "system-ui, -apple-system, sans-serif",
+        fontFamily:
+          "Airbnb Cereal App, Airbnb Cereal App Book, system-ui, sans-serif",
         spacingUnit: "4px",
         spacingGridRow: "16px",
         spacingGridColumn: "16px",

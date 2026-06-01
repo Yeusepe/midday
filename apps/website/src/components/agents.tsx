@@ -725,8 +725,8 @@ export function Agents({ pixelFontClass }: { pixelFontClass?: string }) {
             </h1>
             <p className="text-[hsl(225,60%,75%)] text-base leading-normal mt-4 md:mt-8">
               One CLI. 80+ tools. Your agent can send invoices, reconcile
-              transactions, track time, pull reports. Anything you do in Creator Payments,
-              it can do too.
+              transactions, track time, pull reports. Anything you do in Creator
+              Payments, it can do too.
             </p>
           </div>
 
@@ -873,15 +873,16 @@ export function Agents({ pixelFontClass }: { pixelFontClass?: string }) {
             Infrastructure
           </h2>
           <p className="text-[hsl(225,60%,75%)] text-base leading-normal mt-4 max-w-md mx-auto">
-            Creator Payments is the backbone. Agents connect via MCP, CLI, or API. Every
-            operation syncs back to your dashboard.
+            Creator Payments is the backbone. Agents connect via MCP, CLI, or
+            API. Every operation syncs back to your dashboard.
           </p>
 
           <div className="hidden md:flex flex-col items-center justify-center mt-2">
             <pre
               className="p-4 text-sm leading-5 md:scale-[0.8] transform-gpu"
               style={{
-                fontFamily: "monospace",
+                fontFamily:
+                  "Airbnb Cereal App, Airbnb Cereal App Book, system-ui, sans-serif",
                 whiteSpace: "pre",
                 textAlign: "left",
               }}

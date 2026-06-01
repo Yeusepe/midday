@@ -24,14 +24,14 @@ export default async function Image({ params }: Props) {
 
   const { customer, summary } = data;
 
-  const hedvigSansFont = fetch(
-    "https://cdn.midday.ai/fonts/HedvigSans/HedvigLettersSans-Regular.ttf",
+  const airbnbCerealFont = fetch(
+    "https://cdn.jsdelivr.net/npm/airbnbcereal@1.1.0/AirbnbCerealApp-Book.ttf",
   ).then((res) => res.arrayBuffer());
 
   return new ImageResponse(
     <div
       tw="h-full w-full flex flex-col bg-[#0C0C0C] p-16"
-      style={{ fontFamily: "hedvig-sans" }}
+      style={{ fontFamily: "airbnb-cereal" }}
     >
       {/* Header with logo */}
       <div tw="flex items-center justify-between mb-12">
@@ -99,8 +99,8 @@ export default async function Image({ params }: Props) {
       height: 630,
       fonts: [
         {
-          name: "hedvig-sans",
-          data: await hedvigSansFont,
+          name: "airbnb-cereal",
+          data: await airbnbCerealFont,
           style: "normal",
           weight: 400,
         },

@@ -31,7 +31,7 @@ export function formatEditorContent(doc?: EditorDoc) {
                   if (inlineContent.type === "text") {
                     const style: PDFTextStyle = {
                       fontSize: 9,
-                      fontFamily: "Inter",
+                      fontFamily: "Airbnb Cereal App",
                     };
                     let href: string | undefined;
                     let hasUnderline = false;

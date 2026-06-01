@@ -9,14 +9,14 @@ export async function GET(request: NextRequest) {
   const title = searchParams.get("title") ?? "Creator Payments";
   const description = searchParams.get("description") ?? "";
 
-  const hedvigSerifFont = fetch(
-    "https://cdn.midday.ai/fonts/HedvigSerif/HedvigLettersSerif-Regular.ttf?c=1",
+  const airbnbCerealFont = fetch(
+    "https://cdn.jsdelivr.net/npm/airbnbcereal@1.1.0/AirbnbCerealApp-Book.ttf",
   ).then((res) => res.arrayBuffer());
 
   return new ImageResponse(
     <div
       tw="h-full w-full flex flex-col bg-[#0C0C0C] p-16"
-      style={{ fontFamily: "hedvig-serif" }}
+      style={{ fontFamily: "airbnb-cereal" }}
     >
       <div tw="flex items-center">
         <svg width="40" height="40" viewBox="0 0 40 41" fill="white">
@@ -40,8 +40,8 @@ export async function GET(request: NextRequest) {
       height: 630,
       fonts: [
         {
-          name: "hedvig-serif",
-          data: await hedvigSerifFont,
+          name: "airbnb-cereal",
+          data: await airbnbCerealFont,
           style: "normal",
           weight: 400,
         },

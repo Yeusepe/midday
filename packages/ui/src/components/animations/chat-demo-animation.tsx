@@ -441,9 +441,9 @@ function getWebsiteLogo(website?: string) {
 }
 
 const SF_FONT =
-  "-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif";
+  "'Airbnb Cereal App', 'Airbnb Cereal App Book', system-ui, sans-serif";
 const SF_DISPLAY =
-  "-apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif";
+  "'Airbnb Cereal App', 'Airbnb Cereal App Book', system-ui, sans-serif";
 
 function formatShortTime(d: Date): string {
   return d.toLocaleTimeString(undefined, {

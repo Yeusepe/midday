@@ -1,10 +1,23 @@
+@import url("https://cdn.jsdelivr.net/npm/airbnbcereal@1.1.0/stylesheet.min.css");
+
+@font-face {
+  font-family: "Airbnb Cereal App";
+  src: url("https://cdn.jsdelivr.net/npm/airbnbcereal@1.1.0/AirbnbCerealApp-Book.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --font-hedvig-sans: "Hedvig Letters Sans", system-ui, sans-serif;
-  --font-hedvig-serif: "Hedvig Letters Serif", Georgia, serif;
+  --font-sans:
+    "Airbnb Cereal App", "Airbnb Cereal App Book", system-ui, sans-serif;
+  --font-serif: var(--font-sans);
+  --font-mono: var(--font-sans);
 
   /* Light mode syntax highlighting (clear differentiation like dark mode) */
   --sh-class: #171717;
@@ -155,7 +168,7 @@ pre code div,
 }
 
 .updates p code span {
-  font-family: var(--font-geist-mono);
+  font-family: var(--font-mono);
   color: #eb5757;
   font-size: 85%;
   font-weight: 600;

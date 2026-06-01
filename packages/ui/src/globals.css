@@ -1,9 +1,25 @@
+@import url("https://cdn.jsdelivr.net/npm/airbnbcereal@1.1.0/stylesheet.min.css");
+
+@font-face {
+  font-family: "Airbnb Cereal App";
+  src: url("https://cdn.jsdelivr.net/npm/airbnbcereal@1.1.0/AirbnbCerealApp-Book.woff2")
+    format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
+    --font-sans:
+      "Airbnb Cereal App", "Airbnb Cereal App Book", system-ui, sans-serif;
+    --font-serif: var(--font-sans);
+    --font-mono: var(--font-sans);
+
     --background: 0, 0%, 100%;
     --foreground: 0, 0%, 7%;
     --card: 45 18% 96%;

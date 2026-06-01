@@ -15,42 +15,41 @@ import { Summary } from "./components/summary";
 const PAYMENTS_BASE_URL = "https://payments.yucp.club";
 
 Font.register({
-  family: "Inter",
+  family: "Airbnb Cereal App",
   fonts: [
     {
-      src: "https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfMZhrib2Bg-4.ttf",
+      src: "https://cdn.jsdelivr.net/npm/airbnbcereal@1.1.0/AirbnbCerealApp-Book.ttf",
       fontWeight: 400,
     },
     {
-      src: "https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuI6fMZhrib2Bg-4.ttf",
+      src: "https://cdn.jsdelivr.net/npm/airbnbcereal@1.1.0/AirbnbCerealApp-Medium.ttf",
       fontWeight: 500,
     },
     {
-      src: "https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuGKYMZhrib2Bg-4.ttf",
+      src: "https://cdn.jsdelivr.net/npm/airbnbcereal@1.1.0/AirbnbCerealApp-Bold.ttf",
       fontWeight: 600,
     },
     {
-      src: "https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuFuYMZhrib2Bg-4.ttf",
+      src: "https://cdn.jsdelivr.net/npm/airbnbcereal@1.1.0/AirbnbCerealApp-Bold.ttf",
       fontWeight: 700,
     },
-    // Italic fonts
     {
-      src: "https://fonts.gstatic.com/s/inter/v19/UcCM3FwrK3iLTcvneQg7Ca725JhhKnNqk4j1ebLhAm8SrXTc2dthjQ.ttf",
+      src: "https://cdn.jsdelivr.net/npm/airbnbcereal@1.1.0/AirbnbCerealApp-Book.ttf",
       fontWeight: 400,
       fontStyle: "italic",
     },
     {
-      src: "https://fonts.gstatic.com/s/inter/v19/UcCM3FwrK3iLTcvneQg7Ca725JhhKnNqk4j1ebLhAm8SrXTc69thjQ.ttf",
+      src: "https://cdn.jsdelivr.net/npm/airbnbcereal@1.1.0/AirbnbCerealApp-Medium.ttf",
       fontWeight: 500,
       fontStyle: "italic",
     },
     {
-      src: "https://fonts.gstatic.com/s/inter/v19/UcCM3FwrK3iLTcvneQg7Ca725JhhKnNqk4j1ebLhAm8SrXTcB9xhjQ.ttf",
+      src: "https://cdn.jsdelivr.net/npm/airbnbcereal@1.1.0/AirbnbCerealApp-Bold.ttf",
       fontWeight: 600,
       fontStyle: "italic",
     },
     {
-      src: "https://fonts.gstatic.com/s/inter/v19/UcCM3FwrK3iLTcvneQg7Ca725JhhKnNqk4j1ebLhAm8SrXTcPtxhjQ.ttf",
+      src: "https://cdn.jsdelivr.net/npm/airbnbcereal@1.1.0/AirbnbCerealApp-Bold.ttf",
       fontWeight: 700,
       fontStyle: "italic",
     },
@@ -128,7 +127,7 @@ export async function PdfTemplate(
           padding: 20,
           backgroundColor: "#fff",
           color: "#000",
-          fontFamily: "Inter",
+          fontFamily: "Airbnb Cereal App",
           fontWeight: 400,
         }}
       >

@@ -1,4 +1,3 @@
-import { GeistPixelLine } from "geist/font/pixel";
 import { Agents } from "@/components/agents";
 import { createPageMetadata } from "@/lib/metadata";
 
@@ -49,7 +48,7 @@ export default function Page() {
           `,
         }}
       />
-      <Agents pixelFontClass={GeistPixelLine.className} />
+      <Agents pixelFontClass="font-sans" />
     </>
   );
 }

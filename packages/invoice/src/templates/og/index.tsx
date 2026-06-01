@@ -24,7 +24,7 @@ export function OgTemplate({ data, isValidLogo }: Props) {
   return (
     <div
       tw="h-full w-full flex flex-col bg-[#0C0C0C] p-16 py-8"
-      style={{ fontFamily: "hedvig-sans" }}
+      style={{ fontFamily: "airbnb-cereal" }}
     >
       <Header
         customerName={customerName || ""}
@@ -48,7 +48,7 @@ export function OgTemplate({ data, isValidLogo }: Props) {
         <div tw="flex flex-col flex-1 max-w-[50%]">
           <span
             tw="text-[#858585] text-[22px] mb-1"
-            style={{ fontFamily: "hedvig-sans" }}
+            style={{ fontFamily: "airbnb-cereal" }}
           >
             {template.fromLabel}
           </span>
@@ -60,7 +60,7 @@ export function OgTemplate({ data, isValidLogo }: Props) {
         <div tw="flex flex-col flex-1 max-w-[50%]">
           <span
             tw="text-[#858585] text-[22px] mb-1"
-            style={{ fontFamily: "hedvig-sans" }}
+            style={{ fontFamily: "airbnb-cereal" }}
           >
             {template.customerLabel}
           </span>

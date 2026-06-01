@@ -208,12 +208,19 @@ export function EmailThemeProvider({
             extend: {
               fontFamily: {
                 sans: [
-                  "Hedvig Letters Sans",
+                  "Airbnb Cereal App",
+                  "Airbnb Cereal App Book",
                   "system-ui",
                   "Arial",
                   "sans-serif",
                 ],
-                serif: ["Hedvig Letters Serif", "Georgia", "serif"],
+                serif: [
+                  "Airbnb Cereal App",
+                  "Airbnb Cereal App Book",
+                  "system-ui",
+                  "Arial",
+                  "sans-serif",
+                ],
               },
             },
           },
@@ -236,25 +243,30 @@ export function EmailThemeProvider({
 
           <style>{getEmailDarkModeCSS()}</style>
 
-          {/* Body font — Hedvig Letters Sans (matches website) */}
+          {/* Airbnb Cereal App via jsDelivr */}
           <Font
-            fontFamily="Hedvig Letters Sans"
+            fontFamily="Airbnb Cereal App"
             fallbackFontFamily={["Arial", "Helvetica"]}
             webFont={{
-              url: "https://fonts.gstatic.com/s/hedvigletterssans/v2/CHy_V_PfGVjobSBkihHWDT98RVp37w8jcJpH3B4jm10.woff2",
+              url: "https://cdn.jsdelivr.net/npm/airbnbcereal@1.1.0/AirbnbCerealApp-Medium.woff2",
               format: "woff2",
             }}
-            fontWeight={400}
+            fontWeight={500}
             fontStyle="normal"
           />
 
-          {/* Heading font — Hedvig Letters Serif (loaded via @font-face only, not applied globally) */}
           <style>{`
             @font-face {
-              font-family: 'Hedvig Letters Serif';
+              font-family: 'Airbnb Cereal App';
               font-style: normal;
               font-weight: 400;
-              src: url(https://fonts.gstatic.com/s/hedviglettersserif/v4/OD5puN2I2mekHmyoU1Kj2AREd0--KMm6yXkk.woff2) format('woff2');
+              src: url(https://cdn.jsdelivr.net/npm/airbnbcereal@1.1.0/AirbnbCerealApp-Book.woff2) format('woff2');
+            }
+            @font-face {
+              font-family: 'Airbnb Cereal App';
+              font-style: normal;
+              font-weight: 700;
+              src: url(https://cdn.jsdelivr.net/npm/airbnbcereal@1.1.0/AirbnbCerealApp-Bold.woff2) format('woff2');
             }
           `}</style>
 

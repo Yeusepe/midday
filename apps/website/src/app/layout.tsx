@@ -3,7 +3,6 @@ import { cn } from "@midday/ui/cn";
 import "@midday/ui/globals.css";
 import { Provider as Analytics } from "@midday/events/client";
 import type { Metadata } from "next";
-import { Hedvig_Letters_Sans, Hedvig_Letters_Serif } from "next/font/google";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import type { ReactElement } from "react";
 import { Footer } from "@/components/footer";
@@ -11,26 +10,6 @@ import { Header } from "@/components/header";
 import { SunsetBanner } from "@/components/sunset-banner";
 import { ThemeProvider } from "@/components/theme-provider";
 import { baseUrl } from "./sitemap";
-
-const hedvigSans = Hedvig_Letters_Sans({
-  weight: "400",
-  subsets: ["latin"],
-  display: "optional",
-  variable: "--font-hedvig-sans",
-  preload: true,
-  adjustFontFallback: true,
-  fallback: ["system-ui", "arial"],
-});
-
-const hedvigSerif = Hedvig_Letters_Serif({
-  weight: "400",
-  subsets: ["latin"],
-  display: "optional",
-  variable: "--font-hedvig-serif",
-  preload: true,
-  adjustFontFallback: true,
-  fallback: ["Georgia", "Times New Roman", "serif"],
-});
 
 const canonicalName = "YUCP Creator Payments powered by Midday Labs AB";
 
@@ -121,6 +100,7 @@ export default function Layout({ children }: { children: ReactElement }) {
       <head>
         <link rel="preconnect" href="https://cdn.midday.ai" />
         <link rel="dns-prefetch" href="https://cdn.midday.ai" />
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -129,10 +109,7 @@ export default function Layout({ children }: { children: ReactElement }) {
         />
       </head>
       <body
-        className={cn(
-          `${hedvigSans.variable} ${hedvigSerif.variable} font-sans`,
-          "bg-background overflow-x-hidden font-sans antialiased",
-        )}
+        className={cn("bg-background overflow-x-hidden font-sans antialiased")}
       >
         <NuqsAdapter>
           <ThemeProvider

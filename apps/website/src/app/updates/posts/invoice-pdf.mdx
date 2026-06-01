@@ -124,17 +124,15 @@ import { PaymentDetails } from "../components/payment-details";
 import { QRCode } from "../components/qr-code";
 import { Summary } from "../components/summary";
 
-const CDN_URL = "https://cdn.midday.ai";
-
 Font.register({
-  family: "GeistMono",
+  family: "Airbnb Cereal App",
   fonts: [
     {
-      src: `${CDN_URL}/fonts/GeistMono/ttf/GeistMono-Regular.ttf`,
+      src: "https://cdn.jsdelivr.net/npm/airbnbcereal@1.1.0/AirbnbCerealApp-Book.ttf",
       fontWeight: 400,
     },
     {
-      src: `${CDN_URL}/fonts/GeistMono/ttf/GeistMono-Medium.ttf`,
+      src: "https://cdn.jsdelivr.net/npm/airbnbcereal@1.1.0/AirbnbCerealApp-Medium.ttf",
       fontWeight: 500,
     },
   ],
@@ -173,7 +171,7 @@ export async function InvoiceTemplate({
         style={{
           padding: 20,
           backgroundColor: "#fff",
-          fontFamily: "GeistMono",
+          fontFamily: "Airbnb Cereal App",
           color: "#000",
         }}
       >

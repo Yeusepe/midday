@@ -727,9 +727,9 @@ export function Computer() {
               The operating system for your business.
             </h1>
             <p className="text-base leading-normal mt-4 md:mt-8 text-muted-foreground">
-              Creator Payments Computer puts your business on autopilot. Agents that run
-              on your schedule, learn over time, and take care of the work you
-              keep putting off.
+              Creator Payments Computer puts your business on autopilot. Agents
+              that run on your schedule, learn over time, and take care of the
+              work you keep putting off.
             </p>
           </div>
 
@@ -939,15 +939,16 @@ export function Computer() {
             How it works
           </h2>
           <p className="text-base leading-normal mt-4 max-w-md mx-auto text-muted-foreground">
-            You describe what you need. Creator Payments builds the agent, runs it on your
-            schedule, and delivers results.
+            You describe what you need. Creator Payments builds the agent, runs
+            it on your schedule, and delivers results.
           </p>
 
           <div className="hidden md:flex flex-col items-center justify-center mt-2">
             <pre
               className="p-4 text-sm leading-5 md:scale-[0.8] transform-gpu"
               style={{
-                fontFamily: "monospace",
+                fontFamily:
+                  "Airbnb Cereal App, Airbnb Cereal App Book, system-ui, sans-serif",
                 whiteSpace: "pre",
                 textAlign: "left",
               }}
@@ -976,8 +977,8 @@ export function Computer() {
               Get started
             </h2>
             <p className="font-sans text-base mb-6 max-w-lg mx-auto text-muted-foreground">
-              Creator Payments Computer puts your business on autopilot. Describe what you
-              need and it takes care of the rest.
+              Creator Payments Computer puts your business on autopilot.
+              Describe what you need and it takes care of the rest.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Button

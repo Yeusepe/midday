@@ -29,11 +29,13 @@ import {
   searchInvoiceNumber,
   updateInvoice,
 } from "@midday/db/queries";
-import { DEFAULT_TEMPLATE, PdfTemplate, renderToStream } from "@midday/invoice";
+import { DEFAULT_TEMPLATE } from "@midday/invoice/defaults";
+import { PdfTemplate } from "@midday/invoice/templates/pdf";
 import { calculateTotal } from "@midday/invoice/calculate";
 import { transformCustomerToContent } from "@midday/invoice/utils";
 import { triggerJob } from "@midday/job-client";
 import { registerAppTool } from "@modelcontextprotocol/ext-apps/server";
+import { renderToStream } from "@react-pdf/renderer";
 import { addDays } from "date-fns";
 import { v4 as uuidv4 } from "uuid";
 import { z } from "zod";

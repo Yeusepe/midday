@@ -1,4 +1,3 @@
-import { cn } from "@midday/ui/cn";
 import { getAppUrl } from "@midday/utils/envs";
 import {
   Body,
@@ -146,6 +145,10 @@ const defaultTransactions = [
 ];
 
 const baseAppUrl = getAppUrl();
+
+function cn(...classes: Array<string | false | null | undefined>) {
+  return classes.filter(Boolean).join(" ");
+}
 
 export const TransactionsEmail = ({
   fullName = "",

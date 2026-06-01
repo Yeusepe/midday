@@ -44,7 +44,7 @@ import {
   searchInvoiceNumber,
   updateInvoice,
 } from "@midday/db/queries";
-import { DEFAULT_TEMPLATE } from "@midday/invoice";
+import { DEFAULT_TEMPLATE } from "@midday/invoice/defaults";
 import { verify } from "@midday/invoice/token";
 import { transformCustomerToContent } from "@midday/invoice/utils";
 import { decodeJobId, getQueue, triggerJob } from "@midday/job-client";

@@ -17,6 +17,7 @@
     "./templates/pdf": "./src/templates/pdf/index.tsx",
     "./templates/og": "./src/templates/og/index.tsx",
     "./editor": "./src/editor/index.tsx",
+    "./defaults": "./src/defaults.ts",
     "./calculate": "./src/utils/calculate.ts",
     "./format-to-html": "./src/templates/html/format.tsx",
     "./content": "./src/utils/content.ts",

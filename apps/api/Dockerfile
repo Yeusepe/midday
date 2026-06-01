@@ -26,6 +26,14 @@ COPY --from=builder /app/out/full/ .
 # Build the mcp-apps package (produces self-contained HTML files)
 RUN cd packages/mcp-apps && bun run build
 
+# Production dependency stage - keep build-only packages out of runtime
+FROM base AS prod-deps
+WORKDIR /app
+
+COPY --from=builder /app/out/json/ .
+COPY bunfig.toml .
+RUN bun install --production
+
 # Runner stage - clean image
 FROM oven/bun:1.3.10 AS runner
 WORKDIR /app
@@ -34,7 +42,7 @@ ENV NODE_ENV=production
 ENV PORT=8080
 
 # Copy only what's needed at runtime
-COPY --from=installer /app/node_modules ./node_modules
+COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=installer /app/apps/api ./apps/api
 COPY --from=installer /app/packages ./packages
 COPY --from=installer /app/package.json ./package.json

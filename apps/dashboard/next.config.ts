@@ -1,7 +1,10 @@
 import { withSentryConfig } from "@sentry/nextjs";
 
-const apiRewriteUrl = process.env.API_REWRITE_URL;
-const supabaseRewriteUrl = process.env.SUPABASE_REWRITE_URL;
+const apiRewriteUrl =
+  process.env.API_REWRITE_URL || process.env.NEXT_PUBLIC_API_REWRITE_URL;
+const supabaseRewriteUrl =
+  process.env.SUPABASE_REWRITE_URL ||
+  process.env.NEXT_PUBLIC_SUPABASE_REWRITE_URL;
 
 /** @type {import("next").NextConfig} */
 const config = {

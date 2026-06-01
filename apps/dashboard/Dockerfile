@@ -52,15 +52,20 @@ ARG NEXT_PUBLIC_SENDBLUE_NUMBER
 ARG SENTRY_AUTH_TOKEN
 ARG SENTRY_ORG
 ARG SENTRY_PROJECT
+ARG GIT_COMMIT_SHA
 
 # Server Action encryption key — must be identical across all replicas/regions
 # to prevent "Failed to find Server Action" errors. Base64-encoded, 32 bytes.
 ARG NEXT_SERVER_ACTIONS_ENCRYPTION_KEY
 ENV NEXT_SERVER_ACTIONS_ENCRYPTION_KEY=$NEXT_SERVER_ACTIONS_ENCRYPTION_KEY
 
-# Git SHA stamped by CI (echo "$GITHUB_SHA" > .git-commit-sha) before `railway up`.
-# The file lives at repo root, so the builder stage has it after COPY . .
-COPY --from=builder /app/.git-commit-sha /tmp/git-sha.txt
+# Git SHA stamped by CI when available. Zeabur builds directly from GitHub, so
+# the fallback ARG keeps the Dockerfile usable without a generated file.
+RUN if [ -f /app/.git-commit-sha ]; then \
+      cp /app/.git-commit-sha /tmp/git-sha.txt; \
+    else \
+      printf "%s" "${GIT_COMMIT_SHA:-}" > /tmp/git-sha.txt; \
+    fi
 
 ENV CI=true
 ENV NODE_ENV=production

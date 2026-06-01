@@ -56,8 +56,6 @@ export function Summary({
   subtotalLabel,
   lineItems,
 }: SummaryProps) {
-  const maximumFractionDigits = includeDecimals ? 2 : 0;
-
   // Calculate subtotal dynamically from line items (same as HTML template)
   const { subTotal: calculatedSubtotal, tax: calculatedTax } = calculateTotal({
     lineItems,
@@ -123,7 +121,10 @@ export function Summary({
               amount: displaySubtotal ?? 0,
               currency,
               locale,
-              maximumFractionDigits,
+              maximumFractionDigits: getCurrencyFractionDigits(
+                displaySubtotal ?? 0,
+                includeDecimals,
+              ),
             })}
         </Text>
       </View>
@@ -137,7 +138,10 @@ export function Summary({
                 amount: displayDiscount ?? 0,
                 currency,
                 locale,
-                maximumFractionDigits,
+                maximumFractionDigits: getCurrencyFractionDigits(
+                  displayDiscount ?? 0,
+                  includeDecimals,
+                ),
               })}
           </Text>
         </View>
@@ -214,7 +218,10 @@ export function Summary({
               maximumFractionDigits:
                 includeTax || includeVat || includeLineItemTax
                   ? 2
-                  : maximumFractionDigits,
+                  : getCurrencyFractionDigits(
+                      displayTotal ?? 0,
+                      includeDecimals,
+                    ),
             })}
         </Text>
       </View>
@@ -259,4 +266,8 @@ export function Summary({
         )}
     </View>
   );
+}
+
+function getCurrencyFractionDigits(amount: number, includeDecimals?: boolean) {
+  return includeDecimals || !Number.isInteger(amount) ? 2 : 0;
 }

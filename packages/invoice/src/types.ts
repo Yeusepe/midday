@@ -82,10 +82,23 @@ export type Invoice = {
     name: string | null;
     website: string | null;
     email: string | null;
+    billingEmail?: string | null;
+    contact?: string | null;
+    addressLine1?: string | null;
+    addressLine2?: string | null;
+    city?: string | null;
+    state?: string | null;
+    zip?: string | null;
+    country?: string | null;
+    phone?: string | null;
+    vatNumber?: string | null;
+    financeContact?: string | null;
+    financeContactEmail?: string | null;
   } | null;
   customerId: string | null;
   team: {
     name: string | null;
+    email?: string | null;
   } | null;
 };
 

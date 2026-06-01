@@ -31,40 +31,84 @@ export function LineItems({
   includeLineItemTax = false,
   lineItemTaxLabel = "Tax",
 }: Props) {
-  const detailsWidth = includeLineItemTax ? "42.857%" : "50%";
+  const columnWidths = getColumnWidths(includeLineItemTax);
+  const headerPositions = getHeaderPositions(includeLineItemTax);
+  const lineItemTotal = (item: LineItem) =>
+    calculateLineItemTotal({
+      price: item.price,
+      quantity: item.quantity,
+    });
 
   return (
     <View style={{ marginTop: 20 }}>
       <View
         style={{
-          flexDirection: "row",
-          alignItems: "flex-start",
           borderBottomWidth: 0.5,
           borderBottomColor: "#000",
-          minHeight: 15,
-          paddingBottom: 7,
+          height: 22,
           marginBottom: 6,
         }}
       >
-        <Text style={{ flex: 3, fontSize: 9, lineHeight: 11, fontWeight: 500 }}>
+        <Text
+          style={{
+            position: "absolute",
+            left: headerPositions.description,
+            top: 0,
+            width: columnWidths.description,
+            fontSize: 9,
+            lineHeight: 11,
+            fontWeight: 500,
+          }}
+        >
           {descriptionLabel}
         </Text>
-        <Text style={{ flex: 1, fontSize: 9, lineHeight: 11, fontWeight: 500 }}>
+        <Text
+          style={{
+            position: "absolute",
+            left: headerPositions.quantity,
+            top: 0,
+            width: columnWidths.value,
+            fontSize: 9,
+            lineHeight: 11,
+            fontWeight: 500,
+          }}
+        >
           {quantityLabel}
         </Text>
-        <Text style={{ flex: 1, fontSize: 9, lineHeight: 11, fontWeight: 500 }}>
+        <Text
+          style={{
+            position: "absolute",
+            left: headerPositions.price,
+            top: 0,
+            width: columnWidths.value,
+            fontSize: 9,
+            lineHeight: 11,
+            fontWeight: 500,
+          }}
+        >
           {priceLabel}
         </Text>
         {includeLineItemTax && (
           <Text
-            style={{ flex: 1, fontSize: 9, lineHeight: 11, fontWeight: 500 }}
+            style={{
+              position: "absolute",
+              left: headerPositions.tax,
+              top: 0,
+              width: columnWidths.value,
+              fontSize: 9,
+              lineHeight: 11,
+              fontWeight: 500,
+            }}
           >
             {lineItemTaxLabel}
           </Text>
         )}
         <Text
           style={{
-            flex: 1,
+            position: "absolute",
+            left: headerPositions.total,
+            top: 0,
+            width: columnWidths.value,
             fontSize: 9,
             lineHeight: 11,
             fontWeight: 500,
@@ -86,15 +130,15 @@ export function LineItems({
               alignItems: "flex-start",
             }}
           >
-            <View style={{ flex: 3, paddingRight: 20 }}>
+            <View style={{ width: columnWidths.description, paddingRight: 20 }}>
               <Description content={item.name} />
             </View>
 
-            <Text style={{ flex: 1, fontSize: 9 }}>
+            <Text style={{ width: columnWidths.value, fontSize: 9 }}>
               {String(item.quantity ?? 0)}
             </Text>
 
-            <Text style={{ flex: 1, fontSize: 9 }}>
+            <Text style={{ width: columnWidths.value, fontSize: 9 }}>
               {currency &&
                 formatCurrencyForPDF({
                   amount: item.price ?? 0,
@@ -109,36 +153,64 @@ export function LineItems({
             </Text>
 
             {includeLineItemTax && (
-              <Text style={{ flex: 1, fontSize: 9 }}>
+              <Text style={{ width: columnWidths.value, fontSize: 9 }}>
                 {item.taxRate != null ? `${item.taxRate}%` : "0%"}
               </Text>
             )}
 
-            <Text style={{ flex: 1, fontSize: 9, textAlign: "right" }}>
+            <Text
+              style={{
+                width: columnWidths.value,
+                fontSize: 9,
+                textAlign: "right",
+              }}
+            >
               {currency &&
                 formatCurrencyForPDF({
-                  amount: calculateLineItemTotal({
-                    price: item.price,
-                    quantity: item.quantity,
-                  }),
+                  amount: lineItemTotal(item),
                   currency,
                   locale,
                   maximumFractionDigits: getCurrencyFractionDigits(
-                    calculateLineItemTotal({
-                      price: item.price,
-                      quantity: item.quantity,
-                    }),
+                    lineItemTotal(item),
                     includeDecimals,
                   ),
                 })}
             </Text>
           </View>
 
-          <LineItemDetails item={item} locale={locale} width={detailsWidth} />
+          <LineItemDetails
+            item={item}
+            locale={locale}
+            width={columnWidths.description}
+          />
         </View>
       ))}
     </View>
   );
+}
+
+function getColumnWidths(includeLineItemTax: boolean) {
+  return includeLineItemTax
+    ? { description: "42.857%", value: "14.285%" }
+    : { description: "50%", value: "16.666%" };
+}
+
+function getHeaderPositions(includeLineItemTax: boolean) {
+  return includeLineItemTax
+    ? {
+        description: "0%",
+        quantity: "42.857%",
+        price: "57.142%",
+        tax: "71.427%",
+        total: "85.712%",
+      }
+    : {
+        description: "0%",
+        quantity: "50%",
+        price: "66.666%",
+        tax: "0%",
+        total: "83.332%",
+      };
 }
 
 function getCurrencyFractionDigits(amount: number, includeDecimals?: boolean) {

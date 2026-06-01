@@ -1,6 +1,8 @@
 import { Document, Font, Image, Page, Text, View } from "@react-pdf/renderer";
 import QRCodeUtil from "qrcode";
 import type { Invoice } from "../../types";
+import { hasEditorContent } from "../../utils/content";
+import { transformCustomerToContent } from "../../utils/transform";
 import { EditorContent } from "./components/editor-content";
 import { LineItems } from "./components/line-items";
 import { Meta } from "./components/meta";
@@ -9,6 +11,8 @@ import { PaidWatermark } from "./components/paid-watermark";
 import { PaymentDetails } from "./components/payment-details";
 import { QRCode } from "./components/qr-code";
 import { Summary } from "./components/summary";
+
+const PAYMENTS_BASE_URL = "https://payments.yucp.club";
 
 Font.register({
   family: "Inter",
@@ -81,6 +85,8 @@ export async function PdfTemplate(
     topBlock,
     bottomBlock,
     token,
+    customer,
+    team,
   }: Invoice,
   options?: PdfTemplateOptions,
 ) {
@@ -96,11 +102,22 @@ export async function PdfTemplate(
   let qrCode = null;
 
   if (template.includeQr) {
-    qrCode = await QRCodeUtil.toDataURL(`https://app.midday.ai/i/${token}`, {
+    qrCode = await QRCodeUtil.toDataURL(`${PAYMENTS_BASE_URL}/i/${token}`, {
       margin: 0,
       width: 40 * 3,
     });
   }
+
+  const resolvedFromDetails = hasEditorContent(fromDetails)
+    ? fromDetails
+    : transformCustomerToContent(team);
+  const resolvedCustomerDetails = hasEditorContent(customerDetails)
+    ? customerDetails
+    : transformCustomerToContent(customer);
+  const hasPaymentDetails = hasEditorContent(paymentDetails);
+  const hasNoteDetails = hasEditorContent(noteDetails);
+  const showPaymentAndNote =
+    hasPaymentDetails || Boolean(qrCode) || hasNoteDetails;
 
   return (
     <Document>
@@ -156,7 +173,7 @@ export async function PdfTemplate(
               <Text style={{ fontSize: 9, fontWeight: 500 }}>
                 {template.fromLabel}
               </Text>
-              <EditorContent content={fromDetails} />
+              <EditorContent content={resolvedFromDetails} />
             </View>
           </View>
 
@@ -165,7 +182,7 @@ export async function PdfTemplate(
               <Text style={{ fontSize: 9, fontWeight: 500 }}>
                 {template.customerLabel}
               </Text>
-              <EditorContent content={customerDetails} />
+              <EditorContent content={resolvedCustomerDetails} />
             </View>
           </View>
         </View>
@@ -229,20 +246,26 @@ export async function PdfTemplate(
             )}
           </View>
 
-          <View wrap={false} style={{ flexDirection: "row", marginTop: 20 }}>
-            <View style={{ flex: 1, marginRight: 10 }}>
-              <PaymentDetails
-                content={paymentDetails}
-                paymentLabel={template.paymentLabel}
-              />
+          {showPaymentAndNote && (
+            <View wrap={false} style={{ flexDirection: "row", marginTop: 20 }}>
+              <View style={{ flex: 1, marginRight: 10 }}>
+                {hasPaymentDetails && (
+                  <PaymentDetails
+                    content={paymentDetails}
+                    paymentLabel={template.paymentLabel}
+                  />
+                )}
 
-              {qrCode && <QRCode data={qrCode} />}
-            </View>
+                {qrCode && <QRCode data={qrCode} />}
+              </View>
 
-            <View style={{ flex: 1, marginLeft: 10 }}>
-              <Note content={noteDetails} noteLabel={template.noteLabel} />
+              <View style={{ flex: 1, marginLeft: 10 }}>
+                {hasNoteDetails && (
+                  <Note content={noteDetails} noteLabel={template.noteLabel} />
+                )}
+              </View>
             </View>
-          </View>
+          )}
 
           <EditorContent content={bottomBlock} />
         </View>

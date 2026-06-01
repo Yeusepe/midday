@@ -1,3 +1,5 @@
+import type { EditorDoc } from "../types";
+
 export function isValidJSON(str: string | null | undefined): boolean {
   if (!str) return false;
   try {
@@ -6,4 +8,15 @@ export function isValidJSON(str: string | null | undefined): boolean {
   } catch {
     return false;
   }
+}
+
+export function hasEditorContent(doc?: EditorDoc | null): boolean {
+  return (
+    doc?.content?.some((node) =>
+      node.content?.some(
+        (inlineContent) =>
+          inlineContent.type === "text" && Boolean(inlineContent.text?.trim()),
+      ),
+    ) ?? false
+  );
 }

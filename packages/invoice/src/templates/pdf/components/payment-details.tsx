@@ -1,5 +1,6 @@
 import { Text, View } from "@react-pdf/renderer";
 import type { EditorDoc } from "../../../types";
+import { hasEditorContent } from "../../../utils/content";
 import { EditorContent } from "./editor-content";
 
 type Props = {
@@ -8,7 +9,7 @@ type Props = {
 };
 
 export function PaymentDetails({ content, paymentLabel }: Props) {
-  if (!content) return null;
+  if (!hasEditorContent(content)) return null;
 
   return (
     <View style={{ marginTop: 20 }}>

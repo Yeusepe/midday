@@ -11,10 +11,7 @@ type Props = {
 };
 
 const iconMap = {
-  Google: Icons.Google,
-  Apple: Icons.Apple,
-  Github: Icons.Github,
-  Microsoft: Icons.Microsoft,
+  Discord: Icons.Discord,
 } as const;
 
 export function OAuthSignIn({ provider, showLastUsed = false }: Props) {

@@ -21,6 +21,10 @@ export async function GET(req: NextRequest) {
   const returnTo = requestUrl.searchParams.get("return_to");
   const provider = requestUrl.searchParams.get("provider");
 
+  if (provider && provider !== "discord") {
+    return NextResponse.redirect(`${origin}/login`);
+  }
+
   if (client === "desktop") {
     return NextResponse.redirect(`${origin}/verify?code=${code}`);
   }

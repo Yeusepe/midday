@@ -7,11 +7,11 @@ import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { getUrl } from "@/utils/environment";
 
-export type OAuthProvider = "google" | "apple" | "github" | "azure";
+export type OAuthProvider = "discord";
 
 type ProviderConfig = {
   name: string;
-  icon: "Google" | "Apple" | "Github" | "Microsoft";
+  icon: "Discord";
   scopes?: string;
   queryParams?: Record<string, string>;
   variant: "primary" | "secondary";
@@ -19,30 +19,10 @@ type ProviderConfig = {
 };
 
 const OAUTH_PROVIDERS: Record<OAuthProvider, ProviderConfig> = {
-  google: {
-    name: "Google",
-    icon: "Google",
-    queryParams: { prompt: "select_account" },
-    variant: "secondary",
-    supportsReturnTo: true,
-  },
-  apple: {
-    name: "Apple",
-    icon: "Apple",
-    variant: "secondary",
-    supportsReturnTo: false,
-  },
-  github: {
-    name: "Github",
-    icon: "Github",
-    variant: "secondary",
-    supportsReturnTo: true,
-  },
-  azure: {
-    name: "Microsoft",
-    icon: "Microsoft",
-    scopes: "email profile openid",
-    variant: "secondary",
+  discord: {
+    name: "Discord",
+    icon: "Discord",
+    variant: "primary",
     supportsReturnTo: true,
   },
 };

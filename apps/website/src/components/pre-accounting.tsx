@@ -87,7 +87,7 @@ export function PreAccounting() {
                 Pre-accounting, handled.
               </h1>
               <p className="text-muted-foreground text-base leading-normal font-sans text-center mx-auto">
-                Midday collects, matches, and prepares your data so your books
+                Creator Payments collects, matches, and prepares your data so your books
                 are always ready before they reach an accountant.
               </p>
             </div>
@@ -172,7 +172,7 @@ export function PreAccounting() {
                 Pre-accounting, handled.
               </h1>
               <p className="text-muted-foreground text-sm xl:text-base leading-normal max-w-xl mx-auto font-sans text-center">
-                Midday collects, matches, and prepares your data so your books
+                Creator Payments collects, matches, and prepares your data so your books
                 are always ready before they reach an accountant.
               </p>
             </div>
@@ -389,7 +389,7 @@ export function PreAccounting() {
               Accountant-ready, without the back and forth
             </h2>
             <p className="font-sans text-base text-muted-foreground leading-normal max-w-2xl mx-auto">
-              Midday prepares clean, structured records so exporting or syncing
+              Creator Payments prepares clean, structured records so exporting or syncing
               to your accounting system takes minutes, not days.
             </p>
           </div>

@@ -2,12 +2,12 @@ import { StartPage } from "@/components/startpage";
 import { createPageMetadata } from "@/lib/metadata";
 
 export const metadata = createPageMetadata({
-  title: "Midday — The business stack for modern founders",
+  title: "Creator Payments — The business stack for modern founders",
   description:
     "Invoicing, automatic reconciliation, time tracking, documents, and financial exports in one place. The business stack that replaces the tools you've outgrown.",
   path: "/",
   og: {
-    title: "Midday",
+    title: "Creator Payments",
     description: "The business stack for modern founders",
   },
 });

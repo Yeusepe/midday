@@ -196,7 +196,7 @@ export async function sendSlackMatchNotification({
                 type: "button",
                 text: {
                   type: "plain_text",
-                  text: "View in Midday",
+                  text: "View in Creator Payments",
                   emoji: false,
                 },
                 url: `https://app.midday.ai/inbox?inboxId=${encodeURIComponent(inboxId)}`,

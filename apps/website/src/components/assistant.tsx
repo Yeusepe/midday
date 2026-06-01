@@ -345,7 +345,7 @@ export function Assistant() {
                   <p className="font-sans text-base text-muted-foreground leading-normal max-w-lg mx-auto lg:mx-0">
                     Connect Gmail, Slack, Google Calendar, Notion, GitHub,
                     Linear, and more. Check your calendar, send a message, or
-                    look up an issue without leaving Midday.
+                    look up an issue without leaving Creator Payments.
                   </p>
                   <div className="flex flex-wrap justify-center lg:justify-start gap-2 pt-2">
                     <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-background">

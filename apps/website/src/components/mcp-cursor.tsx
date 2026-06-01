@@ -45,7 +45,7 @@ function CodeBlock({ code }: { code: string }) {
 }
 
 const cursorConfig = {
-  url: "https://api.midday.ai/mcp",
+  url: "https://api.payments.yucp.club/mcp",
 };
 const cursorDeepLink = `cursor://anysphere.cursor-deeplink/mcp/install?name=midday&config=${encodeURIComponent(btoa(JSON.stringify(cursorConfig)))}`;
 
@@ -53,7 +53,7 @@ const manualConfig = JSON.stringify(
   {
     mcpServers: {
       midday: {
-        url: "https://api.midday.ai/mcp",
+        url: "https://api.payments.yucp.club/mcp",
       },
     },
   },
@@ -134,20 +134,20 @@ export function MCPCursor() {
               <a href={cursorDeepLink} className="inline-block">
                 <img
                   src="https://cursor.com/deeplink/mcp-install-dark.png"
-                  alt="Add Midday MCP server to Cursor"
+                  alt="Add Creator Payments MCP server to Cursor"
                   height={32}
                   className="h-8 dark:hidden"
                 />
                 <img
                   src="https://cursor.com/deeplink/mcp-install-light.png"
-                  alt="Add Midday MCP server to Cursor"
+                  alt="Add Creator Payments MCP server to Cursor"
                   height={32}
                   className="h-8 hidden dark:block"
                 />
               </a>
               <p className="font-sans text-xs text-muted-foreground">
                 No API key needed — authentication is handled automatically via
-                OAuth. You'll be prompted to sign in when you first use a Midday
+                OAuth. You'll be prompted to sign in when you first use a Creator Payments
                 tool.
               </p>
             </div>
@@ -185,7 +185,7 @@ export function MCPCursor() {
                     2
                   </span>
                   <span className="font-sans text-sm text-muted-foreground pt-0.5">
-                    When you first use a Midday tool, you'll be prompted to sign
+                    When you first use a Creator Payments tool, you'll be prompted to sign
                     in and select a team
                   </span>
                 </li>
@@ -194,7 +194,7 @@ export function MCPCursor() {
                     3
                   </span>
                   <span className="font-sans text-sm text-muted-foreground pt-0.5">
-                    @-mention Midday in chat to access your financial data
+                    @-mention Creator Payments in chat to access your financial data
                   </span>
                 </li>
               </ol>

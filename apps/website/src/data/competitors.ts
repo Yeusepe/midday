@@ -106,9 +106,9 @@ export const competitors: Competitor[] = [
     id: "quickbooks",
     slug: "quickbooks-alternative",
     name: "QuickBooks",
-    tagline: "Why Founders Switch to Midday",
+    tagline: "Why Founders Switch to Creator Payments",
     description:
-      "Looking for a QuickBooks alternative? Midday offers a cleaner, founder-friendly approach to business finances without the accounting complexity.",
+      "Looking for a QuickBooks alternative? Creator Payments offers a cleaner, founder-friendly approach to business finances without the accounting complexity.",
     keyDifferences: [
       {
         title: "Target User",
@@ -213,9 +213,9 @@ export const competitors: Competitor[] = [
           "Download your transaction history and customer list as CSV files from QuickBooks.",
       },
       {
-        title: "Sign up for Midday",
+        title: "Sign up for Creator Payments",
         description:
-          "Create your Midday account and connect your bank accounts directly.",
+          "Create your Creator Payments account and connect your bank accounts directly.",
       },
       {
         title: "Import your customers",
@@ -230,24 +230,24 @@ export const competitors: Competitor[] = [
     ],
     faq: [
       {
-        question: "Is Midday a full replacement for QuickBooks?",
+        question: "Is Creator Payments a full replacement for QuickBooks?",
         answer:
-          "Midday is designed for founders who want financial clarity without accounting complexity. If you need advanced accounting features like inventory management or payroll, QuickBooks may be more suitable. But if you want a clean overview of your business finances with less overhead, Midday is the better choice.",
+          "Creator Payments is designed for founders who want financial clarity without accounting complexity. If you need advanced accounting features like inventory management or payroll, QuickBooks may be more suitable. But if you want a clean overview of your business finances with less overhead, Creator Payments is the better choice.",
       },
       {
         question: "Can my accountant still access my data?",
         answer:
-          "Yes. You can export your transactions and reports at any time, or give your accountant direct access to your Midday account.",
+          "Yes. You can export your transactions and reports at any time, or give your accountant direct access to your Creator Payments account.",
       },
       {
         question: "What about tax preparation?",
         answer:
-          "Midday categorizes your transactions and tracks receipts, making tax prep straightforward. You can export everything your accountant needs at tax time.",
+          "Creator Payments categorizes your transactions and tracks receipts, making tax prep straightforward. You can export everything your accountant needs at tax time.",
       },
       {
         question: "How does pricing compare long-term?",
         answer:
-          "Midday's pricing is transparent and consistent. QuickBooks often increases prices after promotional periods and charges extra for features like time tracking. With Midday, you get more included at a predictable price.",
+          "Creator Payments' pricing is transparent and consistent. QuickBooks often increases prices after promotional periods and charges extra for features like time tracking. With Creator Payments, you get more included at a predictable price.",
       },
     ],
     targetAudience: [
@@ -261,9 +261,9 @@ export const competitors: Competitor[] = [
     id: "freshbooks",
     slug: "freshbooks-alternative",
     name: "FreshBooks",
-    tagline: "Why Founders Switch to Midday",
+    tagline: "Why Founders Switch to Creator Payments",
     description:
-      "Looking for a FreshBooks alternative? Midday combines invoicing with transactions, time tracking, and AI-powered insights in one unified workspace.",
+      "Looking for a FreshBooks alternative? Creator Payments combines invoicing with transactions, time tracking, and AI-powered insights in one unified workspace.",
     keyDifferences: [
       {
         title: "Focus",
@@ -366,7 +366,7 @@ export const competitors: Competitor[] = [
           "Download your client list and invoice history from FreshBooks.",
       },
       {
-        title: "Create your Midday account",
+        title: "Create your Creator Payments account",
         description:
           "Sign up and connect your bank accounts for automatic transaction sync.",
       },
@@ -377,24 +377,24 @@ export const competitors: Competitor[] = [
       {
         title: "Set up your invoice template",
         description:
-          "Customize your invoice design and payment terms in Midday.",
+          "Customize your invoice design and payment terms in Creator Payments.",
       },
     ],
     faq: [
       {
         question: "How does invoicing compare?",
         answer:
-          "Both offer professional invoicing, but Midday connects your invoices directly to your bank transactions and provides AI-powered insights into your cash flow. You get the full picture, not just the invoice.",
+          "Both offer professional invoicing, but Creator Payments connects your invoices directly to your bank transactions and provides AI-powered insights into your cash flow. You get the full picture, not just the invoice.",
       },
       {
         question: "What about the client limit?",
         answer:
-          "Unlike FreshBooks, Midday doesn't limit how many clients you can bill. Pay one price and invoice as many clients as you need.",
+          "Unlike FreshBooks, Creator Payments doesn't limit how many clients you can bill. Pay one price and invoice as many clients as you need.",
       },
       {
         question: "Is time tracking included?",
         answer:
-          "Yes, time tracking is included in all Midday plans and connects directly to invoicing and project tracking.",
+          "Yes, time tracking is included in all Creator Payments plans and connects directly to invoicing and project tracking.",
       },
     ],
     targetAudience: [
@@ -408,9 +408,9 @@ export const competitors: Competitor[] = [
     id: "xero",
     slug: "xero-alternative",
     name: "Xero",
-    tagline: "Why Founders Switch to Midday",
+    tagline: "Why Founders Switch to Creator Payments",
     description:
-      "Looking for a Xero alternative? Midday offers founder-friendly financial management without the accounting complexity.",
+      "Looking for a Xero alternative? Creator Payments offers founder-friendly financial management without the accounting complexity.",
     keyDifferences: [
       {
         title: "Design Philosophy",
@@ -509,7 +509,7 @@ export const competitors: Competitor[] = [
           "Download your contacts and transaction history as CSV files.",
       },
       {
-        title: "Sign up for Midday",
+        title: "Sign up for Creator Payments",
         description: "Create your account and connect your bank accounts.",
       },
       {
@@ -517,26 +517,26 @@ export const competitors: Competitor[] = [
         description: "Add your existing customers to continue invoicing.",
       },
       {
-        title: "Let Midday sync automatically",
+        title: "Let Creator Payments sync automatically",
         description:
           "Your transactions will flow in automatically. No more manual reconciliation.",
       },
     ],
     faq: [
       {
-        question: "Is Midday suitable for complex accounting needs?",
+        question: "Is Creator Payments suitable for complex accounting needs?",
         answer:
-          "Midday is designed for founders who want clarity over their finances, not complex accounting. If you need features like multi-entity consolidation or detailed inventory tracking, Xero might be more appropriate. But for most founders and small teams, Midday provides everything you need with far less complexity.",
+          "Creator Payments is designed for founders who want clarity over their finances, not complex accounting. If you need features like multi-entity consolidation or detailed inventory tracking, Xero might be more appropriate. But for most founders and small teams, Creator Payments provides everything you need with far less complexity.",
       },
       {
         question: "Can I still work with my accountant?",
         answer:
-          "Absolutely. You can export your data anytime or invite your accountant to access your Midday account directly.",
+          "Absolutely. You can export your data anytime or invite your accountant to access your Creator Payments account directly.",
       },
       {
         question: "What about Xero's app marketplace?",
         answer:
-          "Midday has a growing integration ecosystem, and many features that require add-ons in Xero (like time tracking) are built directly into Midday.",
+          "Creator Payments has a growing integration ecosystem, and many features that require add-ons in Xero (like time tracking) are built directly into Creator Payments.",
       },
     ],
     targetAudience: [
@@ -550,9 +550,9 @@ export const competitors: Competitor[] = [
     id: "wave",
     slug: "wave-alternative",
     name: "Wave",
-    tagline: "Why Founders Switch to Midday",
+    tagline: "Why Founders Switch to Creator Payments",
     description:
-      "Looking for a Wave alternative? Midday offers premium features, better bank connectivity, and AI-powered insights at a fair price.",
+      "Looking for a Wave alternative? Creator Payments offers premium features, better bank connectivity, and AI-powered insights at a fair price.",
     keyDifferences: [
       {
         title: "Bank Connectivity",
@@ -635,7 +635,7 @@ export const competitors: Competitor[] = [
           "Download your customer list and transaction data from Wave.",
       },
       {
-        title: "Create your Midday account",
+        title: "Create your Creator Payments account",
         description: "Sign up and connect your bank accounts globally.",
       },
       {
@@ -650,19 +650,19 @@ export const competitors: Competitor[] = [
     ],
     faq: [
       {
-        question: "Why pay for Midday when Wave is free?",
+        question: "Why pay for Creator Payments when Wave is free?",
         answer:
-          "Wave's free model is supported by payment processing fees and limited features. Midday includes time tracking, AI insights, global bank support, and priority support. For growing businesses, the value far exceeds the cost.",
+          "Wave's free model is supported by payment processing fees and limited features. Creator Payments includes time tracking, AI insights, global bank support, and priority support. For growing businesses, the value far exceeds the cost.",
       },
       {
         question: "What if I'm outside the US or Canada?",
         answer:
-          "Midday connects to over 25,000 banks worldwide. Wave's bank connections are limited to North America.",
+          "Creator Payments connects to over 25,000 banks worldwide. Wave's bank connections are limited to North America.",
       },
       {
         question: "Is there a free trial?",
         answer:
-          "Yes, Midday offers a 14-day free trial so you can experience all features before committing.",
+          "Yes, Creator Payments offers a 14-day free trial so you can experience all features before committing.",
       },
     ],
     targetAudience: [
@@ -676,9 +676,9 @@ export const competitors: Competitor[] = [
     id: "zoho-books",
     slug: "zoho-books-alternative",
     name: "Zoho Books",
-    tagline: "Why Founders Switch to Midday",
+    tagline: "Why Founders Switch to Creator Payments",
     description:
-      "Looking for a Zoho Books alternative? Midday offers a cleaner, more focused experience without the complexity of a massive software suite.",
+      "Looking for a Zoho Books alternative? Creator Payments offers a cleaner, more focused experience without the complexity of a massive software suite.",
     keyDifferences: [
       {
         title: "Focus",
@@ -757,7 +757,7 @@ export const competitors: Competitor[] = [
         description: "Download your contacts and transactions as CSV files.",
       },
       {
-        title: "Sign up for Midday",
+        title: "Sign up for Creator Payments",
         description: "Create your account in minutes.",
       },
       {
@@ -773,17 +773,17 @@ export const competitors: Competitor[] = [
       {
         question: "What about the Zoho ecosystem?",
         answer:
-          "If you're heavily invested in Zoho's suite, their integrations can be valuable. But if you find yourself only using Zoho Books and paying for complexity you don't need, Midday offers a cleaner alternative.",
+          "If you're heavily invested in Zoho's suite, their integrations can be valuable. But if you find yourself only using Zoho Books and paying for complexity you don't need, Creator Payments offers a cleaner alternative.",
       },
       {
         question: "Is time tracking really included?",
         answer:
-          "Yes! Unlike Zoho, which requires a separate Zoho Projects subscription for time tracking, Midday includes it in all plans.",
+          "Yes! Unlike Zoho, which requires a separate Zoho Projects subscription for time tracking, Creator Payments includes it in all plans.",
       },
       {
         question: "Can I migrate my data?",
         answer:
-          "Yes, you can export your data from Zoho Books and set up fresh in Midday. Your bank transactions will sync automatically.",
+          "Yes, you can export your data from Zoho Books and set up fresh in Creator Payments. Your bank transactions will sync automatically.",
       },
     ],
     targetAudience: [
@@ -797,9 +797,9 @@ export const competitors: Competitor[] = [
     id: "harvest",
     slug: "harvest-alternative",
     name: "Harvest",
-    tagline: "Why Founders Switch to Midday",
+    tagline: "Why Founders Switch to Creator Payments",
     description:
-      "Looking for a Harvest alternative? Midday combines time tracking with full financial management, invoicing, and AI-powered insights.",
+      "Looking for a Harvest alternative? Creator Payments combines time tracking with full financial management, invoicing, and AI-powered insights.",
     keyDifferences: [
       {
         title: "Scope",
@@ -873,7 +873,7 @@ export const competitors: Competitor[] = [
         description: "Download your projects, clients, and time entries.",
       },
       {
-        title: "Create your Midday account",
+        title: "Create your Creator Payments account",
         description: "Sign up and connect your bank accounts.",
       },
       {
@@ -889,12 +889,12 @@ export const competitors: Competitor[] = [
       {
         question: "How does time tracking compare?",
         answer:
-          "Midday offers comparable time tracking features, but connects them directly to your bank transactions, invoicing, and financial insights. You get the full picture of your business, not just hours tracked.",
+          "Creator Payments offers comparable time tracking features, but connects them directly to your bank transactions, invoicing, and financial insights. You get the full picture of your business, not just hours tracked.",
       },
       {
         question: "What about team management?",
         answer:
-          "Midday supports team members with time tracking and includes them in your overall business view. Unlike Harvest's per-seat pricing, Midday offers predictable team pricing.",
+          "Creator Payments supports team members with time tracking and includes them in your overall business view. Unlike Harvest's per-seat pricing, Creator Payments offers predictable team pricing.",
       },
       {
         question: "Can I still invoice based on tracked time?",
@@ -913,9 +913,9 @@ export const competitors: Competitor[] = [
     id: "expensify",
     slug: "expensify-alternative",
     name: "Expensify",
-    tagline: "Why Founders Switch to Midday",
+    tagline: "Why Founders Switch to Creator Payments",
     description:
-      "Looking for an Expensify alternative? Midday handles expenses as part of a complete financial workspace with invoicing, time tracking, and insights.",
+      "Looking for an Expensify alternative? Creator Payments handles expenses as part of a complete financial workspace with invoicing, time tracking, and insights.",
     keyDifferences: [
       {
         title: "Scope",
@@ -993,7 +993,7 @@ export const competitors: Competitor[] = [
         description: "Download your expense reports and transaction history.",
       },
       {
-        title: "Sign up for Midday",
+        title: "Sign up for Creator Payments",
         description: "Create your account and connect your bank accounts.",
       },
       {
@@ -1009,17 +1009,17 @@ export const competitors: Competitor[] = [
       {
         question: "Is receipt scanning as good as Expensify?",
         answer:
-          "Midday uses advanced OCR and AI to capture receipt data automatically. While Expensify pioneered SmartScan, Midday's receipt capture is comparable and connects to your full financial picture.",
+          "Creator Payments uses advanced OCR and AI to capture receipt data automatically. While Expensify pioneered SmartScan, Creator Payments' receipt capture is comparable and connects to your full financial picture.",
       },
       {
         question: "What about expense policies and approvals?",
         answer:
-          "Midday is designed for founders and small teams where complex approval workflows aren't needed. If you require enterprise expense policies, Expensify may be more suitable.",
+          "Creator Payments is designed for founders and small teams where complex approval workflows aren't needed. If you require enterprise expense policies, Expensify may be more suitable.",
       },
       {
         question: "Can I track mileage?",
         answer:
-          "Mileage tracking isn't built into Midday currently. If this is essential, you might use a dedicated mileage app alongside Midday for your other financial needs.",
+          "Mileage tracking isn't built into Creator Payments currently. If this is essential, you might use a dedicated mileage app alongside Creator Payments for your other financial needs.",
       },
     ],
     targetAudience: [
@@ -1033,9 +1033,9 @@ export const competitors: Competitor[] = [
     id: "mint",
     slug: "mint-alternative",
     name: "Mint",
-    tagline: "Why Founders Switch to Midday",
+    tagline: "Why Founders Switch to Creator Payments",
     description:
-      "Looking for a Mint alternative for your business? Midday is built specifically for founders and small teams, not personal finance.",
+      "Looking for a Mint alternative for your business? Creator Payments is built specifically for founders and small teams, not personal finance.",
     keyDifferences: [
       {
         title: "Purpose",
@@ -1103,13 +1103,13 @@ export const competitors: Competitor[] = [
         description: "Identify which accounts are for your business.",
       },
       {
-        title: "Sign up for Midday",
+        title: "Sign up for Creator Payments",
         description:
           "Create your account and connect your business bank accounts.",
       },
       {
         title: "Set up business categories",
-        description: "Midday's categories are designed for business expenses.",
+        description: "Creator Payments' categories are designed for business expenses.",
       },
       {
         title: "Add invoicing and time tracking",
@@ -1120,17 +1120,17 @@ export const competitors: Competitor[] = [
       {
         question: "Why switch from Mint?",
         answer:
-          "Mint was designed for personal finance. As a founder, you need invoicing, receipt tracking, time tracking, and business insights. Midday is purpose-built for running a business.",
+          "Mint was designed for personal finance. As a founder, you need invoicing, receipt tracking, time tracking, and business insights. Creator Payments is purpose-built for running a business.",
       },
       {
         question: "What about personal finances?",
         answer:
-          "We recommend keeping personal and business finances separate. Use Midday for your business, and a personal finance app for personal accounts.",
+          "We recommend keeping personal and business finances separate. Use Creator Payments for your business, and a personal finance app for personal accounts.",
       },
       {
-        question: "Is Midday free like Mint?",
+        question: "Is Creator Payments free like Mint?",
         answer:
-          "Midday is a paid service because running a business requires premium features and support. The value you get far exceeds the cost when you factor in time saved and insights gained.",
+          "Creator Payments is a paid service because running a business requires premium features and support. The value you get far exceeds the cost when you factor in time saved and insights gained.",
       },
     ],
     targetAudience: [
@@ -1144,9 +1144,9 @@ export const competitors: Competitor[] = [
     id: "toggl",
     slug: "toggl-alternative",
     name: "Toggl",
-    tagline: "Why Founders Switch to Midday",
+    tagline: "Why Founders Switch to Creator Payments",
     description:
-      "Looking for a Toggl alternative? Midday combines time tracking with invoicing, transactions, and AI-powered insights for the complete picture.",
+      "Looking for a Toggl alternative? Creator Payments combines time tracking with invoicing, transactions, and AI-powered insights for the complete picture.",
     keyDifferences: [
       {
         title: "Scope",
@@ -1224,12 +1224,12 @@ export const competitors: Competitor[] = [
           "Download your projects, clients, and time entries as CSV.",
       },
       {
-        title: "Create your Midday account",
+        title: "Create your Creator Payments account",
         description: "Sign up and connect your bank accounts.",
       },
       {
         title: "Set up projects and clients",
-        description: "Recreate your project structure in Midday.",
+        description: "Recreate your project structure in Creator Payments.",
       },
       {
         title: "Start tracking with context",
@@ -1241,17 +1241,17 @@ export const competitors: Competitor[] = [
       {
         question: "Is time tracking as powerful as Toggl?",
         answer:
-          "Midday offers solid time tracking with timers, manual entry, project tracking, and team support. While Toggl has some advanced features like automated tracking, Midday gives you time tracking plus complete financial management in one place.",
+          "Creator Payments offers solid time tracking with timers, manual entry, project tracking, and team support. While Toggl has some advanced features like automated tracking, Creator Payments gives you time tracking plus complete financial management in one place.",
       },
       {
         question: "What about integrations?",
         answer:
-          "Toggl has 100+ integrations, many for syncing time to other tools. Midday reduces integration needs by including invoicing and finances directly. You may need fewer tools overall.",
+          "Toggl has 100+ integrations, many for syncing time to other tools. Creator Payments reduces integration needs by including invoicing and finances directly. You may need fewer tools overall.",
       },
       {
         question: "How does pricing compare?",
         answer:
-          "Toggl charges per user, which adds up quickly. Midday's team pricing is more predictable, and you get invoicing, bank connections, and AI insights included.",
+          "Toggl charges per user, which adds up quickly. Creator Payments' team pricing is more predictable, and you get invoicing, bank connections, and AI insights included.",
       },
     ],
     targetAudience: [
@@ -1265,9 +1265,9 @@ export const competitors: Competitor[] = [
     id: "clockify",
     slug: "clockify-alternative",
     name: "Clockify",
-    tagline: "Why Founders Switch to Midday",
+    tagline: "Why Founders Switch to Creator Payments",
     description:
-      "Looking for a Clockify alternative? Midday offers time tracking plus invoicing, bank connections, and AI-powered financial insights in one workspace.",
+      "Looking for a Clockify alternative? Creator Payments offers time tracking plus invoicing, bank connections, and AI-powered financial insights in one workspace.",
     keyDifferences: [
       {
         title: "Scope",
@@ -1352,12 +1352,12 @@ export const competitors: Competitor[] = [
           "Download your time entries, projects, and clients as CSV.",
       },
       {
-        title: "Create your Midday account",
+        title: "Create your Creator Payments account",
         description: "Sign up and connect your bank accounts.",
       },
       {
         title: "Set up your projects",
-        description: "Recreate your project structure in Midday.",
+        description: "Recreate your project structure in Creator Payments.",
       },
       {
         title: "Experience the full picture",
@@ -1366,19 +1366,19 @@ export const competitors: Competitor[] = [
     ],
     faq: [
       {
-        question: "Clockify is free - why pay for Midday?",
+        question: "Clockify is free - why pay for Creator Payments?",
         answer:
-          "Clockify's free tier is generous for time tracking alone, but you'll need additional paid tools for invoicing, expense tracking, and financial visibility. Midday includes everything in one workspace, saving you the cost and complexity of multiple tools.",
+          "Clockify's free tier is generous for time tracking alone, but you'll need additional paid tools for invoicing, expense tracking, and financial visibility. Creator Payments includes everything in one workspace, saving you the cost and complexity of multiple tools.",
       },
       {
         question: "How does time tracking compare?",
         answer:
-          "Both offer solid time tracking with timers, manual entry, and project tracking. The difference is that Midday connects your tracked time directly to invoicing, bank transactions, and financial insights.",
+          "Both offer solid time tracking with timers, manual entry, and project tracking. The difference is that Creator Payments connects your tracked time directly to invoicing, bank transactions, and financial insights.",
       },
       {
         question: "What about the unlimited free users?",
         answer:
-          "Clockify's free plan is great for teams just tracking time. But once you need invoicing, expense tracking, or financial insights, you'll pay per user for multiple tools. Midday's predictable pricing includes everything.",
+          "Clockify's free plan is great for teams just tracking time. But once you need invoicing, expense tracking, or financial insights, you'll pay per user for multiple tools. Creator Payments' predictable pricing includes everything.",
       },
     ],
     targetAudience: [
@@ -1392,9 +1392,9 @@ export const competitors: Competitor[] = [
     id: "bench",
     slug: "bench-alternative",
     name: "Bench",
-    tagline: "Why Founders Switch to Midday",
+    tagline: "Why Founders Switch to Creator Payments",
     description:
-      "Looking for a Bench alternative? Midday gives you real-time financial visibility and control, without waiting for monthly bookkeeper reports.",
+      "Looking for a Bench alternative? Creator Payments gives you real-time financial visibility and control, without waiting for monthly bookkeeper reports.",
     keyDifferences: [
       {
         title: "Access",
@@ -1479,11 +1479,11 @@ export const competitors: Competitor[] = [
         description: "Get your financial statements and transaction history.",
       },
       {
-        title: "Sign up for Midday",
+        title: "Sign up for Creator Payments",
         description: "Create your account and connect your bank accounts.",
       },
       {
-        title: "Let Midday categorize",
+        title: "Let Creator Payments categorize",
         description: "AI-powered categorization starts working immediately.",
       },
       {
@@ -1493,19 +1493,19 @@ export const competitors: Competitor[] = [
     ],
     faq: [
       {
-        question: "Is Midday a replacement for bookkeeping?",
+        question: "Is Creator Payments a replacement for bookkeeping?",
         answer:
-          "Midday handles day-to-day financial management and gives you real-time visibility. For tax filing and complex accounting, you may still want an accountant - but you'll spend far less on bookkeeping services because Midday keeps everything organized.",
+          "Creator Payments handles day-to-day financial management and gives you real-time visibility. For tax filing and complex accounting, you may still want an accountant - but you'll spend far less on bookkeeping services because Creator Payments keeps everything organized.",
       },
       {
         question: "What about tax preparation?",
         answer:
-          "Midday categorizes transactions, tracks receipts, and exports tax-ready reports. Your accountant will have everything they need, organized and ready to go.",
+          "Creator Payments categorizes transactions, tracks receipts, and exports tax-ready reports. Your accountant will have everything they need, organized and ready to go.",
       },
       {
-        question: "Why is Midday so much cheaper?",
+        question: "Why is Creator Payments so much cheaper?",
         answer:
-          "Bench employs human bookkeepers who manually review your transactions monthly. Midday uses AI and automation for instant categorization, giving you better speed at a fraction of the cost.",
+          "Bench employs human bookkeepers who manually review your transactions monthly. Creator Payments uses AI and automation for instant categorization, giving you better speed at a fraction of the cost.",
       },
     ],
     targetAudience: [
@@ -1519,9 +1519,9 @@ export const competitors: Competitor[] = [
     id: "qonto",
     slug: "qonto-alternative",
     name: "Qonto",
-    tagline: "Why Founders Switch to Midday",
+    tagline: "Why Founders Switch to Creator Payments",
     description:
-      "Looking for a Qonto alternative? Midday offers financial management that works with any bank, plus invoicing, time tracking, and AI insights.",
+      "Looking for a Qonto alternative? Creator Payments offers financial management that works with any bank, plus invoicing, time tracking, and AI insights.",
     keyDifferences: [
       {
         title: "Bank Freedom",
@@ -1609,10 +1609,10 @@ export const competitors: Competitor[] = [
       {
         title: "Keep your current bank",
         description:
-          "No need to switch banks - Midday connects to your existing accounts.",
+          "No need to switch banks - Creator Payments connects to your existing accounts.",
       },
       {
-        title: "Sign up for Midday",
+        title: "Sign up for Creator Payments",
         description: "Create your account and connect your bank accounts.",
       },
       {
@@ -1628,17 +1628,17 @@ export const competitors: Competitor[] = [
       {
         question: "Do I need to switch banks?",
         answer:
-          "No! Unlike Qonto, Midday works with your existing bank accounts. Connect any of 25,000+ banks worldwide and keep your current banking relationships.",
+          "No! Unlike Qonto, Creator Payments works with your existing bank accounts. Connect any of 25,000+ banks worldwide and keep your current banking relationships.",
       },
       {
         question: "What about team expense cards?",
         answer:
-          "Midday focuses on financial management, not banking. If you need team cards, you can use your existing bank's cards while using Midday for tracking, invoicing, and insights.",
+          "Creator Payments focuses on financial management, not banking. If you need team cards, you can use your existing bank's cards while using Creator Payments for tracking, invoicing, and insights.",
       },
       {
-        question: "Is Midday available in Europe?",
+        question: "Is Creator Payments available in Europe?",
         answer:
-          "Yes! Midday works globally with banks across Europe, including SEPA countries. You get the same features whether you're in Germany, France, Netherlands, or anywhere else.",
+          "Yes! Creator Payments works globally with banks across Europe, including SEPA countries. You get the same features whether you're in Germany, France, Netherlands, or anywhere else.",
       },
     ],
     targetAudience: [
@@ -1652,9 +1652,9 @@ export const competitors: Competitor[] = [
     id: "pleo",
     slug: "pleo-alternative",
     name: "Pleo",
-    tagline: "Why Founders Switch to Midday",
+    tagline: "Why Founders Switch to Creator Payments",
     description:
-      "Looking for a Pleo alternative? Midday offers expense tracking plus invoicing, time tracking, and full financial visibility without requiring corporate cards.",
+      "Looking for a Pleo alternative? Creator Payments offers expense tracking plus invoicing, time tracking, and full financial visibility without requiring corporate cards.",
     keyDifferences: [
       {
         title: "Flexibility",
@@ -1731,7 +1731,7 @@ export const competitors: Competitor[] = [
         description: "Download your expense data and receipts.",
       },
       {
-        title: "Sign up for Midday",
+        title: "Sign up for Creator Payments",
         description: "Create your account and connect your bank accounts.",
       },
       {
@@ -1747,17 +1747,17 @@ export const competitors: Competitor[] = [
       {
         question: "What about corporate cards?",
         answer:
-          "Midday focuses on financial management, not issuing cards. You can use your existing corporate or personal cards - all transactions sync automatically from your connected bank accounts.",
+          "Creator Payments focuses on financial management, not issuing cards. You can use your existing corporate or personal cards - all transactions sync automatically from your connected bank accounts.",
       },
       {
         question: "Can I still track team expenses?",
         answer:
-          "Yes! Midday tracks all expenses from your connected bank accounts, regardless of which team member made the purchase. Receipts can be attached to any transaction.",
+          "Yes! Creator Payments tracks all expenses from your connected bank accounts, regardless of which team member made the purchase. Receipts can be attached to any transaction.",
       },
       {
-        question: "Is Midday available in Europe?",
+        question: "Is Creator Payments available in Europe?",
         answer:
-          "Absolutely. Midday works with banks across Europe and supports multiple currencies. You get the same features whether you're in Denmark, UK, Germany, or elsewhere.",
+          "Absolutely. Creator Payments works with banks across Europe and supports multiple currencies. You get the same features whether you're in Denmark, UK, Germany, or elsewhere.",
       },
     ],
     targetAudience: [
@@ -1771,9 +1771,9 @@ export const competitors: Competitor[] = [
     id: "honeybook",
     slug: "honeybook-alternative",
     name: "HoneyBook",
-    tagline: "Why Founders Switch to Midday",
+    tagline: "Why Founders Switch to Creator Payments",
     description:
-      "Looking for a HoneyBook alternative? Midday offers clean financial management with invoicing and time tracking, without the CRM complexity.",
+      "Looking for a HoneyBook alternative? Creator Payments offers clean financial management with invoicing and time tracking, without the CRM complexity.",
     keyDifferences: [
       {
         title: "Focus",
@@ -1854,7 +1854,7 @@ export const competitors: Competitor[] = [
           "Download your clients and invoice history from HoneyBook.",
       },
       {
-        title: "Sign up for Midday",
+        title: "Sign up for Creator Payments",
         description: "Create your account and connect your bank accounts.",
       },
       {
@@ -1870,17 +1870,17 @@ export const competitors: Competitor[] = [
       {
         question: "What about contracts and proposals?",
         answer:
-          "Midday focuses on financial management rather than proposals. If you need contract management, you might use a dedicated tool like DocuSign alongside Midday for your financial tracking and invoicing.",
+          "Creator Payments focuses on financial management rather than proposals. If you need contract management, you might use a dedicated tool like DocuSign alongside Creator Payments for your financial tracking and invoicing.",
       },
       {
-        question: "Is Midday good for freelancers?",
+        question: "Is Creator Payments good for freelancers?",
         answer:
-          "Absolutely! Midday is built for founders and freelancers who want clarity over their business finances. You get invoicing, time tracking, expense management, and AI insights in one clean interface.",
+          "Absolutely! Creator Payments is built for founders and freelancers who want clarity over their business finances. You get invoicing, time tracking, expense management, and AI insights in one clean interface.",
       },
       {
         question: "What about client scheduling?",
         answer:
-          "Midday doesn't include scheduling. If you need that, tools like Calendly work great alongside Midday. Many users find they prefer best-in-class tools for each function rather than an all-in-one that compromises on each.",
+          "Creator Payments doesn't include scheduling. If you need that, tools like Calendly work great alongside Creator Payments. Many users find they prefer best-in-class tools for each function rather than an all-in-one that compromises on each.",
       },
     ],
     targetAudience: [
@@ -1894,9 +1894,9 @@ export const competitors: Competitor[] = [
     id: "freeagent",
     slug: "freeagent-alternative",
     name: "FreeAgent",
-    tagline: "Why Founders Switch to Midday",
+    tagline: "Why Founders Switch to Creator Payments",
     description:
-      "Looking for a FreeAgent alternative? Midday offers modern financial management with AI-powered insights, without the accounting complexity.",
+      "Looking for a FreeAgent alternative? Creator Payments offers modern financial management with AI-powered insights, without the accounting complexity.",
     keyDifferences: [
       {
         title: "Design",
@@ -1978,7 +1978,7 @@ export const competitors: Competitor[] = [
           "Download your contacts, invoices, and transaction history.",
       },
       {
-        title: "Sign up for Midday",
+        title: "Sign up for Creator Payments",
         description: "Create your account and connect your bank accounts.",
       },
       {
@@ -1994,17 +1994,17 @@ export const competitors: Competitor[] = [
       {
         question: "What about Making Tax Digital (MTD)?",
         answer:
-          "Midday exports your data in formats compatible with MTD requirements. Your accountant can use these exports for VAT submissions. Midday focuses on day-to-day financial clarity rather than tax compliance features.",
+          "Creator Payments exports your data in formats compatible with MTD requirements. Your accountant can use these exports for VAT submissions. Creator Payments focuses on day-to-day financial clarity rather than tax compliance features.",
       },
       {
         question: "I get FreeAgent free with my bank - why switch?",
         answer:
-          "Free is great, but if you find FreeAgent's interface dated or complex, Midday offers a modern experience with AI-powered insights. The value of time saved and better visibility often exceeds the subscription cost.",
+          "Free is great, but if you find FreeAgent's interface dated or complex, Creator Payments offers a modern experience with AI-powered insights. The value of time saved and better visibility often exceeds the subscription cost.",
       },
       {
-        question: "Is Midday suitable for UK businesses?",
+        question: "Is Creator Payments suitable for UK businesses?",
         answer:
-          "Yes! Midday works with UK banks and handles GBP and multi-currency. While it doesn't file VAT directly, it provides everything your accountant needs for compliance.",
+          "Yes! Creator Payments works with UK banks and handles GBP and multi-currency. While it doesn't file VAT directly, it provides everything your accountant needs for compliance.",
       },
     ],
     targetAudience: [
@@ -2018,9 +2018,9 @@ export const competitors: Competitor[] = [
     id: "ramp",
     slug: "ramp-alternative",
     name: "Ramp",
-    tagline: "Why Founders Switch to Midday",
+    tagline: "Why Founders Switch to Creator Payments",
     description:
-      "Looking for a Ramp alternative? Midday offers financial visibility and expense tracking without requiring you to switch corporate cards.",
+      "Looking for a Ramp alternative? Creator Payments offers financial visibility and expense tracking without requiring you to switch corporate cards.",
     keyDifferences: [
       {
         title: "Flexibility",
@@ -2099,10 +2099,10 @@ export const competitors: Competitor[] = [
       {
         title: "Keep your current cards",
         description:
-          "No need to switch - Midday works with your existing accounts.",
+          "No need to switch - Creator Payments works with your existing accounts.",
       },
       {
-        title: "Sign up for Midday",
+        title: "Sign up for Creator Payments",
         description: "Create your account and connect your bank accounts.",
       },
       {
@@ -2118,7 +2118,7 @@ export const competitors: Competitor[] = [
       {
         question: "Why not use free Ramp cards?",
         answer:
-          "Ramp is great if you want to switch all spending to their cards and you're a larger team. But if you want flexibility to use any bank or card, plus invoicing and time tracking, Midday is the better fit for founders and small teams.",
+          "Ramp is great if you want to switch all spending to their cards and you're a larger team. But if you want flexibility to use any bank or card, plus invoicing and time tracking, Creator Payments is the better fit for founders and small teams.",
       },
       {
         question: "What about the cashback and savings?",
@@ -2126,9 +2126,9 @@ export const competitors: Competitor[] = [
           "Ramp offers 1.5% cashback on their cards. However, the value of having invoicing, time tracking, and full financial visibility in one place often exceeds those savings for most small businesses.",
       },
       {
-        question: "Is Midday for startups too?",
+        question: "Is Creator Payments for startups too?",
         answer:
-          "Yes! While Ramp targets VC-backed startups with larger teams, Midday is built specifically for founders and small teams who want clarity without corporate card requirements.",
+          "Yes! While Ramp targets VC-backed startups with larger teams, Creator Payments is built specifically for founders and small teams who want clarity without corporate card requirements.",
       },
     ],
     targetAudience: [

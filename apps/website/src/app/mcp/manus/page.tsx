@@ -4,10 +4,10 @@ import { createPageMetadata } from "@/lib/metadata";
 export const metadata = createPageMetadata({
   title: "Manus MCP Integration",
   description:
-    "Connect Manus to your Midday data via Model Context Protocol. Automate financial workflows with AI agents.",
+    "Connect Manus to your Creator Payments data via Model Context Protocol. Automate financial workflows with AI agents.",
   path: "/mcp/manus",
   og: {
-    title: "Manus + Midday",
+    title: "Manus + Creator Payments",
     description: "Automate workflows with AI agents",
   },
   keywords: [

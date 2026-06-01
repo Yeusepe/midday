@@ -220,7 +220,7 @@ export function ChatView({ header }: { header?: React.ReactNode }) {
             }}
           />
           <p className="text-center text-[11px] text-[#878787]/50 pt-1.5">
-            Midday AI can make mistakes. Please double-check responses.
+            Creator Payments AI can make mistakes. Please double-check responses.
           </p>
         </div>
       </motion.div>

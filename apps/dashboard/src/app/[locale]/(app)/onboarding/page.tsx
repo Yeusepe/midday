@@ -5,7 +5,7 @@ import { OnboardingPage } from "@/components/onboarding/onboarding-page";
 import { getQueryClient, HydrateClient, trpc } from "@/trpc/server";
 
 export const metadata: Metadata = {
-  title: "Onboarding | Midday",
+  title: "Onboarding | Creator Payments",
 };
 
 export default async function Page() {

@@ -191,6 +191,11 @@ export async function getInvoices(db: Database, params: GetInvoicesParams) {
       createdAt: invoices.createdAt,
       amount: invoices.amount,
       currency: invoices.currency,
+      exchangeRate: invoices.exchangeRate,
+      exchangeRateSource: invoices.exchangeRateSource,
+      exchangeRateUpdatedAt: invoices.exchangeRateUpdatedAt,
+      convertedCurrency: invoices.convertedCurrency,
+      convertedAmount: invoices.convertedAmount,
       lineItems: invoices.lineItems,
       reminderSentAt: invoices.reminderSentAt,
       updatedAt: invoices.updatedAt,
@@ -327,6 +332,11 @@ export async function getInvoiceById(
       createdAt: invoices.createdAt,
       amount: invoices.amount,
       currency: invoices.currency,
+      exchangeRate: invoices.exchangeRate,
+      exchangeRateSource: invoices.exchangeRateSource,
+      exchangeRateUpdatedAt: invoices.exchangeRateUpdatedAt,
+      convertedCurrency: invoices.convertedCurrency,
+      convertedAmount: invoices.convertedAmount,
       lineItems: invoices.lineItems,
       paymentDetails: invoices.paymentDetails,
       customerDetails: invoices.customerDetails,
@@ -785,6 +795,11 @@ type DraftInvoiceParams = {
   topBlock?: string | null;
   bottomBlock?: string | null;
   amount?: number | null;
+  exchangeRate?: number | null;
+  exchangeRateSource?: "automatic" | "manual" | null;
+  exchangeRateUpdatedAt?: string | null;
+  convertedCurrency?: string | null;
+  convertedAmount?: number | null;
   lineItems?: DraftInvoiceLineItemParams[];
   token?: string;
   teamId: string;
@@ -823,6 +838,7 @@ export async function draftInvoice(
       templateId,
       ...restInput,
       currency: template.currency?.toUpperCase(),
+      convertedCurrency: restInput.convertedCurrency?.toUpperCase() ?? null,
       template: restTemplate,
       paymentDetails: paymentDetails,
       fromDetails: fromDetails,
@@ -844,6 +860,7 @@ export async function draftInvoice(
           ELSE ${invoices.status}
         END`,
         currency: template.currency?.toUpperCase(),
+        convertedCurrency: restInput.convertedCurrency?.toUpperCase() ?? null,
         template: camelcaseKeys(restTemplate, { deep: true }),
         paymentDetails: paymentDetails,
         fromDetails: fromDetails,
@@ -1023,6 +1040,11 @@ export async function duplicateInvoice(
       discount: invoices.discount,
       subtotal: invoices.subtotal,
       amount: invoices.amount,
+      exchangeRate: invoices.exchangeRate,
+      exchangeRateSource: invoices.exchangeRateSource,
+      exchangeRateUpdatedAt: invoices.exchangeRateUpdatedAt,
+      convertedCurrency: invoices.convertedCurrency,
+      convertedAmount: invoices.convertedAmount,
       paymentDetails: invoices.paymentDetails,
       noteDetails: invoices.noteDetails,
       topBlock: invoices.topBlock,
@@ -1057,6 +1079,14 @@ export async function duplicateInvoice(
     discount: invoice.discount,
     subtotal: invoice.subtotal,
     amount: invoice.amount,
+    exchangeRate: invoice.exchangeRate,
+    exchangeRateSource: invoice.exchangeRateSource as
+      | "automatic"
+      | "manual"
+      | null,
+    exchangeRateUpdatedAt: invoice.exchangeRateUpdatedAt,
+    convertedCurrency: invoice.convertedCurrency,
+    convertedAmount: invoice.convertedAmount,
 
     // @ts-expect-error - JSONB
     paymentDetails: invoice.paymentDetails,

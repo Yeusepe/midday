@@ -19,11 +19,11 @@ const testimonials = [
     name: "Guy Solan",
     title: "Thetis Medical • United Kingdom",
     content:
-      "Without Midday I would've sold my company and lost loads of money. I never had the time to learn Quickbooks or Xero so had no idea what the company cash was doing without ringing up my accountant.",
+      "Without Creator Payments I would've sold my company and lost loads of money. I never had the time to learn Quickbooks or Xero so had no idea what the company cash was doing without ringing up my accountant.",
     highlighted:
-      "Without Midday I would've sold my company and lost loads of money",
+      "Without Creator Payments I would've sold my company and lost loads of money",
     firstPart:
-      "Without Midday I would've sold my company and lost loads of money",
+      "Without Creator Payments I would've sold my company and lost loads of money",
     secondPart:
       ". I never had the time to learn Quickbooks or Xero so had no idea what the company cash was doing without ringing up my accountant.",
   },
@@ -42,13 +42,13 @@ const testimonials = [
     name: "Richard Poelderl",
     title: "Conduct.bln • Germany",
     content:
-      "I prefer to have one tool for finances, similar to what Deel is for HR. Midday helped me find a compromise with my tax advisor: I'm not using one of his supported clunky tools but an actually UX-friendly tool and can provide him with acceptable .csv. That's a big one!",
+      "I prefer to have one tool for finances, similar to what Deel is for HR. Creator Payments helped me find a compromise with my tax advisor: I'm not using one of his supported clunky tools but an actually UX-friendly tool and can provide him with acceptable .csv. That's a big one!",
     highlighted:
       "I prefer to have one tool for finances, similar to what Deel is for HR",
     firstPart:
       "I prefer to have one tool for finances, similar to what Deel is for HR",
     secondPart:
-      ". Midday helped me find a compromise with my tax advisor: I'm not using one of his supported clunky tools but an actually UX-friendly tool and can provide him with acceptable .csv. That's a big one!",
+      ". Creator Payments helped me find a compromise with my tax advisor: I'm not using one of his supported clunky tools but an actually UX-friendly tool and can provide him with acceptable .csv. That's a big one!",
   },
 ];
 

@@ -59,7 +59,7 @@ export function DeleteTeam() {
       <CardHeader>
         <CardTitle>Delete team</CardTitle>
         <CardDescription>
-          Permanently remove your Team and all of its contents from the Midday
+          Permanently remove your Team and all of its contents from the Creator Payments
           platform. This action is not reversible — please continue with
           caution.
         </CardDescription>

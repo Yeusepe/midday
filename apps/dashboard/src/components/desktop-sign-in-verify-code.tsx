@@ -29,13 +29,13 @@ export function DesktopSignInVerifyCode({
           src={appIcon}
           width={80}
           height={80}
-          alt="Midday"
+          alt="Creator Payments"
           quality={100}
           className="mb-10"
         />
         <p>Signing in...</p>
         <p className="mb-4">
-          If Midday dosen't open in a few seconds,{" "}
+          If Creator Payments doesn't open in a few seconds,{" "}
           <a
             className="underline"
             href={`${schemeUrl}api/auth/callback?code=${code}`}

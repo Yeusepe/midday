@@ -48,6 +48,8 @@ export const invoiceSent: NotificationHandler = {
         invoiceNumber: data.invoiceNumber,
         amount: data.amount,
         currency: data.currency,
+        convertedAmount: data.convertedAmount,
+        convertedCurrency: data.convertedCurrency,
         dueDate: data.dueDate,
         // Custom email content (emailHeading = in-body heading, separate from subject)
         emailHeading: data.emailHeading,

@@ -4,10 +4,10 @@ import { createPageMetadata } from "@/lib/metadata";
 export const metadata = createPageMetadata({
   title: "n8n MCP Integration",
   description:
-    "Connect Midday to n8n workflows via MCP. Build automated financial workflows with AI agents and connect to 400+ apps.",
+    "Connect Creator Payments to n8n workflows via MCP. Build automated financial workflows with AI agents and connect to 400+ apps.",
   path: "/mcp/n8n",
   og: {
-    title: "n8n + Midday",
+    title: "n8n + Creator Payments",
     description: "Automated financial workflows with 400+ apps",
   },
   keywords: [

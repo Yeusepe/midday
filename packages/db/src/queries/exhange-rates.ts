@@ -109,6 +109,46 @@ export async function getExchangeRate(
   return rate !== undefined ? { rate } : undefined;
 }
 
+export async function getExchangeRateDetails(
+  db: Database,
+  params: GetExchangeRateParams,
+) {
+  const { base, target } = params;
+
+  if (base === target) {
+    return {
+      base,
+      target,
+      rate: 1,
+      updatedAt: new Date().toISOString(),
+    };
+  }
+
+  const [row] = await db
+    .select({
+      base: exchangeRates.base,
+      target: exchangeRates.target,
+      rate: exchangeRates.rate,
+      updatedAt: exchangeRates.updatedAt,
+    })
+    .from(exchangeRates)
+    .where(
+      sql`${exchangeRates.base} = ${base} AND ${exchangeRates.target} = ${target}`,
+    )
+    .limit(1);
+
+  if (!row?.rate) {
+    return undefined;
+  }
+
+  return {
+    base: row.base ?? base,
+    target: row.target ?? target,
+    rate: Number(row.rate),
+    updatedAt: row.updatedAt,
+  };
+}
+
 export type GetExchangeRatesBatchParams = {
   pairs: Array<{ base: string; target: string }>;
 };

@@ -151,7 +151,7 @@ function initializeWorkbench() {
               password: process.env.BOARD_PASSWORD,
             }
           : undefined,
-      title: "Midday Jobs",
+      title: "Creator Payments Jobs",
       tags: ["teamId"],
     }),
   );

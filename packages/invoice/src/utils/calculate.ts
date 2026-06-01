@@ -77,3 +77,17 @@ export function calculateLineItemTotal({
   // Calculate and return total price
   return safePrice * safeQuantity;
 }
+
+export function calculateConvertedAmount({
+  amount,
+  exchangeRate,
+}: {
+  amount?: number | null;
+  exchangeRate?: number | null;
+}) {
+  if (amount == null || exchangeRate == null) {
+    return null;
+  }
+
+  return Math.round(amount * exchangeRate * 100) / 100;
+}

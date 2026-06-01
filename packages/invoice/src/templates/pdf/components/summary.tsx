@@ -9,6 +9,9 @@ interface SummaryProps {
   vat?: number | null;
   vatRate?: number;
   currency?: string | null;
+  exchangeRate?: number | null;
+  convertedCurrency?: string | null;
+  convertedAmount?: number | null;
   totalLabel: string;
   taxLabel: string;
   vatLabel: string;
@@ -31,6 +34,9 @@ export function Summary({
   vat,
   vatRate,
   currency,
+  exchangeRate,
+  convertedCurrency,
+  convertedAmount,
   totalLabel,
   taxLabel,
   vatLabel,
@@ -177,6 +183,43 @@ export function Summary({
             })}
         </Text>
       </View>
+
+      {currency &&
+        convertedCurrency &&
+        convertedAmount != null &&
+        exchangeRate && (
+          <View
+            style={{
+              marginTop: 10,
+              borderTopWidth: 0.5,
+              borderTopColor: "#000",
+              paddingTop: 5,
+              width: "100%",
+            }}
+          >
+            <View style={{ flexDirection: "row", marginBottom: 5 }}>
+              <Text style={{ fontSize: 9, flex: 1 }}>Exchange rate</Text>
+              <Text style={{ fontSize: 9, textAlign: "right" }}>
+                1 {currency} ={" "}
+                {new Intl.NumberFormat(locale, {
+                  maximumFractionDigits: 8,
+                }).format(exchangeRate)}{" "}
+                {convertedCurrency}
+              </Text>
+            </View>
+            <View style={{ flexDirection: "row" }}>
+              <Text style={{ fontSize: 9, flex: 1 }}>Converted total</Text>
+              <Text style={{ fontSize: 15, textAlign: "right" }}>
+                {formatCurrencyForPDF({
+                  amount: convertedAmount,
+                  currency: convertedCurrency,
+                  locale,
+                  maximumFractionDigits: 2,
+                })}
+              </Text>
+            </View>
+          </View>
+        )}
     </View>
   );
 }

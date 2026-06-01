@@ -151,6 +151,26 @@ export function BankSearchContent({
     }),
   );
 
+  const { data: providerConfiguration } = useQuery(
+    trpc.banking.configuration.queryOptions(),
+  );
+
+  const isPlaidConfigured =
+    Boolean(providerConfiguration?.plaid.active) &&
+    Boolean(process.env.NEXT_PUBLIC_PLAID_ENVIRONMENT);
+  const isTellerConfigured =
+    Boolean(providerConfiguration?.teller.active) &&
+    Boolean(process.env.NEXT_PUBLIC_TELLER_APPLICATION_ID);
+  const unavailableProviders = providerConfiguration
+    ? ([
+        ...Object.entries(providerConfiguration)
+          .filter(([, status]) => !status.active)
+          .map(([provider]) => provider),
+        ...(!isPlaidConfigured ? ["plaid"] : []),
+        ...(!isTellerConfigured ? ["teller"] : []),
+      ] as Array<"gocardless" | "plaid" | "teller" | "enablebanking">)
+    : undefined;
+
   const exchangeToken = useMutation(
     trpc.banking.plaidExchange.mutationOptions(),
   );
@@ -163,7 +183,7 @@ export function BankSearchContent({
     token: plaidToken,
     publicKey: "",
     env: process.env.NEXT_PUBLIC_PLAID_ENVIRONMENT!,
-    clientName: "Midday",
+    clientName: "Creator Payments",
     product: ["transactions"],
     onSuccess: async (public_token, metadata) => {
       const result = await exchangeToken.mutateAsync({
@@ -201,19 +221,24 @@ export function BankSearchContent({
       {
         q: debouncedQuery,
         countryCode,
+        excludeProviders: unavailableProviders,
       },
       {
-        enabled,
+        enabled: enabled && Boolean(providerConfiguration),
       },
     ),
     placeholderData: keepPreviousData,
   });
 
   useEffect(() => {
-    if (enabled && (countryCode === "US" || countryCode === "CA")) {
+    if (
+      enabled &&
+      isPlaidConfigured &&
+      (countryCode === "US" || countryCode === "CA")
+    ) {
       createPlaidLink.mutate();
     }
-  }, [enabled, countryCode]);
+  }, [enabled, countryCode, isPlaidConfigured]);
 
   return (
     <div>

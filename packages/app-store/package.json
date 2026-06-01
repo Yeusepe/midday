@@ -21,6 +21,7 @@
   },
   "exports": {
     ".": "./src/index.ts",
+    "./availability": "./src/availability.ts",
     "./types": "./src/types.ts",
     "./logos": "./src/logos.ts",
     "./oauth-errors": "./src/oauth-errors.ts",

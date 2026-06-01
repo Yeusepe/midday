@@ -22,7 +22,7 @@ interface Props {
 
 export const TrialExpiringEmail = ({ fullName = "" }: Props) => {
   const firstName = fullName ? fullName.split(" ").at(0) : "";
-  const text = `${firstName ? `Hi ${firstName}, ` : ""}Your Midday trial ends tomorrow — your subscription will begin automatically.`;
+  const text = `${firstName ? `Hi ${firstName}, ` : ""}Your Creator Payments trial ends tomorrow — your subscription will begin automatically.`;
   const themeClasses = getEmailThemeClasses();
   const lightStyles = getEmailInlineStyles("light");
 
@@ -60,7 +60,7 @@ export const TrialExpiringEmail = ({ fullName = "" }: Props) => {
             className={themeClasses.text}
             style={{ color: lightStyles.text.color }}
           >
-            Just a heads up — your 14-day Midday trial ends tomorrow and your
+            Just a heads up — your 14-day Creator Payments trial ends tomorrow and your
             subscription will begin automatically. Your card on file will be
             charged for your selected plan.
           </Text>

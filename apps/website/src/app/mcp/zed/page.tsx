@@ -4,10 +4,10 @@ import { createPageMetadata } from "@/lib/metadata";
 export const metadata = createPageMetadata({
   title: "Zed MCP Integration",
   description:
-    "Connect Zed to your Midday data via Model Context Protocol. Query transactions, invoices, and reports from the fastest code editor.",
+    "Connect Zed to your Creator Payments data via Model Context Protocol. Query transactions, invoices, and reports from the fastest code editor.",
   path: "/mcp/zed",
   og: {
-    title: "Zed + Midday",
+    title: "Zed + Creator Payments",
     description: "Transactions and invoices from Zed",
   },
   keywords: [

@@ -80,7 +80,7 @@ export function AppDetailSheet() {
             <div>
               <h3 className="text-lg leading-none">{app.name}</h3>
               <span className="text-xs text-[#878787]">
-                {"category" in app ? app.category : "Integration"} • By Midday
+                {"category" in app ? app.category : "Integration"} • By Creator Payments
               </span>
             </div>
           </div>

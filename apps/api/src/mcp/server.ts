@@ -32,7 +32,7 @@ function getServerInstructions(ctx: McpContext): string {
   const dateFormat = ctx.dateFormat || null;
   const timeFormat = ctx.timeFormat ?? 24;
 
-  return `Midday is a financial operating system for small businesses. This MCP server provides access to financial data including transactions, invoices, customers, time tracking, documents, and reports.
+  return `Creator Payments is a financial operating system for small businesses. This MCP server provides access to financial data including transactions, invoices, customers, time tracking, documents, and reports.
 
 ## Current Date & Timezone
 
@@ -89,7 +89,7 @@ export function createMcpServer(ctx: McpContext): McpServer {
     {
       name: "midday",
       version: MCP_SERVER_VERSION,
-      title: "Midday",
+      title: "Creator Payments",
       description:
         "Financial operating system for small businesses — transactions, invoices, time tracking, and reports",
       websiteUrl: "https://midday.ai",

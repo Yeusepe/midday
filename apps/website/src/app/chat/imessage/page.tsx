@@ -3,12 +3,12 @@ import { ChatPlatformPage } from "@/components/chat-platform-page";
 import { createPageMetadata } from "@/lib/metadata";
 
 export const metadata = createPageMetadata({
-  title: "Midday for iMessage",
+  title: "Creator Payments for iMessage",
   description:
     "Run your business from iMessage. Send receipts, create invoices, track time, and get notifications — all from your favorite messaging app.",
   path: "/chat/imessage",
   og: {
-    title: "Midday for iMessage",
+    title: "Creator Payments for iMessage",
     description: "Your business, right in Messages",
   },
   keywords: [
@@ -16,7 +16,7 @@ export const metadata = createPageMetadata({
     "iMessage invoicing",
     "iMessage receipts",
     "iMessage bookkeeping",
-    "Midday iMessage",
+    "Creator Payments iMessage",
     "business chat iMessage",
     "Sendblue",
   ],
@@ -28,12 +28,12 @@ const config = {
   appId: "sendblue",
   icon: <Icons.IMessage size={40} className="h-10 w-10" />,
   description:
-    "Connect Midday to iMessage and manage your finances without leaving your conversations. Send a photo of a receipt, ask about your cash flow, create an invoice — Midday handles it all through natural conversation.",
+    "Connect Creator Payments to iMessage and manage your finances without leaving your conversations. Send a photo of a receipt, ask about your cash flow, create an invoice — Creator Payments handles it all through natural conversation.",
   steps: [
     {
-      title: "Open Apps in Midday",
+      title: "Open Apps in Creator Payments",
       description:
-        "Go to the Apps section in your Midday dashboard and find iMessage.",
+        "Go to the Apps section in your Creator Payments dashboard and find iMessage.",
       href: "https://app.midday.ai/apps?app=sendblue",
     },
     {
@@ -56,7 +56,7 @@ const config = {
   capabilities: [
     "Send receipts and PDFs — just snap a photo or forward a document",
     "Create and send invoices through conversation",
-    "Track time by telling Midday what you worked on",
+    "Track time by telling Creator Payments what you worked on",
     "Ask questions about your finances in plain language",
     "Get real-time notifications for transactions and invoices",
   ],

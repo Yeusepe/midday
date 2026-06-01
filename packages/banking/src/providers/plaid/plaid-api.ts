@@ -61,7 +61,7 @@ export class PlaidApi {
       return "https://api-staging.midday.ai/webhook/plaid";
     }
 
-    return "https://api.midday.ai/webhook/plaid";
+    return "https://api.payments.yucp.club/webhook/plaid";
   }
 
   async getHealthCheck() {
@@ -208,7 +208,7 @@ export class PlaidApi {
     return this.#client.linkTokenCreate({
       client_id: this.#clientId,
       secret: this.#clientSecret,
-      client_name: "Midday",
+      client_name: "Creator Payments",
       products: [Products.Transactions],
       language,
       access_token: accessToken,

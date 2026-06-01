@@ -19,33 +19,35 @@ const CACHE_TTL = 86400; // 24h
 async function fetchCatalog(): Promise<CatalogEntry[]> {
   const apiKey = process.env.COMPOSIO_API_KEY;
 
+  if (!apiKey) {
+    return [];
+  }
+
   const composioMeta = new Map<string, { logo: string; description: string }>();
 
-  if (apiKey) {
-    const results = await Promise.allSettled(
-      CURATED_TOOLKIT_SLUGS.map(async (slug) => {
-        const data = await composioFetch<{
-          slug: string;
-          meta?: { logo?: string; description?: string };
-        }>(`/toolkits/${slug}`).catch(() => null);
+  const results = await Promise.allSettled(
+    CURATED_TOOLKIT_SLUGS.map(async (slug) => {
+      const data = await composioFetch<{
+        slug: string;
+        meta?: { logo?: string; description?: string };
+      }>(`/toolkits/${slug}`).catch(() => null);
 
-        if (!data?.meta?.logo) return null;
-        return {
-          slug: data.slug,
-          logo: data.meta.logo,
-          description: data.meta.description ?? "",
-        };
-      }),
-    );
+      if (!data?.meta?.logo) return null;
+      return {
+        slug: data.slug,
+        logo: data.meta.logo,
+        description: data.meta.description ?? "",
+      };
+    }),
+  );
 
-    for (let i = 0; i < CURATED_TOOLKIT_SLUGS.length; i++) {
-      const result = results[i];
-      if (result?.status === "fulfilled" && result.value) {
-        composioMeta.set(result.value.slug, {
-          logo: result.value.logo,
-          description: result.value.description,
-        });
-      }
+  for (let i = 0; i < CURATED_TOOLKIT_SLUGS.length; i++) {
+    const result = results[i];
+    if (result?.status === "fulfilled" && result.value) {
+      composioMeta.set(result.value.slug, {
+        logo: result.value.logo,
+        description: result.value.description,
+      });
     }
   }
 
@@ -68,6 +70,10 @@ async function fetchCatalog(): Promise<CatalogEntry[]> {
 }
 
 export async function getCatalog(): Promise<CatalogEntry[]> {
+  if (!process.env.COMPOSIO_API_KEY) {
+    return [];
+  }
+
   return connectorsCache.getOrSet<CatalogEntry[]>(
     CACHE_KEY,
     CACHE_TTL,

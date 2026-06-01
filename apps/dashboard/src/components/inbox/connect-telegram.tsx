@@ -136,7 +136,7 @@ export function ConnectTelegram({ showTrigger = true }: ConnectTelegramProps) {
           <DialogHeader>
             <DialogTitle>Connect Telegram</DialogTitle>
             <DialogDescription>
-              Scan the QR code or open Telegram to start the Midday bot with
+              Scan the QR code or open Telegram to start the Creator Payments bot with
               your workspace connection code.
             </DialogDescription>
           </DialogHeader>
@@ -207,7 +207,7 @@ export function ConnectTelegram({ showTrigger = true }: ConnectTelegramProps) {
 
           <p className="text-xs text-[#878787] text-center">
             Telegram opens the bot with a one-time code that links this account
-            to your Midday user.
+            to your Creator Payments user.
           </p>
 
           {connections.length > 0 && (

@@ -33,6 +33,11 @@ export type Invoice = {
   createdAt: string;
   amount: number | null;
   currency: string | null;
+  exchangeRate: number | null;
+  exchangeRateSource: "automatic" | "manual" | null;
+  exchangeRateUpdatedAt: string | null;
+  convertedCurrency: string | null;
+  convertedAmount: number | null;
   lineItems: LineItem[];
   paymentDetails: EditorDoc | null;
   customerDetails: EditorDoc | null;

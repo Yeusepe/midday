@@ -4,10 +4,10 @@ import { createPageMetadata } from "@/lib/metadata";
 export const metadata = createPageMetadata({
   title: "Perplexity MCP Integration",
   description:
-    "Connect Perplexity to your Midday data via MCP. Query transactions, invoices, and financial reports with natural language AI search.",
+    "Connect Perplexity to your Creator Payments data via MCP. Query transactions, invoices, and financial reports with natural language AI search.",
   path: "/mcp/perplexity",
   og: {
-    title: "Perplexity + Midday",
+    title: "Perplexity + Creator Payments",
     description: "Search your finances with natural language",
   },
   keywords: [

@@ -270,6 +270,34 @@ describe("tRPC: invoice.draft", () => {
       }),
     );
   });
+
+  test("saves locked conversion fields on draft", async () => {
+    const caller = createCaller(createTestContext());
+    await caller.draft({
+      id: INVOICE_ID,
+      dueDate: "2026-06-30T23:59:59.000Z",
+      issueDate: "2026-06-01T00:00:00.000Z",
+      template: { currency: "USD" },
+      lineItems: [{ name: "Consulting", quantity: 1, price: 1500, vat: 0 }],
+      amount: 1500,
+      exchangeRate: 535.25,
+      exchangeRateSource: "automatic",
+      exchangeRateUpdatedAt: "2026-06-01T12:00:00.000Z",
+      convertedCurrency: "CRC",
+      convertedAmount: 802875,
+    });
+
+    expect(mocks.draftInvoice).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        exchangeRate: 535.25,
+        exchangeRateSource: "automatic",
+        exchangeRateUpdatedAt: "2026-06-01T12:00:00.000Z",
+        convertedCurrency: "CRC",
+        convertedAmount: 802875,
+      }),
+    );
+  });
 });
 
 describe("tRPC: invoice.create", () => {

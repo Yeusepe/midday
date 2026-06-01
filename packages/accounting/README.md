@@ -1,6 +1,6 @@
 # Accounting Integration Package
 
-Technical documentation for Midday's accounting software integrations (Xero, QuickBooks, Fortnox).
+Technical documentation for Creator Payments' accounting software integrations (Xero, QuickBooks, Fortnox).
 
 ## Table of Contents
 
@@ -19,7 +19,7 @@ Technical documentation for Midday's accounting software integrations (Xero, Qui
 
 ## Overview
 
-The accounting integration enables Midday users to export their enriched financial transactions and attachments (receipts, invoices) to external accounting software. The system uses manual export only, giving users full control over when data is sent to their accounting provider.
+The accounting integration enables Creator Payments users to export their enriched financial transactions and attachments (receipts, invoices) to external accounting software. The system uses manual export only, giving users full control over when data is sent to their accounting provider.
 
 ### Supported Providers
 
@@ -443,7 +443,7 @@ upsertAccountingSyncRecord(db, {
   providerTenantId: string,
   providerTransactionId?: string,
   providerEntityType?: string,
-  // Maps Midday attachment IDs to provider attachment IDs
+  // Maps Creator Payments attachment IDs to provider attachment IDs
   syncedAttachmentMapping?: Record<string, string | null>,
   syncType: 'manual',
   status: 'synced' | 'failed' | 'pending',
@@ -467,17 +467,17 @@ updateSyncedAttachmentMapping(db, {
 # Xero
 XERO_CLIENT_ID=your_client_id
 XERO_CLIENT_SECRET=your_client_secret
-XERO_OAUTH_REDIRECT_URL=https://api.midday.ai/v1/apps/xero/oauth-callback
+XERO_OAUTH_REDIRECT_URL=https://api.payments.yucp.club/v1/apps/xero/oauth-callback
 
 # QuickBooks
 QUICKBOOKS_CLIENT_ID=your_client_id
 QUICKBOOKS_CLIENT_SECRET=your_client_secret
-QUICKBOOKS_OAUTH_REDIRECT_URL=https://api.midday.ai/v1/apps/quickbooks/oauth-callback
+QUICKBOOKS_OAUTH_REDIRECT_URL=https://api.payments.yucp.club/v1/apps/quickbooks/oauth-callback
 
 # Fortnox
 FORTNOX_CLIENT_ID=your_client_id
 FORTNOX_CLIENT_SECRET=your_client_secret
-FORTNOX_OAUTH_REDIRECT_URL=https://api.midday.ai/v1/apps/fortnox/oauth-callback
+FORTNOX_OAUTH_REDIRECT_URL=https://api.payments.yucp.club/v1/apps/fortnox/oauth-callback
 
 # OAuth state encryption
 ACCOUNTING_OAUTH_SECRET=32_byte_encryption_key

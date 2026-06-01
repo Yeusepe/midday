@@ -53,7 +53,7 @@ export function MCPGemini() {
 
   const cliCommand = useMemo(() => {
     const key = apiKey || "YOUR_API_KEY";
-    return `gemini mcp add --transport http --header "Authorization: Bearer ${key}" midday https://api.midday.ai/mcp`;
+    return `gemini mcp add --transport http --header "Authorization: Bearer ${key}" midday https://api.payments.yucp.club/mcp`;
   }, [apiKey]);
 
   const settingsConfig = useMemo(() => {
@@ -62,7 +62,7 @@ export function MCPGemini() {
       {
         mcpServers: {
           midday: {
-            url: "https://api.midday.ai/mcp",
+            url: "https://api.payments.yucp.club/mcp",
             headers: {
               Authorization: `Bearer ${key}`,
             },
@@ -106,7 +106,7 @@ export function MCPGemini() {
                 Financial data in Gemini CLI
               </h2>
               <p className="font-sans text-base text-muted-foreground leading-relaxed">
-                Connect Midday to Gemini CLI and query your transactions,
+                Connect Creator Payments to Gemini CLI and query your transactions,
                 invoices, and reports directly from your terminal.
                 Authentication is handled automatically via OAuth.
               </p>
@@ -151,10 +151,10 @@ export function MCPGemini() {
               <div className="space-y-6">
                 <div className="space-y-3">
                   <p className="font-sans text-sm text-muted-foreground">
-                    Run this command to add the Midday MCP server. OAuth will be
+                    Run this command to add the Creator Payments MCP server. OAuth will be
                     handled automatically in your browser:
                   </p>
-                  <CodeBlock code="gemini mcp add --transport http midday https://api.midday.ai/mcp" />
+                  <CodeBlock code="gemini mcp add --transport http midday https://api.payments.yucp.club/mcp" />
                 </div>
 
                 <div className="mt-12 space-y-4">
@@ -175,7 +175,7 @@ export function MCPGemini() {
                         2
                       </span>
                       <span className="font-sans text-sm text-muted-foreground pt-0.5">
-                        When prompted, sign in to Midday in your browser and
+                        When prompted, sign in to Creator Payments in your browser and
                         select a team
                       </span>
                     </li>
@@ -184,7 +184,7 @@ export function MCPGemini() {
                         3
                       </span>
                       <span className="font-sans text-sm text-muted-foreground pt-0.5">
-                        Use Midday tools in Gemini CLI to access your financial
+                        Use Creator Payments tools in Gemini CLI to access your financial
                         data
                       </span>
                     </li>

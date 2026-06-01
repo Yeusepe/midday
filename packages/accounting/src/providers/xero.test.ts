@@ -520,7 +520,7 @@ describe("XeroProvider", () => {
             {
               accountID: "acc-default",
               code: "090",
-              name: "Midday - Default Bank",
+              name: "Creator Payments - Default Bank",
               type: originalXeroNode.AccountType.BANK,
               status: originalXeroNode.Account.StatusEnum.ACTIVE,
               currencyCode: "USD",

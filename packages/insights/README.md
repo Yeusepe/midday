@@ -1,6 +1,6 @@
 # @midday/insights
 
-AI-powered business insights generation for Midday. This package provides smart metric selection, anomaly detection, and narrative content generation for periodic business summaries.
+AI-powered business insights generation for Creator Payments. This package provides smart metric selection, anomaly detection, and narrative content generation for periodic business summaries.
 
 ## Overview
 

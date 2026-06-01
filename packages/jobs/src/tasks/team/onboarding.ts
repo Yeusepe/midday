@@ -40,8 +40,8 @@ export const onboardTeam = schemaTask({
 
     await resend.emails.send({
       to: user.email,
-      subject: "Welcome to Midday",
-      from: "Pontus from Midday <pontus@midday.ai>",
+      subject: "Welcome to Creator Payments",
+      from: "Pontus from Creator Payments <pontus@midday.ai>",
       html: await render(
         WelcomeEmail({
           fullName: user.full_name,
@@ -65,7 +65,7 @@ export const onboardTeam = schemaTask({
 
       if (!count || count === 0) {
         await resend.emails.send({
-          from: "Pontus from Midday <pontus@midday.ai>",
+          from: "Pontus from Creator Payments <pontus@midday.ai>",
           to: user.email,
           subject: "Connect your bank to see the full picture",
           html: await render(

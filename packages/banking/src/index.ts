@@ -15,6 +15,7 @@ import type {
 } from "./types";
 import { logger } from "./utils/logger";
 
+export { getBankingProviderConfigurationStatuses } from "./availability";
 export class Provider {
   #name: string;
 

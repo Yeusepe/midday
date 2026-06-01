@@ -22,7 +22,7 @@ interface Props {
 
 export const WelcomeEmail = ({ fullName = "" }: Props) => {
   const firstName = fullName ? fullName.split(" ").at(0) : "";
-  const text = `${firstName ? `Hi ${firstName}, welcome` : "Welcome"} to Midday — built for founders like you.`;
+  const text = `${firstName ? `Hi ${firstName}, welcome` : "Welcome"} to Creator Payments — built for founders like you.`;
   const themeClasses = getEmailThemeClasses();
   const lightStyles = getEmailInlineStyles("light");
 
@@ -45,7 +45,7 @@ export const WelcomeEmail = ({ fullName = "" }: Props) => {
             className={`font-serif text-[21px] font-normal text-center p-0 my-[30px] mx-0 ${themeClasses.heading}`}
             style={{ color: lightStyles.text.color }}
           >
-            Welcome to Midday
+            Welcome to Creator Payments
           </Heading>
 
           <br />
@@ -60,10 +60,10 @@ export const WelcomeEmail = ({ fullName = "" }: Props) => {
             className={themeClasses.text}
             style={{ color: lightStyles.text.color }}
           >
-            I'm Pontus, one of the founders of Midday.
+            I'm Pontus, one of the founders of Creator Payments.
             <br />
             <br />
-            We started Midday after years of running our own companies — tired
+            We started Creator Payments after years of running our own companies — tired
             of juggling tools just to know where things stand. If that sounds
             familiar, you're in the right place.
             <br />

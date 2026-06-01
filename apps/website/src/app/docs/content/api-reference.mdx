@@ -1,11 +1,11 @@
 ---
 title: API Reference
-description: Access your Midday data programmatically through the REST API.
+description: Access your Creator Payments data programmatically through the REST API.
 section: developer
 order: 1
 ---
 
-The Midday API lets you access your financial data programmatically. Build custom integrations, automate workflows, or connect Midday to your own tools.
+The Creator Payments API lets you access your financial data programmatically. Build custom integrations, automate workflows, or connect Creator Payments to your own tools.
 
 ## Full API documentation
 
@@ -27,11 +27,11 @@ The API provides access to:
 
 ## Authentication
 
-The Midday API supports two authentication methods:
+The Creator Payments API supports two authentication methods:
 
 ### API Keys (for your own data)
 
-For accessing your own Midday data in scripts, automations, or personal tools.
+For accessing your own Creator Payments data in scripts, automations, or personal tools.
 
 1. Go to [Settings → Developer](https://app.midday.ai/settings/developer)
 2. Click **Create API key**
@@ -46,7 +46,7 @@ Authorization: Bearer your-api-key-here
 
 ### OAuth 2.0 (for user-facing apps)
 
-For building apps that access other users' Midday data with their permission.
+For building apps that access other users' Creator Payments data with their permission.
 
 1. Create an OAuth application in [Settings → Developer](https://app.midday.ai/settings/developer)
 2. Implement the OAuth authorization flow
@@ -60,7 +60,7 @@ For building apps that access other users' Midday data with their permission.
 All API endpoints use:
 
 ```
-https://api.midday.ai/v1
+https://api.payments.yucp.club/v1
 ```
 
 ## Rate limits
@@ -74,7 +74,7 @@ If you exceed rate limits, you'll receive a `429 Too Many Requests` response. Wa
 
 ### NPM package
 
-Install the Midday SDK:
+Install the Creator Payments SDK:
 
 ```bash
 npm install @midday-ai/sdk

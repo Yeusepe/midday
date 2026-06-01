@@ -5,6 +5,7 @@ import {
   updateAppSettingsSchema,
 } from "@api/schemas/apps";
 import { createTRPCRouter, protectedProcedure } from "@api/trpc/init";
+import { getAppConfigurationStatuses } from "@midday/app-store/availability";
 import {
   createPlatformLinkToken,
   disconnectApp,
@@ -18,6 +19,10 @@ import { z } from "zod";
 export const appsRouter = createTRPCRouter({
   get: protectedProcedure.query(async ({ ctx: { db, teamId } }) => {
     return getApps(db, teamId!);
+  }),
+
+  configuration: protectedProcedure.query(() => {
+    return getAppConfigurationStatuses();
   }),
 
   disconnect: protectedProcedure

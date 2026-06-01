@@ -93,7 +93,7 @@ export function MCPChatGPT() {
             args: [
               "-y",
               "mcp-remote@latest",
-              "https://api.midday.ai/mcp",
+              "https://api.payments.yucp.club/mcp",
               "--header",
               // biome-ignore lint/suspicious/noTemplateCurlyInString: Intentional shell variable reference in MCP config
               "Authorization:${AUTH_HEADER}",
@@ -115,7 +115,7 @@ export function MCPChatGPT() {
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 
 const transport = new StreamableHTTPClientTransport({
-  url: "https://api.midday.ai/mcp",
+  url: "https://api.payments.yucp.club/mcp",
   headers: {
     Authorization: "Bearer ${key}",
   },
@@ -177,7 +177,7 @@ await client.close();`;
                 Financial data in ChatGPT
               </h2>
               <p className="font-sans text-base text-muted-foreground leading-relaxed">
-                Connect Midday to ChatGPT and query your transactions, invoices,
+                Connect Creator Payments to ChatGPT and query your transactions, invoices,
                 and reports directly in conversations. Authentication is handled
                 automatically via OAuth.
               </p>
@@ -224,7 +224,7 @@ await client.close();`;
                   <p className="font-sans text-sm text-muted-foreground">
                     Copy this URL and add it as a connector in ChatGPT:
                   </p>
-                  <CopyableUrl url="https://api.midday.ai/mcp" />
+                  <CopyableUrl url="https://api.payments.yucp.club/mcp" />
                 </div>
 
                 <div className="mt-12 space-y-4">
@@ -261,7 +261,7 @@ await client.close();`;
                       </span>
                       <span className="font-sans text-sm text-muted-foreground pt-0.5">
                         When you use the tool, you'll be prompted to sign in to
-                        Midday and select a team
+                        Creator Payments and select a team
                       </span>
                     </li>
                   </ol>

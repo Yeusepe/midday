@@ -142,6 +142,8 @@ export function EmailPreview() {
   const invoiceNumber = watch("invoiceNumber") as string | null;
   const amount = watch("amount") as number | null;
   const currency = (watch("template.currency") as string) || "USD";
+  const convertedAmount = watch("convertedAmount") as number | null;
+  const convertedCurrency = watch("convertedCurrency") as string | null;
   const locale = (watch("template.locale") as string) || "en-US";
   const dateFormat = (watch("template.dateFormat") as string) || "MM/dd/yyyy";
   const dueDate = watch("dueDate") as string | null;
@@ -161,6 +163,13 @@ export function EmailPreview() {
       ? new Intl.NumberFormat(locale, { style: "currency", currency }).format(
           amount,
         )
+      : null;
+  const formattedConvertedAmount =
+    convertedAmount != null && convertedCurrency
+      ? new Intl.NumberFormat(locale, {
+          style: "currency",
+          currency: convertedCurrency,
+        }).format(convertedAmount)
       : null;
 
   let formattedDueDate: string | null = null;
@@ -233,7 +242,7 @@ export function EmailPreview() {
               <div className="size-10 rounded-full bg-white dark:bg-[#1a1a1a] border border-border flex items-center justify-center flex-shrink-0">
                 <img
                   src="https://midday.ai/email/logo.png"
-                  alt="Midday"
+                  alt="Creator Payments"
                   className="size-6 dark:invert dark:brightness-100"
                 />
               </div>
@@ -263,7 +272,7 @@ export function EmailPreview() {
                 ) : (
                   <img
                     src="https://midday.ai/email/logo.png"
-                    alt="Midday"
+                    alt="Creator Payments"
                     className="h-10 w-10 dark:invert dark:brightness-100"
                   />
                 )}
@@ -282,6 +291,11 @@ export function EmailPreview() {
               {formattedAmount && (
                 <p className="text-[32px] font-normal text-center text-[#0e0e0e] dark:text-[#fefefe] m-0">
                   {formattedAmount}
+                </p>
+              )}
+              {formattedConvertedAmount && (
+                <p className="text-[14px] font-normal text-center text-[#606060] dark:text-[#878787] mt-1 mb-0">
+                  {formattedConvertedAmount}
                 </p>
               )}
 

@@ -1,18 +1,18 @@
 ---
 title: OAuth API Endpoints
-description: Technical reference for Midday OAuth 2.0 endpoints.
+description: Technical reference for Creator Payments OAuth 2.0 endpoints.
 section: developer
 order: 4
 ---
 
-Complete technical reference for Midday's OAuth 2.0 implementation. These endpoints follow the [OAuth 2.0 RFC 6749](https://tools.ietf.org/html/rfc6749) and [PKCE RFC 7636](https://tools.ietf.org/html/rfc7636) specifications.
+Complete technical reference for Creator Payments' OAuth 2.0 implementation. These endpoints follow the [OAuth 2.0 RFC 6749](https://tools.ietf.org/html/rfc6749) and [PKCE RFC 7636](https://tools.ietf.org/html/rfc7636) specifications.
 
 ## Base URLs
 
 | Environment | URL |
 |-------------|-----|
 | Authorization | `https://app.midday.ai/oauth` |
-| Token & API | `https://api.midday.ai/v1` |
+| Token & API | `https://api.payments.yucp.club/v1` |
 
 ## Authorization endpoint
 
@@ -91,7 +91,7 @@ https://yourapp.com/callback?error=access_denied&error_description=User%20denied
 Exchange authorization codes for access tokens, or refresh existing tokens.
 
 ```
-POST https://api.midday.ai/v1/oauth/token
+POST https://api.payments.yucp.club/v1/oauth/token
 ```
 
 ### Content types
@@ -118,7 +118,7 @@ Exchange an authorization code for tokens.
 #### Example request (confidential client)
 
 ```bash
-curl -X POST https://api.midday.ai/v1/oauth/token \
+curl -X POST https://api.payments.yucp.club/v1/oauth/token \
   -H "Content-Type: application/json" \
   -d '{
     "grant_type": "authorization_code",
@@ -132,7 +132,7 @@ curl -X POST https://api.midday.ai/v1/oauth/token \
 #### Example request (public client with PKCE)
 
 ```bash
-curl -X POST https://api.midday.ai/v1/oauth/token \
+curl -X POST https://api.payments.yucp.club/v1/oauth/token \
   -H "Content-Type: application/json" \
   -d '{
     "grant_type": "authorization_code",
@@ -180,7 +180,7 @@ Get a new access token using a refresh token.
 #### Example request
 
 ```bash
-curl -X POST https://api.midday.ai/v1/oauth/token \
+curl -X POST https://api.payments.yucp.club/v1/oauth/token \
   -H "Content-Type: application/json" \
   -d '{
     "grant_type": "refresh_token",
@@ -218,7 +218,7 @@ Same format as authorization code grant. The refresh token may rotate (new token
 Revoke an access token or refresh token.
 
 ```
-POST https://api.midday.ai/v1/oauth/revoke
+POST https://api.payments.yucp.club/v1/oauth/revoke
 ```
 
 ### Request body
@@ -232,7 +232,7 @@ POST https://api.midday.ai/v1/oauth/revoke
 ### Example request
 
 ```bash
-curl -X POST https://api.midday.ai/v1/oauth/revoke \
+curl -X POST https://api.payments.yucp.club/v1/oauth/revoke \
   -H "Content-Type: application/json" \
   -d '{
     "token": "mid_at_xxxxxxxxxxxxx",
@@ -386,7 +386,7 @@ app.get("/callback", (req, res) => {
 
 ```typescript
 async function exchangeCode(code: string) {
-  const response = await fetch("https://api.midday.ai/v1/oauth/token", {
+  const response = await fetch("https://api.payments.yucp.club/v1/oauth/token", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -412,7 +412,7 @@ async function exchangeCode(code: string) {
 ```typescript
 async function refreshTokens(refreshToken: string) {
   try {
-    const response = await fetch("https://api.midday.ai/v1/oauth/token", {
+    const response = await fetch("https://api.payments.yucp.club/v1/oauth/token", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -443,12 +443,12 @@ async function refreshTokens(refreshToken: string) {
 
 ## Using the SDK with OAuth tokens
 
-Once you have an access token, use the Midday SDK for API requests:
+Once you have an access token, use the Creator Payments SDK for API requests:
 
 ```typescript
-import { Midday } from "@midday-ai/sdk";
+import { Creator Payments } from "@midday-ai/sdk";
 
-const midday = new Midday({
+const midday = new Creator Payments({
   token: accessToken, // OAuth access token
 });
 

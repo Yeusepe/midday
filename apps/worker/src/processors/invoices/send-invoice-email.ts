@@ -100,6 +100,8 @@ export class SendInvoiceEmailProcessor extends BaseProcessor<SendInvoiceEmailPay
           // Gmail structured data fields
           amount: invoice.amount ?? undefined,
           currency: invoice.currency ?? undefined,
+          convertedAmount: invoice.convertedAmount ?? undefined,
+          convertedCurrency: invoice.convertedCurrency ?? undefined,
           dueDate: invoice.dueDate ?? undefined,
           // Custom email content from template
           emailSubject: (template?.emailSubject as string) ?? undefined,

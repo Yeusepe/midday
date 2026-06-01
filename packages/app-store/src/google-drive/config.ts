@@ -7,7 +7,7 @@ export default {
   active: false,
   logo: Logo,
   short_description:
-    "Connect Google Drive to automatically sync and organize your files and documents with Midday.",
+    "Connect Google Drive to automatically sync and organize your files and documents with Creator Payments.",
   description: null,
   images: [],
 };

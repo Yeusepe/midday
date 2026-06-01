@@ -300,7 +300,7 @@ app.openapi(
               suggestionId: suggestion.id,
               inboxId,
               transactionId,
-              userId: undefined, // Slack interactions don't have Midday user ID mapping
+              userId: undefined, // Slack interactions don't have Creator Payments user ID mapping
               teamId,
             });
 
@@ -393,7 +393,7 @@ app.openapi(
             await declineSuggestedMatch(db, {
               suggestionId: suggestion.id,
               inboxId,
-              userId: undefined, // Slack interactions don't have Midday user ID mapping
+              userId: undefined, // Slack interactions don't have Creator Payments user ID mapping
               teamId,
             });
 
@@ -421,7 +421,7 @@ app.openapi(
                     type: "section",
                     text: {
                       type: "mrkdwn",
-                      text: "❌ *Match declined*\n\nThe suggestion has been dismissed. You can manually match this receipt in Midday.",
+                      text: "❌ *Match declined*\n\nThe suggestion has been dismissed. You can manually match this receipt in Creator Payments.",
                     },
                   },
                   {
@@ -431,7 +431,7 @@ app.openapi(
                         type: "button",
                         text: {
                           type: "plain_text",
-                          text: "View in Midday",
+                          text: "View in Creator Payments",
                           emoji: true,
                         },
                         url: `https://app.midday.ai/inbox?inboxId=${encodeURIComponent(inboxId)}`,

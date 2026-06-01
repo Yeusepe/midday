@@ -21,6 +21,7 @@ import {
 import {
   EnableBankingApi,
   GoCardLessApi,
+  getBankingProviderConfigurationStatuses,
   getProviderErrorDetails,
   getRates,
   PlaidApi,
@@ -34,6 +35,10 @@ import { TRPCError } from "@trpc/server";
 const logger = createLoggerWithContext("trpc:banking");
 
 export const bankingRouter = createTRPCRouter({
+  configuration: protectedProcedure.query(() => {
+    return getBankingProviderConfigurationStatuses();
+  }),
+
   plaidLink: protectedProcedure
     .input(plaidLinkSchema)
     .mutation(async ({ input, ctx }) => {

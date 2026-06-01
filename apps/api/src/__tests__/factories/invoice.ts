@@ -18,6 +18,11 @@ interface InvoiceResponse {
   invoiceNumber: string;
   amount: number;
   currency: string;
+  exchangeRate: number | null;
+  exchangeRateSource: "automatic" | "manual" | null;
+  exchangeRateUpdatedAt: string | null;
+  convertedCurrency: string | null;
+  convertedAmount: number | null;
   customer: InvoiceCustomer | null;
   paidAt: string | null;
   reminderSentAt: string | null;
@@ -64,6 +69,11 @@ export function createValidInvoiceResponse(
     invoiceNumber: "INV-001",
     amount: 1000,
     currency: "USD",
+    exchangeRate: null,
+    exchangeRateSource: null,
+    exchangeRateUpdatedAt: null,
+    convertedCurrency: null,
+    convertedAmount: null,
     customer: {
       id: "cust-1234-5678-90ab-cdef01234567",
       name: "Acme Corp",

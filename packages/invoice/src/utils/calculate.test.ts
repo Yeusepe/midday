@@ -1,5 +1,9 @@
 import { describe, expect, it } from "bun:test";
-import { calculateLineItemTotal, calculateTotal } from "./calculate";
+import {
+  calculateConvertedAmount,
+  calculateLineItemTotal,
+  calculateTotal,
+} from "./calculate";
 
 describe("calculateTotal", () => {
   const sampleLineItems = [
@@ -249,5 +253,22 @@ describe("calculateLineItemTotal", () => {
       quantity: undefined,
     });
     expect(result).toBe(0);
+  });
+});
+
+describe("calculateConvertedAmount", () => {
+  it("should calculate and round converted totals", () => {
+    expect(
+      calculateConvertedAmount({ amount: 1500.75, exchangeRate: 535.2534 }),
+    ).toBe(803281.54);
+  });
+
+  it("should return null when conversion inputs are missing", () => {
+    expect(calculateConvertedAmount({ amount: null, exchangeRate: 535 })).toBe(
+      null,
+    );
+    expect(calculateConvertedAmount({ amount: 1500, exchangeRate: null })).toBe(
+      null,
+    );
   });
 });

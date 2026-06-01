@@ -50,7 +50,7 @@ function getAccountName(account: GetAccountDetailsResponse) {
 }
 
 /**
- * Maps Enable Banking cash_account_type (ISO 20022) to Midday AccountType
+ * Maps Enable Banking cash_account_type (ISO 20022) to Creator Payments AccountType
  * - CACC: Current account → depository
  * - CARD: Card account → credit
  * - SVGS: Savings account → depository

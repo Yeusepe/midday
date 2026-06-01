@@ -228,7 +228,7 @@ app.openapi(
 
       // Publish App Home for the installing user
       // This is non-blocking - OAuth flow continues even if it fails
-      // Use Slack user ID (not Midday user ID) for views.publish
+      // Use Slack user ID (not Creator Payments user ID) for views.publish
       const slackUserId = parsedJson.data.authed_user.id;
       const client = createSlackWebClient({ token: accessToken });
       publishAppHome({

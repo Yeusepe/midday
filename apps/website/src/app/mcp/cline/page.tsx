@@ -4,10 +4,10 @@ import { createPageMetadata } from "@/lib/metadata";
 export const metadata = createPageMetadata({
   title: "Cline MCP Integration",
   description:
-    "Connect Cline to your Midday data via Model Context Protocol. Query transactions, invoices, and reports from VS Code.",
+    "Connect Cline to your Creator Payments data via Model Context Protocol. Query transactions, invoices, and reports from VS Code.",
   path: "/mcp/cline",
   og: {
-    title: "Cline + Midday",
+    title: "Cline + Creator Payments",
     description: "Query your business data from VS Code",
   },
   keywords: [

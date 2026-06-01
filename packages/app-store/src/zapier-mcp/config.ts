@@ -7,8 +7,8 @@ export default {
   active: true,
   logo: Logo,
   short_description:
-    "Connect Midday to 7,000+ apps. Automate reports, alerts, and workflows.",
-  description: `Connect Midday to Zapier using the Model Context Protocol (MCP).
+    "Connect Creator Payments to 7,000+ apps. Automate reports, alerts, and workflows.",
+  description: `Connect Creator Payments to Zapier using the Model Context Protocol (MCP).
 
 **What you can do:**
 - Automate weekly profit reports to email or Slack
@@ -17,9 +17,9 @@ export default {
 - Build custom workflows without code
 
 **How it works:**
-1. Add Midday as an MCP connection in Zapier
-2. Use your Midday API key for authentication
-3. Create Zaps using Midday's 50+ tools`,
+1. Add Creator Payments as an MCP connection in Zapier
+2. Use your Creator Payments API key for authentication
+3. Create Zaps using Creator Payments' 50+ tools`,
   images: [],
   installUrl: "https://midday.ai/mcp/zapier",
 };

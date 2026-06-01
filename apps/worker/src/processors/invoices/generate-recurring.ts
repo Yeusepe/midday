@@ -370,6 +370,14 @@ export class InvoiceRecurringSchedulerProcessor extends BaseProcessor<InvoiceRec
             topBlock: stringifyJsonField(recurring.topBlock),
             bottomBlock: stringifyJsonField(recurring.bottomBlock),
             amount: recurring.amount ?? undefined,
+            exchangeRate: recurring.exchangeRate ?? undefined,
+            exchangeRateSource: recurring.exchangeRateSource as
+              | "automatic"
+              | "manual"
+              | null,
+            exchangeRateUpdatedAt: recurring.exchangeRateUpdatedAt ?? undefined,
+            convertedCurrency: recurring.convertedCurrency ?? undefined,
+            convertedAmount: recurring.convertedAmount ?? undefined,
             lineItems: parseLineItems(recurring.lineItems),
             customerId: recurring.customerId ?? undefined,
             customerName: recurring.customerName ?? undefined,

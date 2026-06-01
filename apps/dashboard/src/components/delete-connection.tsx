@@ -117,7 +117,7 @@ export function DeleteConnection({ connection }: Props) {
                     <p className="text-amber-700 dark:text-amber-300">
                       {provider
                         ? "Reconnecting later may not restore full history."
-                        : "Connection data is stored only in Midday and cannot be recovered."}
+                        : "Connection data is stored only in Creator Payments and cannot be recovered."}
                     </p>
                   </div>
                 </div>

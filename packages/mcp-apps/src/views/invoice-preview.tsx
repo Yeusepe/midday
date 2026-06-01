@@ -21,7 +21,7 @@ function InvoicePreviewApp() {
   const [toolResult, setToolResult] = useState<CallToolResult | null>(null);
 
   const { app, error } = useApp({
-    appInfo: { name: "Midday Invoice", version: "1.0.0" },
+    appInfo: { name: "Creator Payments Invoice", version: "1.0.0" },
     capabilities: {},
     onAppCreated: (app: McpApp) => {
       app.ontoolresult = async (result: CallToolResult) => {

@@ -412,7 +412,7 @@ export function UnifiedAppComponent({ app }: UnifiedAppProps) {
         return;
       }
 
-      // Handle apps with installUrl (like Midday Desktop download page)
+      // Handle apps with installUrl (like Creator Payments Desktop download page)
       if (app.installUrl) {
         if (isDesktopApp()) {
           openUrl(app.installUrl);
@@ -563,7 +563,7 @@ export function UnifiedAppComponent({ app }: UnifiedAppProps) {
                     ? "Connected app"
                     : app.type === "external"
                       ? `By ${app.developerName}`
-                      : "By Midday"}
+                      : "By Creator Payments"}
                 </span>
               </div>
 
@@ -710,9 +710,9 @@ export function UnifiedAppComponent({ app }: UnifiedAppProps) {
 
               <div className="shrink-0 pt-4 border-t border-border">
                 <p className="text-[10px] text-[#878787]">
-                  All apps on the Midday App Store are open-source and
-                  peer-reviewed. Midday Labs AB maintains high standards but
-                  doesn't endorse third-party apps. Apps published by Midday are
+                  All apps on the Creator Payments App Store are open-source and
+                  peer-reviewed. YUCP Studio maintains high standards but
+                  doesn't endorse third-party apps. Apps published by Creator Payments are
                   officially certified. Report any concerns about app content or
                   behavior.
                 </p>

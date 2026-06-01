@@ -7,7 +7,7 @@ export default {
   active: false,
   logo: Logo,
   short_description:
-    "Connect Deel to sync your contractor payments, payroll, and compliance data with Midday.",
+    "Connect Deel to sync your contractor payments, payroll, and compliance data with Creator Payments.",
   description: null,
   images: [],
 };

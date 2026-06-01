@@ -122,7 +122,7 @@ User's next page load:
   |-- Server fetches user.me -> plan is "trial", canceledAt is set
   |-- Layout skips onboarding redirect (canceledAt is set, so this
   |   is a returning user, not a fresh signup)
-  |-- TrialGuard shows UpgradeContent ("Continue with Midday" + plans)
+  |-- TrialGuard shows UpgradeContent ("Continue with Creator Payments" + plans)
   |-- User can subscribe as a paying customer (no trial)
 ```
 
@@ -277,7 +277,7 @@ The TRPC `cancelSubscription` mutation calls the Polar API, then updates `cancel
 | `apps/dashboard/src/app/[locale]/(app)/(sidebar)/layout.tsx` | Layout with onboarding redirect guard and TrialGuard wrapper |
 | `apps/dashboard/src/utils/trial.ts` | Trial expiry calculation and upgrade content decision |
 | `apps/dashboard/src/components/trial-guard.tsx` | Client component that shows UpgradeContent when trial is expired |
-| `apps/dashboard/src/components/upgrade-content.tsx` | "Continue with Midday" page with plan selection |
+| `apps/dashboard/src/components/upgrade-content.tsx` | "Continue with Creator Payments" page with plan selection |
 | `apps/dashboard/src/components/cancellation-dialog.tsx` | Multi-step cancellation dialog with trial-specific copy |
 | `apps/dashboard/src/components/manage-subscription.tsx` | Subscription card with cancel/reactivate and status copy |
 | `apps/dashboard/src/components/plans.tsx` | Plan selection + Polar checkout (no requireTrial) |

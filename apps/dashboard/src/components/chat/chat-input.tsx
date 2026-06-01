@@ -785,7 +785,7 @@ export function ChatInput({
               className="w-[180px] p-1 bg-[rgba(247,247,247,0.96)] dark:bg-[rgba(19,19,19,0.98)] backdrop-blur-lg border-border shadow-sm"
             >
               <p className="px-2 py-1 text-[10px] text-[#878787]">
-                Use Midday in
+                Use Creator Payments in
               </p>
               {MCP_CLIENTS.map(({ id, name, Logo }) => (
                 <button

@@ -36,7 +36,7 @@ export function LogoFooter() {
         <Img
           src={`${baseUrl}/email/logo-footer.png`}
           width="80"
-          alt="Midday"
+          alt="Creator Payments"
           className="block logo-blend"
         />
       </Link>

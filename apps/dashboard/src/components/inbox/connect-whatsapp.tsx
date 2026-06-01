@@ -49,7 +49,7 @@ export function ConnectWhatsApp({ showTrigger = true }: ConnectWhatsAppProps) {
   });
 
   const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "";
-  const message = linkCode ? `Connect to Midday: ${linkCode}` : "";
+  const message = linkCode ? `Connect to Creator Payments: ${linkCode}` : "";
   const whatsappUrl =
     whatsappNumber && message
       ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`
@@ -206,7 +206,7 @@ export function ConnectWhatsApp({ showTrigger = true }: ConnectWhatsAppProps) {
 
           <p className="text-xs text-[#878787] text-center">
             Just send the prefilled message to link this phone number to your
-            Midday user.
+            Creator Payments user.
           </p>
 
           {connections.length > 0 && (

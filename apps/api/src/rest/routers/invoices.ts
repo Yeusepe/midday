@@ -467,6 +467,11 @@ app.openapi(
       topBlock: input.topBlock,
       bottomBlock: input.bottomBlock,
       amount: input.amount,
+      exchangeRate: input.exchangeRate,
+      exchangeRateSource: input.exchangeRateSource,
+      exchangeRateUpdatedAt: input.exchangeRateUpdatedAt,
+      convertedCurrency: input.convertedCurrency,
+      convertedAmount: input.convertedAmount,
       lineItems: input.lineItems?.map((item) => ({
         ...item,
         name: JSON.stringify(item.name),

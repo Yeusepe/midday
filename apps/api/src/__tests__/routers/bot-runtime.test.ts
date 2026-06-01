@@ -89,7 +89,7 @@ function createLinkedUser() {
     fullName: "Test User",
     team: {
       baseCurrency: "USD",
-      name: "Midday Test Team",
+      name: "Creator Payments Test Team",
       countryCode: "US",
     },
   };
@@ -128,7 +128,7 @@ function primeCommonLinkingMocks() {
   mocks.hasTeamAccess.mockImplementation(() => Promise.resolve(true));
   mocks.getTeamById.mockReset();
   mocks.getTeamById.mockImplementation(() =>
-    Promise.resolve({ name: "Midday Test Team" }),
+    Promise.resolve({ name: "Creator Payments Test Team" }),
   );
   mocks.getUserById.mockReset();
   mocks.getUserById.mockImplementation(() =>
@@ -196,7 +196,7 @@ describe("bot runtime link-code consumption", () => {
     const { posts, thread } = createThread("whatsapp");
     const message = {
       id: "message_123",
-      text: "Connect to Midday: abc12345",
+      text: "Connect to Creator Payments: abc12345",
       author: {
         userId: "+15551234567",
         fullName: "WhatsApp User",
@@ -208,7 +208,7 @@ describe("bot runtime link-code consumption", () => {
     await subscribedMessageHandler?.(thread, message);
 
     expect(posts).toEqual([
-      "Connected to Midday Test Team. You can chat with Midday, send receipts and PDFs, or create invoices \u2014 all from WhatsApp.\n\nYou'll receive notifications for new transactions, invoices, and receipt matches (all on by default). To manage these, go to Apps \u2192 WhatsApp \u2192 Settings in Midday.\n\nTry sending a receipt or asking \u201cWhat did I spend this week?\u201d",
+      "Connected to Creator Payments Test Team. You can chat with Creator Payments, send receipts and PDFs, or create invoices \u2014 all from WhatsApp.\n\nYou'll receive notifications for new transactions, invoices, and receipt matches (all on by default). To manage these, go to Apps \u2192 WhatsApp \u2192 Settings in Creator Payments.\n\nTry sending a receipt or asking \u201cWhat did I spend this week?\u201d",
     ]);
     expect(streamMiddayAssistantMock).not.toHaveBeenCalled();
     expect(toAiMessagesMock).not.toHaveBeenCalled();
@@ -242,7 +242,7 @@ describe("bot runtime link-code consumption", () => {
     await subscribedMessageHandler?.(thread, message);
 
     expect(posts).toEqual([
-      "Connected to Midday Test Team. You can chat with Midday, send receipts and PDFs, or create invoices \u2014 all from Telegram.\n\nYou'll receive notifications for new transactions, invoices, and receipt matches (all on by default). To manage these, go to Apps \u2192 Telegram \u2192 Settings in Midday.\n\nTry sending a receipt or asking \u201cWhat did I spend this week?\u201d",
+      "Connected to Creator Payments Test Team. You can chat with Creator Payments, send receipts and PDFs, or create invoices \u2014 all from Telegram.\n\nYou'll receive notifications for new transactions, invoices, and receipt matches (all on by default). To manage these, go to Apps \u2192 Telegram \u2192 Settings in Creator Payments.\n\nTry sending a receipt or asking \u201cWhat did I spend this week?\u201d",
     ]);
     expect(streamMiddayAssistantMock).not.toHaveBeenCalled();
     expect(toAiMessagesMock).not.toHaveBeenCalled();
@@ -254,7 +254,7 @@ describe("bot runtime link-code consumption", () => {
     const { posts, thread } = createThread("slack");
     const message = {
       id: "message_123",
-      text: "Connect to Midday: abc12345",
+      text: "Connect to Creator Payments: abc12345",
       raw: {
         team: "T123",
       },
@@ -279,7 +279,7 @@ describe("bot runtime link-code consumption", () => {
     await slackDmMessageHandler?.(thread, message);
 
     expect(posts).toEqual([
-      "Connected to Midday Test Team. You can ask Midday questions, upload receipts, and track invoices right from Slack.\n\nYou'll receive notifications for new transactions, invoices, and match suggestions (all on by default). To manage these, go to Apps \u2192 Slack \u2192 Settings in Midday.\n\nTry asking \u201cWhat's my cash flow this month?\u201d",
+      "Connected to Creator Payments Test Team. You can ask Creator Payments questions, upload receipts, and track invoices right from Slack.\n\nYou'll receive notifications for new transactions, invoices, and match suggestions (all on by default). To manage these, go to Apps \u2192 Slack \u2192 Settings in Creator Payments.\n\nTry asking \u201cWhat's my cash flow this month?\u201d",
     ]);
     expect(streamMiddayAssistantMock).not.toHaveBeenCalled();
     expect(toAiMessagesMock).not.toHaveBeenCalled();
@@ -313,7 +313,7 @@ describe("bot runtime link-code consumption", () => {
     await subscribedMessageHandler?.(thread, message);
 
     expect(posts).toEqual([
-      "Connected to Midday Test Team. You can chat with Midday, send receipts and PDFs, or create invoices \u2014 all from iMessage.\n\nYou'll receive notifications for new transactions, invoices, and receipt matches (all on by default). To manage these, go to Apps \u2192 iMessage \u2192 Settings in Midday.\n\nTry sending a receipt or asking \u201cWhat did I spend this week?\u201d",
+      "Connected to Creator Payments Test Team. You can chat with Creator Payments, send receipts and PDFs, or create invoices \u2014 all from iMessage.\n\nYou'll receive notifications for new transactions, invoices, and receipt matches (all on by default). To manage these, go to Apps \u2192 iMessage \u2192 Settings in Creator Payments.\n\nTry sending a receipt or asking \u201cWhat did I spend this week?\u201d",
     ]);
     expect(sendMediaMessageMock).toHaveBeenCalledWith(
       thread.id,
@@ -329,7 +329,7 @@ describe("bot runtime link-code consumption", () => {
     const { posts, thread } = createThread("slack");
     const message = {
       id: "message_123",
-      text: "Connect to Midday: xyzABCDE",
+      text: "Connect to Creator Payments: xyzABCDE",
       raw: {
         team: "T123",
       },
@@ -377,7 +377,7 @@ describe("bot runtime link-code consumption", () => {
     await slackDmMessageHandler?.(thread, message);
 
     expect(posts).toEqual([
-      "Connected to New Slack Team. You can ask Midday questions, upload receipts, and track invoices right from Slack.\n\nYou'll receive notifications for new transactions, invoices, and match suggestions (all on by default). To manage these, go to Apps \u2192 Slack \u2192 Settings in Midday.\n\nTry asking \u201cWhat's my cash flow this month?\u201d",
+      "Connected to New Slack Team. You can ask Creator Payments questions, upload receipts, and track invoices right from Slack.\n\nYou'll receive notifications for new transactions, invoices, and match suggestions (all on by default). To manage these, go to Apps \u2192 Slack \u2192 Settings in Creator Payments.\n\nTry asking \u201cWhat's my cash flow this month?\u201d",
     ]);
     expect(mocks.consumePlatformLinkToken).toHaveBeenCalled();
     expect(mocks.createOrUpdatePlatformIdentity).toHaveBeenCalled();
@@ -433,7 +433,7 @@ describe("bot runtime link-code consumption", () => {
     await subscribedMessageHandler?.(thread, message);
 
     expect(posts).toEqual([
-      "Connected to New Team. You can chat with Midday, send receipts and PDFs, or create invoices \u2014 all from iMessage.\n\nYou'll receive notifications for new transactions, invoices, and receipt matches (all on by default). To manage these, go to Apps \u2192 iMessage \u2192 Settings in Midday.\n\nTry sending a receipt or asking \u201cWhat did I spend this week?\u201d",
+      "Connected to New Team. You can chat with Creator Payments, send receipts and PDFs, or create invoices \u2014 all from iMessage.\n\nYou'll receive notifications for new transactions, invoices, and receipt matches (all on by default). To manage these, go to Apps \u2192 iMessage \u2192 Settings in Creator Payments.\n\nTry sending a receipt or asking \u201cWhat did I spend this week?\u201d",
     ]);
     expect(mocks.consumePlatformLinkToken).toHaveBeenCalled();
     expect(mocks.createOrUpdatePlatformIdentity).toHaveBeenCalled();
@@ -464,7 +464,7 @@ describe("bot runtime link-code consumption", () => {
     await subscribedMessageHandler?.(thread, message);
 
     expect(posts).toEqual([
-      "Connect WhatsApp from Midday first, then send the prefilled connection message here.",
+      "Connect WhatsApp from Creator Payments first, then send the prefilled connection message here.",
     ]);
     expect(streamMiddayAssistantMock).not.toHaveBeenCalled();
   });
@@ -493,7 +493,7 @@ describe("bot runtime link-code consumption", () => {
     await subscribedMessageHandler?.(thread, message);
 
     expect(posts).toEqual([
-      "Connect iMessage from Midday first, then send the connection code here.",
+      "Connect iMessage from Creator Payments first, then send the connection code here.",
     ]);
     expect(streamMiddayAssistantMock).not.toHaveBeenCalled();
   });
@@ -540,7 +540,7 @@ describe("bot runtime link-code consumption", () => {
     await slackDmMessageHandler?.(thread, message);
 
     expect(posts).not.toContain(
-      "That Slack link code is invalid or expired. Open Midday and generate a new one.",
+      "That Slack link code is invalid or expired. Open Creator Payments and generate a new one.",
     );
     expect(streamMiddayAssistantMock).toHaveBeenCalled();
     expect(thread.startTyping).toHaveBeenCalled();
@@ -550,7 +550,7 @@ describe("bot runtime link-code consumption", () => {
     const { posts, thread } = createThread("whatsapp");
     const message = {
       id: "message_123",
-      text: "Connect to Midday: abc12345",
+      text: "Connect to Creator Payments: abc12345",
       author: {
         userId: "+15551234567",
         fullName: "WhatsApp User",
@@ -606,11 +606,11 @@ describe("bot runtime link-code consumption", () => {
     expect(streamMiddayAssistantMock).not.toHaveBeenCalled();
   });
 
-  test("explicit 'Connect to Midday:' with invalid code shows invalid-code error", async () => {
+  test("explicit 'Connect to Creator Payments:' with invalid code shows invalid-code error", async () => {
     const { posts, thread } = createThread("whatsapp");
     const message = {
       id: "message_123",
-      text: "Connect to Midday: xyzW0000",
+      text: "Connect to Creator Payments: xyzW0000",
       author: {
         userId: "+15559999999",
         fullName: "New User",
@@ -630,16 +630,16 @@ describe("bot runtime link-code consumption", () => {
     await subscribedMessageHandler?.(thread, message);
 
     expect(posts).toEqual([
-      "That WhatsApp link code is invalid or expired. Open Midday and generate a new one.",
+      "That WhatsApp link code is invalid or expired. Open Creator Payments and generate a new one.",
     ]);
     expect(streamMiddayAssistantMock).not.toHaveBeenCalled();
   });
 
-  test("explicit 'Connect to Midday:' with invalid code shows error even when existing identity exists", async () => {
+  test("explicit 'Connect to Creator Payments:' with invalid code shows error even when existing identity exists", async () => {
     const { posts, thread } = createThread("whatsapp");
     const message = {
       id: "message_123",
-      text: "Connect to Midday: xyzW0000",
+      text: "Connect to Creator Payments: xyzW0000",
       author: {
         userId: "+15551234567",
         fullName: "WhatsApp User",
@@ -669,16 +669,16 @@ describe("bot runtime link-code consumption", () => {
     await subscribedMessageHandler?.(thread, message);
 
     expect(posts).toEqual([
-      "That WhatsApp link code is invalid or expired. Open Midday and generate a new one.",
+      "That WhatsApp link code is invalid or expired. Open Creator Payments and generate a new one.",
     ]);
     expect(streamMiddayAssistantMock).not.toHaveBeenCalled();
   });
 
-  test("explicit 'Connect to Midday:' with malformed code (too short) shows invalid-code error", async () => {
+  test("explicit 'Connect to Creator Payments:' with malformed code (too short) shows invalid-code error", async () => {
     const { posts, thread } = createThread("whatsapp");
     const message = {
       id: "message_123",
-      text: "Connect to Midday: short",
+      text: "Connect to Creator Payments: short",
       author: {
         userId: "+15559999999",
         fullName: "New User",
@@ -698,7 +698,7 @@ describe("bot runtime link-code consumption", () => {
     await subscribedMessageHandler?.(thread, message);
 
     expect(posts).toEqual([
-      "That WhatsApp link code is invalid or expired. Open Midday and generate a new one.",
+      "That WhatsApp link code is invalid or expired. Open Creator Payments and generate a new one.",
     ]);
     expect(streamMiddayAssistantMock).not.toHaveBeenCalled();
   });
@@ -727,7 +727,7 @@ describe("bot runtime link-code consumption", () => {
     await subscribedMessageHandler?.(thread, message);
 
     expect(posts).toEqual([
-      "That Telegram link code is invalid or expired. Open Midday and generate a new one.",
+      "That Telegram link code is invalid or expired. Open Creator Payments and generate a new one.",
     ]);
     expect(streamMiddayAssistantMock).not.toHaveBeenCalled();
   });

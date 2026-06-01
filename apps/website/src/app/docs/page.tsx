@@ -5,11 +5,11 @@ import { createPageMetadata } from "@/lib/metadata";
 export const metadata = createPageMetadata({
   title: "Documentation",
   description:
-    "Learn how to use Midday to run your business. Get answers about invoicing, banking, time tracking, reports, and more.",
+    "Learn how to use Creator Payments to run your business. Get answers about invoicing, banking, time tracking, reports, and more.",
   path: "/docs",
   og: {
     title: "Documentation",
-    description: "Everything you need to know about Midday",
+    description: "Everything you need to know about Creator Payments",
   },
 });
 
@@ -17,7 +17,7 @@ const popularGuides = [
   {
     title: "Getting Started",
     href: "/docs/introduction",
-    description: "What is Midday and how it helps you",
+    description: "What is Creator Payments and how it helps you",
   },
   {
     title: "Quick Start",

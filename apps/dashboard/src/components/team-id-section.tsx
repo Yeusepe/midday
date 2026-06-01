@@ -23,7 +23,7 @@ export function TeamIdSection() {
       <CardHeader>
         <CardTitle>Team ID</CardTitle>
         <CardDescription>
-          This is your team's unique identifier within Midday.
+          This is your team's unique identifier within Creator Payments.
         </CardDescription>
       </CardHeader>
 
@@ -33,7 +33,7 @@ export function TeamIdSection() {
 
       <CardFooter>
         <p className="text-xs text-muted-foreground">
-          Used when interacting with the Midday API.
+          Used when interacting with the Creator Payments API.
         </p>
       </CardFooter>
     </Card>

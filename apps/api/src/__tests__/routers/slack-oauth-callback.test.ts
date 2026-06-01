@@ -76,7 +76,7 @@ const slackOAuthResponse = {
   bot_user_id: "B123",
   team: {
     id: "T123",
-    name: "Midday Test Team",
+    name: "Creator Payments Test Team",
   },
   incoming_webhook: {
     channel: "#general",

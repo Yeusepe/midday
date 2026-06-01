@@ -75,7 +75,7 @@ export function ChatPlatformPage({ config }: { config: PlatformConfig }) {
                                 href={step.href}
                                 className="text-foreground underline underline-offset-4 hover:text-foreground/80 transition-colors"
                               >
-                                Open in Midday
+                                Open in Creator Payments
                               </a>
                             </>
                           )}
@@ -108,7 +108,7 @@ export function ChatPlatformPage({ config }: { config: PlatformConfig }) {
                 <p className="font-sans text-sm text-muted-foreground leading-relaxed">
                   All notifications are on by default. To manage them, go to{" "}
                   <span className="text-foreground">{config.settingsPath}</span>{" "}
-                  in Midday.
+                  in Creator Payments.
                 </p>
               </div>
 

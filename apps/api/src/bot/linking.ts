@@ -4,7 +4,7 @@ type SupportedLinkPlatform = "slack" | "telegram" | "whatsapp" | "sendblue";
 
 const LINK_CODE_CHARS = /^[A-Za-z0-9]{8}$/;
 const MIXED_ALPHANUMERIC = /^(?=.*[0-9])(?=.*[A-Za-z])[A-Za-z0-9]{8}$/;
-const CONNECT_PREFIX = /^connect\s+to\s+midday\s*:\s*/i;
+const CONNECT_PREFIX = /^connect\s+to\s+(?:creator\s+payments|midday)\s*:\s*/i;
 
 export function getMessageAuthorId(message: Message) {
   const userId = message.author?.userId;

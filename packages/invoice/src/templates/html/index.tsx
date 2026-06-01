@@ -30,6 +30,9 @@ export function HtmlTemplate({ data, width, height }: Props) {
     paymentDetails,
     noteDetails,
     currency,
+    exchangeRate,
+    convertedCurrency,
+    convertedAmount,
     discount,
     customerName,
     topBlock,
@@ -106,6 +109,9 @@ export function HtmlTemplate({ data, width, height }: Props) {
             taxRate={template.taxRate}
             vatRate={template.vatRate}
             currency={currency}
+            exchangeRate={exchangeRate}
+            convertedCurrency={convertedCurrency}
+            convertedAmount={convertedAmount}
             vatLabel={template.vatLabel}
             taxLabel={template.taxLabel}
             totalLabel={template.totalSummaryLabel}

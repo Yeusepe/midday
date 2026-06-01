@@ -1,7 +1,7 @@
 {
   "name": "@midday-ai/cli",
   "version": "0.1.2",
-  "description": "Midday CLI — let agents run your business",
+  "description": "Creator Payments CLI — let agents run your business",
   "type": "module",
   "license": "AGPL-3.0",
   "repository": {

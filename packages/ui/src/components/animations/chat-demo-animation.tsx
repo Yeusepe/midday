@@ -351,7 +351,7 @@ const SCENARIOS: Record<ChatDemoScenario, ScenarioConfig> = {
           fromLabel: "From",
           customerLabel: "To",
           fromDetails: [
-            "Midday Studios AB",
+            "YUCP Studio",
             "Regeringsgatan 25",
             "111 53 Stockholm",
             "billing@midday.ai",
@@ -874,7 +874,7 @@ function IOSKeyboard() {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Midday logo (inlined SVG, white on black)                          */
+/*  Creator Payments logo (inlined SVG, white on black)                          */
 /* ------------------------------------------------------------------ */
 
 function MiddayLogo({
@@ -2343,7 +2343,7 @@ function NotificationBanner({
                 fontFamily: SF_FONT,
               }}
             >
-              Midday
+              Creator Payments
             </span>
             <span
               style={{
@@ -3800,7 +3800,7 @@ function ChatView({
                 letterSpacing: -0.2,
               }}
             >
-              Midday
+              Creator Payments
             </span>
             <HeaderDisclosureIcon color={detailColor} />
           </LiquidGlass>

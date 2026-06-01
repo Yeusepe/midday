@@ -34,6 +34,11 @@ export interface RecurringInvoiceData {
   templateId: string | null;
   timezone: string;
   currency: string | null;
+  exchangeRate: number | null;
+  exchangeRateSource: "automatic" | "manual" | null;
+  exchangeRateUpdatedAt: string | null;
+  convertedCurrency: string | null;
+  convertedAmount: number | null;
   dueDateOffset: number;
   paymentDetails: unknown;
   fromDetails: unknown;

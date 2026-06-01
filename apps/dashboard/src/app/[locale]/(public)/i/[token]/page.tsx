@@ -158,7 +158,9 @@ export default async function Page(props: Props) {
           rel="noreferrer"
           className="text-[9px] text-[#878787]"
         >
-          Powered by <span className="text-primary">midday</span>
+          <span className="text-primary">
+            YUCP Creator Payments powered by Midday Labs AB
+          </span>
         </a>
       </div>
     </>

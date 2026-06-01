@@ -38,10 +38,10 @@ const DEMO_STORY_META: Record<
   reminder: {
     title: "Catch overdue invoices right from a notification",
     description:
-      "Start on the lock screen, open Midday from the push, and send a reminder without breaking focus.",
+      "Start on the lock screen, open Creator Payments from the push, and send a reminder without breaking focus.",
     bullets: [
       "Lock-screen alert opens directly into the iMessage thread.",
-      "Midday drafts the reminder and sends the payment link automatically.",
+      "Creator Payments drafts the reminder and sends the payment link automatically.",
       "Perfect for chasing cash the moment an invoice goes overdue.",
     ],
   },
@@ -56,12 +56,12 @@ const DEMO_STORY_META: Record<
     ],
   },
   "receipt-match": {
-    title: "Upload a receipt and let Midday match the transaction",
+    title: "Upload a receipt and let Creator Payments match the transaction",
     description:
       "Drop a receipt photo into the conversation and get back the exact card transaction it belongs to.",
     bullets: [
       "Receipt upload gets recognized inside the thread.",
-      "Midday finds the matching transaction automatically.",
+      "Creator Payments finds the matching transaction automatically.",
       "A fast way to keep expenses reconciled without inbox cleanup.",
     ],
   },
@@ -71,7 +71,7 @@ const DEMO_STORY_META: Record<
       "Get the newest transactions in a compact summary and ask follow-up questions without leaving chat.",
     bullets: [
       "See recent spend and payouts in one answer.",
-      "Ask Midday to flag anomalies or explain changes instantly.",
+      "Ask Creator Payments to flag anomalies or explain changes instantly.",
       "Useful when you want a quick financial pulse check on the go.",
     ],
   },
@@ -387,7 +387,7 @@ export function Chat() {
                 </h1>
 
                 <p className="text-muted-foreground text-base lg:text-lg leading-relaxed font-sans max-w-xl mx-auto">
-                  Everything Midday, right from chat.
+                  Everything Creator Payments, right from chat.
                 </p>
 
                 <div className="flex justify-center pt-1">

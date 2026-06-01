@@ -97,7 +97,7 @@ export function Footer() {
         className={`text-xs ${themeClasses.secondaryText}`}
         style={{ color: lightStyles.secondaryText.color }}
       >
-        Midday Labs AB · Torsgatan 59, 113 37 Stockholm, Sweden
+        YUCP Studio
       </Text>
 
       <br />

@@ -29,7 +29,7 @@ export async function notifyTeamAccessRevoked(thread: Thread<BotThreadState>) {
   await forgetThreadState(thread);
   await thread
     .post(
-      "This chat is linked, but that Midday user no longer has access to this workspace. Reconnect it from Midday and try again.",
+      "This chat is linked, but that Creator Payments user no longer has access to this workspace. Reconnect it from Creator Payments and try again.",
     )
     .catch(() => {});
 }

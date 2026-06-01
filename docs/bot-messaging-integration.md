@@ -2,7 +2,7 @@
 
 ## Overview
 
-The bot integration extends Midday into external messaging platforms — Telegram, WhatsApp, and Slack — so users can chat with the Midday AI assistant, submit receipts/invoices, and receive proactive notifications without opening the dashboard.
+The bot integration extends Creator Payments into external messaging platforms — Telegram, WhatsApp, and Slack — so users can chat with the Creator Payments AI assistant, submit receipts/invoices, and receive proactive notifications without opening the dashboard.
 
 The system is built around three pillars:
 
@@ -106,14 +106,14 @@ graph TB
 
 ### `platform_identities`
 
-Links an external messaging account to a Midday user and team.
+Links an external messaging account to a Creator Payments user and team.
 
 | Column | Type | Description |
 |--------|------|-------------|
 | `id` | uuid | Primary key |
 | `provider` | `platform_provider` enum | `slack`, `telegram`, or `whatsapp` |
-| `team_id` | uuid FK → teams | The Midday team |
-| `user_id` | uuid FK → users | The Midday user |
+| `team_id` | uuid FK → teams | The Creator Payments team |
+| `user_id` | uuid FK → users | The Creator Payments user |
 | `external_user_id` | text | Platform-specific user ID (phone number, Telegram user ID, Slack user ID) |
 | `external_team_id` | text | Platform-specific workspace ID (Slack team ID; empty string for Telegram/WhatsApp) |
 | `external_channel_id` | text | Outbound channel (e.g. Telegram chat ID for sending notifications) |
@@ -123,7 +123,7 @@ Links an external messaging account to a Midday user and team.
 
 ### `platform_link_tokens`
 
-Short-lived, one-time codes for securely connecting a messaging account to a Midday user.
+Short-lived, one-time codes for securely connecting a messaging account to a Creator Payments user.
 
 | Column | Type | Description |
 |--------|------|-------------|
@@ -163,7 +163,7 @@ All three tables have RLS enabled. Policies restrict all operations (SELECT, INS
 
 ### 1. Account Linking
 
-Users connect their messaging account from the Midday dashboard. The flow is the same across platforms, with platform-specific deep links.
+Users connect their messaging account from the Creator Payments dashboard. The flow is the same across platforms, with platform-specific deep links.
 
 ```mermaid
 sequenceDiagram
@@ -183,11 +183,11 @@ sequenceDiagram
         Dashboard->>User: Opens t.me/{bot}?start={code}
         User->>Platform: /start mb_abc123...
     else WhatsApp
-        Dashboard->>User: Opens wa.me/{number}?text=Connect to Midday: {code}
+        Dashboard->>User: Opens wa.me/{number}?text=Connect to Creator Payments: {code}
         User->>Platform: Sends prefilled message
     else Slack
         Dashboard->>User: Shows code to DM the bot
-        User->>Platform: DMs "Connect to Midday: {code}"
+        User->>Platform: DMs "Connect to Creator Payments: {code}"
     end
 
     Platform->>API (webhook): Delivers message
@@ -346,7 +346,7 @@ Templates are always sent with `language.code = "en"`.
 
 ### 5. Inbox Upload from Chat
 
-Users can send images or PDFs directly in any chat platform. The bot processes them into the Midday inbox.
+Users can send images or PDFs directly in any chat platform. The bot processes them into the Creator Payments inbox.
 
 ```mermaid
 sequenceDiagram
@@ -399,7 +399,7 @@ When the user replies, this context is injected into the AI assistant's system p
 Every message goes through a multi-step authorization chain:
 
 1. **Thread state cache** — Redis stores `{ teamId, actingUserId, platform, externalUserId }`. Reused only if the same external user on the same platform continues the conversation (`canReuseCachedThreadState`).
-2. **Platform identity lookup** — `getPlatformIdentity()` resolves the external user to a Midday user/team.
+2. **Platform identity lookup** — `getPlatformIdentity()` resolves the external user to a Creator Payments user/team.
 3. **Identity validation** — `requireResolvedConversationIdentity()` confirms `identity.teamId == resolved.teamId` and `identity.userId == resolved.actingUserId`.
 4. **Team access check** — `hasTeamAccess()` verifies the user still has access to the team (handles removed members).
 5. **Slack channel validation** — for non-DM Slack messages, `getAppBySlackTeamId()` confirms the channel's Slack workspace matches the resolved team's installed app.
@@ -421,7 +421,7 @@ If any check fails, the thread state is cleared and the user is told to reconnec
 
 ### Bot User Scopes
 
-Connected bot users operate with `apis.all` scope, granting full Midday assistant capabilities. This is intentional — the bot should be able to answer any question the user could ask in the dashboard.
+Connected bot users operate with `apis.all` scope, granting full Creator Payments assistant capabilities. This is intentional — the bot should be able to answer any question the user could ask in the dashboard.
 
 ---
 

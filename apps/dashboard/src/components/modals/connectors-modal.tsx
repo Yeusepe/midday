@@ -330,7 +330,7 @@ function ConnectorDetail({
           {/* Description */}
           <p className="text-sm text-muted-foreground leading-relaxed">
             {localData?.description ||
-              `Connect ${connector.name} to Midday to let the AI assistant access and interact with your ${connector.name} data.`}
+              `Connect ${connector.name} to Creator Payments to let the AI assistant access and interact with your ${connector.name} data.`}
           </p>
 
           {/* Rich data from API */}
@@ -595,7 +595,7 @@ export function ConnectorsModal({
             <DialogHeader className="mb-4 shrink-0">
               <DialogTitle>Connected apps</DialogTitle>
               <DialogDescription>
-                Connect your apps and services to Midday. Your AI assistant can
+                Connect your apps and services to Creator Payments. Your AI assistant can
                 then access and interact with them.
               </DialogDescription>
             </DialogHeader>

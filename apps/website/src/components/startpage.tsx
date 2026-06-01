@@ -80,7 +80,7 @@ const videos = [
   {
     id: "overview",
     title: "Overview",
-    subtitle: "See how Midday helps you run your business without the admin.",
+    subtitle: "See how Creator Payments helps you run your business without the admin.",
     url: "https://cdn.midday.ai/videos/login-video.mp4",
   },
   {
@@ -269,7 +269,7 @@ export function StartPage() {
                   href="/updates/joining-ramp"
                   className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-border text-xs font-sans text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-colors"
                 >
-                  Midday is joining Ramp
+                  Creator Payments is joining Ramp
                   <span aria-hidden="true">&rarr;</span>
                 </Link>
 
@@ -432,7 +432,7 @@ export function StartPage() {
               >
                 <Image
                   src="https://cdn.midday.ai/video-poster-v2.jpg"
-                  alt="Midday dashboard preview"
+                  alt="Creator Payments dashboard preview"
                   fill
                   fetchPriority="high"
                   quality={50}

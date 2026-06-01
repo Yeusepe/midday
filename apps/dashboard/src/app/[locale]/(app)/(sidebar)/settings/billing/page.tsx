@@ -6,7 +6,7 @@ import { Orders } from "@/components/orders";
 import { getQueryClient, prefetch, trpc } from "@/trpc/server";
 
 export const metadata: Metadata = {
-  title: "Billing | Midday",
+  title: "Billing | Creator Payments",
 };
 
 export default async function Billing() {
@@ -37,9 +37,9 @@ export default async function Billing() {
           </h2>
 
           <Card className="flex flex-col gap-2 p-4">
-            <p className="text-sm font-medium">Midday is joining Ramp</p>
+            <p className="text-sm font-medium">Creator Payments is joining Ramp</p>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              We're winding Midday down over the next 90 days. Your account
+              We're winding Creator Payments down over the next 90 days. Your account
               stays fully active during that time — there's nothing to subscribe
               to and you won't be charged. Read more on the{" "}
               <Link

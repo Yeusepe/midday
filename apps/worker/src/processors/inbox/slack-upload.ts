@@ -468,7 +468,7 @@ Focus on what was purchased (e.g., "office supplies", "software subscription", "
                 type: "button",
                 text: {
                   type: "plain_text",
-                  text: "View in Midday",
+                  text: "View in Creator Payments",
                   emoji: true,
                 },
                 url: `https://app.midday.ai/inbox?inboxId=${encodeURIComponent(updatedInbox.id)}`,

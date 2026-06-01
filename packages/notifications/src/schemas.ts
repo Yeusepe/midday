@@ -201,6 +201,8 @@ export const invoiceSentSchema = z.object({
   // Gmail structured data fields
   amount: z.number().optional(),
   currency: z.string().optional(),
+  convertedAmount: z.number().optional().nullable(),
+  convertedCurrency: z.string().optional().nullable(),
   dueDate: z.string().optional(),
   // Customizable email content from template
   emailSubject: z.string().optional().nullable(),

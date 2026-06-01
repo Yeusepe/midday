@@ -37,12 +37,12 @@ export const accountingAttachmentSyncSchema = z.object({
   teamId: z.string().uuid(),
   providerId: accountingProviderIdSchema,
   syncRecordId: z.string().uuid().optional(), // The accounting_sync_record ID (for updates)
-  transactionId: z.string().uuid(), // Midday transaction ID
+  transactionId: z.string().uuid(), // Creator Payments transaction ID
   providerTransactionId: z.string(), // External provider transaction ID
-  attachmentIds: z.array(z.string().uuid()), // Midday attachment IDs to upload (new)
+  attachmentIds: z.array(z.string().uuid()), // Creator Payments attachment IDs to upload (new)
   // Attachments to remove/unlink from the provider
   removedAttachments: z.array(removedAttachmentSchema).optional(),
-  // Current mapping from DB (Midday ID -> Provider ID)
+  // Current mapping from DB (Creator Payments ID -> Provider ID)
   existingSyncedAttachmentMapping: z
     .record(z.string(), z.string().nullable())
     .optional(),

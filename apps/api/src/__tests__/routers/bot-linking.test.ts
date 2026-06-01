@@ -17,17 +17,17 @@ describe("bot link code extraction", () => {
     );
   });
 
-  test("extracts prefixed 'Connect to Midday:' messages", () => {
+  test("extracts prefixed 'Connect to Creator Payments:' messages", () => {
     expect(
-      extractConnectionToken("whatsapp", "Connect to Midday: abc12345"),
+      extractConnectionToken("whatsapp", "Connect to Creator Payments: abc12345"),
     ).toBe("abc12345");
-    expect(extractConnectionToken("slack", "Connect to Midday: abc12345")).toBe(
+    expect(extractConnectionToken("slack", "Connect to Creator Payments: abc12345")).toBe(
       "abc12345",
     );
     expect(
-      extractConnectionToken("sendblue", "Connect to Midday: abc12345"),
+      extractConnectionToken("sendblue", "Connect to Creator Payments: abc12345"),
     ).toBe("abc12345");
-    expect(extractConnectionToken("slack", "Connect to Midday: xyzABCDE")).toBe(
+    expect(extractConnectionToken("slack", "Connect to Creator Payments: xyzABCDE")).toBe(
       "xyzABCDE",
     );
     expect(
@@ -98,15 +98,15 @@ describe("isExplicitConnectionAttempt", () => {
     ).toBe(true);
   });
 
-  test("returns true for 'Connect to Midday:' prefix", () => {
+  test("returns true for 'Connect to Creator Payments:' prefix", () => {
     expect(
-      isExplicitConnectionAttempt("whatsapp", "Connect to Midday: abc12345"),
+      isExplicitConnectionAttempt("whatsapp", "Connect to Creator Payments: abc12345"),
     ).toBe(true);
     expect(
       isExplicitConnectionAttempt("sendblue", "connect to midday:abc12345"),
     ).toBe(true);
     expect(
-      isExplicitConnectionAttempt("slack", "Connect to Midday: xyzABCDE"),
+      isExplicitConnectionAttempt("slack", "Connect to Creator Payments: xyzABCDE"),
     ).toBe(true);
   });
 

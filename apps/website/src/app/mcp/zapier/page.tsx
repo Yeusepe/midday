@@ -4,10 +4,10 @@ import { createPageMetadata } from "@/lib/metadata";
 export const metadata = createPageMetadata({
   title: "Zapier MCP Integration",
   description:
-    "Connect Midday to 7,000+ apps through Zapier via MCP. Automate financial reports, alerts, and workflows without writing code.",
+    "Connect Creator Payments to 7,000+ apps through Zapier via MCP. Automate financial reports, alerts, and workflows without writing code.",
   path: "/mcp/zapier",
   og: {
-    title: "Zapier + Midday",
+    title: "Zapier + Creator Payments",
     description: "Connect your business to 7,000+ apps",
   },
   keywords: [

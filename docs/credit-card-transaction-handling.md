@@ -1,6 +1,6 @@
 # Credit Card Transaction Handling
 
-This document explains how Midday handles credit card transactions from different banking providers to ensure correct categorization and amount signs.
+This document explains how Creator Payments handles credit card transactions from different banking providers to ensure correct categorization and amount signs.
 
 ## The Problem
 
@@ -91,7 +91,7 @@ return null;  // Negative amounts (expenses) - let user categorize
 
 ### Enable Banking & GoCardless (ISO 20022 Cash Account Types)
 
-| `cashAccountType` / `cash_account_type` | Midday Type |
+| `cashAccountType` / `cash_account_type` | Creator Payments Type |
 |----------------------------------------|-------------|
 | `CARD` | `credit` |
 | `LOAN` | `other_asset` |

@@ -21,7 +21,7 @@ export function ComparisonPage({ competitor }: Props) {
     { id: "features", label: "Feature comparison" },
     { id: "pricing", label: "Pricing comparison" },
     { id: "switching", label: `Switching from ${competitor.name}` },
-    { id: "better-fit", label: "Where Midday is a better fit" },
+    { id: "better-fit", label: "Where Creator Payments is a better fit" },
     { id: "faq", label: "Frequently asked questions" },
   ];
 
@@ -57,11 +57,11 @@ export function ComparisonPage({ competitor }: Props) {
                   </h3>
                 </div>
                 <div className="grid grid-cols-2 divide-x divide-border">
-                  {/* Midday Column */}
+                  {/* Creator Payments Column */}
                   <div className="p-6 bg-background relative border-l-4 border-l-primary">
                     <div className="space-y-2">
                       <span className="font-sans text-xs font-semibold text-primary uppercase tracking-wide block">
-                        Midday
+                        Creator Payments
                       </span>
                       <p className="font-sans text-sm text-foreground leading-relaxed font-medium">
                         {diff.midday}
@@ -113,7 +113,7 @@ export function ComparisonPage({ competitor }: Props) {
         {/* Switching Guide */}
         <section id="switching" className="scroll-mt-24 mb-16 lg:mb-24">
           <h2 className="font-serif text-2xl text-foreground mb-4 text-center">
-            Switching from {competitor.name} to Midday
+            Switching from {competitor.name} to Creator Payments
           </h2>
           <p className="font-sans text-base text-muted-foreground mb-8 text-center max-w-2xl mx-auto">
             Making the switch is straightforward. Here's how to get started.
@@ -148,13 +148,13 @@ export function ComparisonPage({ competitor }: Props) {
           <div className="h-px w-full border-t border-border" />
         </div>
 
-        {/* Where Midday is a Better Fit */}
+        {/* Where Creator Payments is a Better Fit */}
         <section id="better-fit" className="scroll-mt-24 mb-16 lg:mb-24">
           <h2 className="font-serif text-2xl text-foreground mb-4 text-center">
-            Where Midday is a better fit
+            Where Creator Payments is a better fit
           </h2>
           <p className="font-sans text-base text-muted-foreground mb-8 text-center max-w-2xl mx-auto">
-            Midday is the right choice if you're...
+            Creator Payments is the right choice if you're...
           </p>
           <div className="max-w-2xl mx-auto">
             <div className="bg-secondary border border-border p-6">

@@ -11,13 +11,15 @@ import { DesktopHeader } from "@/components/desktop-header";
 import { isDesktopApp } from "@/utils/desktop";
 import { Providers } from "./providers";
 
+const canonicalName = "YUCP Creator Payments powered by Midday Labs AB";
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://app.midday.ai"),
-  title: "Midday | Run your business smarter",
+  title: `${canonicalName} | Run your business smarter`,
   description:
     "Automate financial tasks, stay organized, and make informed decisions effortlessly.",
   twitter: {
-    title: "Midday | Run your business smarter",
+    title: `${canonicalName} | Run your business smarter`,
     description:
       "Automate financial tasks, stay organized, and make informed decisions effortlessly.",
     images: [
@@ -34,11 +36,11 @@ export const metadata: Metadata = {
     ],
   },
   openGraph: {
-    title: "Midday | Run your business smarter",
+    title: `${canonicalName} | Run your business smarter`,
     description:
       "Automate financial tasks, stay organized, and make informed decisions effortlessly.",
     url: "https://app.midday.ai",
-    siteName: "Midday",
+    siteName: canonicalName,
     images: [
       {
         url: "https://cdn.midday.ai/opengraph-image-v1.jpg",

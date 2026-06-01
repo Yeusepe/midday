@@ -140,7 +140,7 @@ export function McpBanner() {
 
             <Link href="/apps?q=mcp" className="block p-4">
               <h3 className="text-sm font-medium mb-1">
-                Use Midday where you already work
+                Use Creator Payments where you already work
               </h3>
               <p className="text-xs text-muted-foreground">
                 Ask questions and take action without leaving your favorite AI

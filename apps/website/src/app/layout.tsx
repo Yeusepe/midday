@@ -32,20 +32,22 @@ const hedvigSerif = Hedvig_Letters_Serif({
   fallback: ["Georgia", "Times New Roman", "serif"],
 });
 
+const canonicalName = "YUCP Creator Payments powered by Midday Labs AB";
+
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   title: {
-    default: "Midday — The business stack for modern founders",
-    template: "%s | Midday",
+    default: `${canonicalName} — The business stack for modern founders`,
+    template: `%s | ${canonicalName}`,
   },
   description:
     "Invoicing, automatic reconciliation, time tracking, documents, and financial exports in one place. The business stack that replaces the tools you've outgrown.",
   openGraph: {
-    title: "Midday — The business stack for modern founders",
+    title: `${canonicalName} — The business stack for modern founders`,
     description:
       "Invoicing, automatic reconciliation, time tracking, documents, and financial exports in one place. The business stack that replaces the tools you've outgrown.",
     url: baseUrl,
-    siteName: "Midday",
+    siteName: canonicalName,
     locale: "en_US",
     type: "website",
     images: [
@@ -62,7 +64,7 @@ export const metadata: Metadata = {
     ],
   },
   twitter: {
-    title: "Midday — The business stack for modern founders",
+    title: `${canonicalName} — The business stack for modern founders`,
     description:
       "Invoicing, automatic reconciliation, time tracking, documents, and financial exports in one place. The business stack that replaces the tools you've outgrown.",
     images: [
@@ -101,7 +103,7 @@ export const viewport = {
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
-  name: "Midday",
+  name: canonicalName,
   url: "https://midday.ai",
   logo: "https://cdn.midday.ai/logo.png",
   sameAs: [

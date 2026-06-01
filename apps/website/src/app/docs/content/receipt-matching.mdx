@@ -1,25 +1,25 @@
 ---
 title: Receipt Matching
-description: How Midday automatically matches receipts and invoices to the right transactions, and what to expect in daily use.
+description: How Creator Payments automatically matches receipts and invoices to the right transactions, and what to expect in daily use.
 section: inbox
 order: 1
 ---
 
-Midday captures receipts and invoices, then matches them to your bank transactions so reconciliation takes minutes instead of hours.
+Creator Payments captures receipts and invoices, then matches them to your bank transactions so reconciliation takes minutes instead of hours.
 
 The goal is simple: get the obvious matches done automatically, and show you only the few that need review.
 
 ## How it works
 
 1. A receipt arrives in your inbox (via email forward, connected email, or upload)
-2. Midday extracts merchant, amount, date, and document details
+2. Creator Payments extracts merchant, amount, date, and document details
 3. The system searches your transactions for matches
 4. High-confidence matches are attached automatically
 5. Uncertain matches are flagged for your review
 
 ## Matching intelligence
 
-Midday uses multiple signals together:
+Creator Payments uses multiple signals together:
 
 - **Amount**: Receipt total vs transaction amount (exact matches score highest)
 - **Date**: Purchase date vs transaction clearing date (accounting for banking delays)
@@ -30,7 +30,7 @@ Midday uses multiple signals together:
 This is why you may see:
 
 - an instant auto-match for very obvious cases,
-- a suggestion when Midday is likely right but wants confirmation,
+- a suggestion when Creator Payments is likely right but wants confirmation,
 - or "pending" when there isn't enough evidence yet.
 
 ## Confidence levels
@@ -39,7 +39,7 @@ Matches fall into three categories:
 
 ### Auto-matched
 
-Midday is highly confident this is correct and attaches the receipt automatically.
+Creator Payments is highly confident this is correct and attaches the receipt automatically.
 
 This happens when:
 - Amount matches exactly
@@ -49,11 +49,11 @@ This happens when:
 
 ### Suggested match
 
-Midday thinks this is likely correct, but asks you to confirm.
+Creator Payments thinks this is likely correct, but asks you to confirm.
 
 Review and either:
 - **Confirm**: Receipt is attached and matching gets smarter for similar cases
-- **Reject**: Midday records this as negative feedback
+- **Reject**: Creator Payments records this as negative feedback
 
 ### No match yet
 
@@ -66,11 +66,11 @@ You can:
 
 ## How it improves over time
 
-Midday continuously improves through your team's actions:
+Creator Payments continuously improves through your team's actions:
 
 ### Merchant pattern learning
 
-When your team repeatedly confirms the same merchant pairings, Midday starts treating those as safer and faster to match.
+When your team repeatedly confirms the same merchant pairings, Creator Payments starts treating those as safer and faster to match.
 
 ### Team-specific calibration
 
@@ -80,17 +80,17 @@ The system adapts to your team's patterns:
 
 ### Dismissed match memory
 
-When you reject a match, Midday remembers that pair and avoids repeating it.
+When you reject a match, Creator Payments remembers that pair and avoids repeating it.
 
 ### Post-match learning
 
 Even after confirmation, unmatching later is treated as negative feedback so the system avoids repeating similar mistakes.
 
-## Getting receipts into Midday
+## Getting receipts into Creator Payments
 
 ### Email forwarding
 
-Every Midday account has a unique inbox email address:
+Every Creator Payments account has a unique inbox email address:
 
 1. Go to [Inbox → Settings](https://app.midday.ai/inbox/settings)
 2. Copy your inbox email address
@@ -105,7 +105,7 @@ Connect Gmail or Outlook to automatically capture receipts:
 1. Go to [Inbox → Settings](https://app.midday.ai/inbox/settings)
 2. Click **Connect email**
 3. Authorize your email account
-4. Midday scans for receipts and invoices automatically
+4. Creator Payments scans for receipts and invoices automatically
 
 The AI identifies receipt emails and ignores newsletters, marketing, and other non-receipt content.
 
@@ -118,7 +118,7 @@ Share receipts directly from Slack:
 
 1. Connect your Slack workspace in [Inbox → Settings](https://app.midday.ai/inbox/settings)
 2. Share any file to the connected channel
-3. It appears in your Midday inbox automatically
+3. It appears in your Creator Payments inbox automatically
 
 Great for teams where receipts come through Slack.
 
@@ -219,14 +219,14 @@ Poor quality images, partial receipts, or handwritten notes are harder to match.
 If matching consistently fails for certain merchants:
 
 1. Check if transactions are syncing from that account
-2. Manually confirm a few correct matches so Midday learns your pattern
+2. Manually confirm a few correct matches so Creator Payments learns your pattern
 3. Ensure receipt images are clear and complete
 
 ## Privacy and security
 
 - Receipts are processed securely and stored encrypted
 - Only your team can access your inbox
-- Connected email access is read-only—Midday can't send emails
+- Connected email access is read-only—Creator Payments can't send emails
 - You can disconnect email accounts anytime
 
 [Learn about data security →](/policy)

@@ -7,7 +7,7 @@ export default {
   active: false,
   logo: Logo,
   short_description:
-    "Connect Dropbox to automatically sync and organize your files and documents with Midday.",
+    "Connect Dropbox to automatically sync and organize your files and documents with Creator Payments.",
   description: null,
   images: [],
 };

@@ -44,7 +44,7 @@ const RATE_LIMIT_RETRY_BASE_DELAY_MS = 30000; // 30 seconds
  * Supports:
  * - Uploading new attachments
  * - Deleting/unlinking removed attachments (where supported by provider)
- * - Tracking mappings between Midday IDs and provider IDs
+ * - Tracking mappings between Creator Payments IDs and provider IDs
  */
 export class SyncAttachmentsProcessor extends AccountingProcessorBase<AccountingAttachmentSyncPayload> {
   async process(job: Job<AccountingAttachmentSyncPayload>): Promise<{
@@ -139,7 +139,7 @@ export class SyncAttachmentsProcessor extends AccountingProcessorBase<Accounting
         }
 
         // Remove from mapping regardless of API success
-        // (the file is gone from Midday, so we shouldn't track it)
+        // (the file is gone from Creator Payments, so we shouldn't track it)
         delete currentMapping[removed.middayId];
       }
     }

@@ -19,7 +19,7 @@ export function createAuthCommand(): Command {
 
   auth
     .command("login")
-    .description("Authenticate with Midday")
+    .description("Authenticate with Creator Payments")
     .option("--token-stdin", "Read API key from stdin instead of browser OAuth")
     .option("--no-browser", "Print auth URL instead of opening browser")
     .addHelpText(

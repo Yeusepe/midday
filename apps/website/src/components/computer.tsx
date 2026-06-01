@@ -37,7 +37,7 @@ function InfraDiagram() {
       {"│\n"}
       {" │"}
       {d("░░░░░░░░░░░░░░░░░░░░░░░░░░░")}
-      {"  Midday Computer  "}
+      {"  Creator Payments Computer  "}
       {d("░░░░░░░░░░░░░░░░░░░░░░░")}
       {"│\n"}
       {" │"}
@@ -515,7 +515,7 @@ const features = [
   {
     title: "You describe, it builds",
     description:
-      "Tell Midday what you need in plain English. It builds the agent, shows you the plan, and deploys when you're ready.",
+      "Tell Creator Payments what you need in plain English. It builds the agent, shows you the plan, and deploys when you're ready.",
   },
   {
     title: "Ready-made agents",
@@ -540,7 +540,7 @@ const features = [
   {
     title: "Access to all your data",
     description:
-      "Invoices, transactions, customers, reports, bank accounts, and more. Agents work with everything Midday knows about your business.",
+      "Invoices, transactions, customers, reports, bank accounts, and more. Agents work with everything Creator Payments knows about your business.",
   },
   {
     title: "Thinks, not just executes",
@@ -626,13 +626,13 @@ const howItWorks = [
     step: "01",
     title: "Describe",
     description:
-      "Tell Midday what you need in plain English, or pick a ready-made agent from the catalog.",
+      "Tell Creator Payments what you need in plain English, or pick a ready-made agent from the catalog.",
   },
   {
     step: "02",
     title: "Review",
     description:
-      "Midday builds the agent and shows you the plan. You confirm when it looks right.",
+      "Creator Payments builds the agent and shows you the plan. You confirm when it looks right.",
   },
   {
     step: "03",
@@ -727,7 +727,7 @@ export function Computer() {
               The operating system for your business.
             </h1>
             <p className="text-base leading-normal mt-4 md:mt-8 text-muted-foreground">
-              Midday Computer puts your business on autopilot. Agents that run
+              Creator Payments Computer puts your business on autopilot. Agents that run
               on your schedule, learn over time, and take care of the work you
               keep putting off.
             </p>
@@ -939,7 +939,7 @@ export function Computer() {
             How it works
           </h2>
           <p className="text-base leading-normal mt-4 max-w-md mx-auto text-muted-foreground">
-            You describe what you need. Midday builds the agent, runs it on your
+            You describe what you need. Creator Payments builds the agent, runs it on your
             schedule, and delivers results.
           </p>
 
@@ -976,7 +976,7 @@ export function Computer() {
               Get started
             </h2>
             <p className="font-sans text-base mb-6 max-w-lg mx-auto text-muted-foreground">
-              Midday Computer puts your business on autopilot. Describe what you
+              Creator Payments Computer puts your business on autopilot. Describe what you
               need and it takes care of the rest.
             </p>
             <div className="flex flex-wrap justify-center gap-4">

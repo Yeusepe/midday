@@ -1,6 +1,6 @@
 # Banking Provider Implementation
 
-Technical documentation for Midday's multi-provider banking integration.
+Technical documentation for Creator Payments' multi-provider banking integration.
 
 ## Architecture Overview
 

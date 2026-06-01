@@ -254,7 +254,7 @@ export function Footer() {
             </div>
           </Link>
           <p className="font-sans text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Midday Labs AB. All rights reserved.
+            © {new Date().getFullYear()} YUCP Studio. All rights reserved.
           </p>
         </div>
       </div>

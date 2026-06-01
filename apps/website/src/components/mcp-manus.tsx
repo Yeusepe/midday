@@ -37,7 +37,7 @@ export function MCPManus() {
                 Financial data in Manus
               </h2>
               <p className="font-sans text-base text-muted-foreground leading-relaxed">
-                Connect Midday to Manus and automate financial workflows with AI
+                Connect Creator Payments to Manus and automate financial workflows with AI
                 agents. Query transactions, create invoices, and generate
                 reports using natural language.
               </p>
@@ -68,7 +68,7 @@ export function MCPManus() {
                     <span className="font-sans text-sm text-muted-foreground pt-0.5">
                       Enter the server URL:{" "}
                       <span className="font-mono text-xs text-foreground">
-                        https://api.midday.ai/mcp
+                        https://api.payments.yucp.club/mcp
                       </span>
                     </span>
                   </li>
@@ -77,7 +77,7 @@ export function MCPManus() {
                       3
                     </span>
                     <span className="font-sans text-sm text-muted-foreground pt-0.5">
-                      Authenticate with your Midday account when prompted
+                      Authenticate with your Creator Payments account when prompted
                     </span>
                   </li>
                 </ol>

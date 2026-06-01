@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: Props) {
   return createPageMetadata({
     title: `Updates - Page ${page}`,
     description:
-      "The latest updates and improvements to Midday. See what we've been building to help you manage your business finances better.",
+      "The latest updates and improvements to Creator Payments. See what we've been building to help you manage your business finances better.",
     path: `/updates/page/${page}`,
     canonical: false,
   });

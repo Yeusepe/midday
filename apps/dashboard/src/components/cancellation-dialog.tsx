@@ -269,7 +269,7 @@ function StepOne({
           We'd love to understand why
         </DialogTitle>
         <DialogDescription>
-          Your feedback helps us improve Midday for everyone.
+          Your feedback helps us improve Creator Payments for everyone.
         </DialogDescription>
       </DialogHeader>
 
@@ -370,7 +370,7 @@ function StepTwo({
       {reason === "missing_features" && (
         <div className="space-y-4">
           <p className="text-sm text-[#878787]">
-            What feature would have made Midday work for you? We read every
+            What feature would have made Creator Payments work for you? We read every
             response.
           </p>
           <Textarea
@@ -579,7 +579,7 @@ function StepDone({
         </DialogTitle>
         <DialogDescription>
           {isTrialing
-            ? "Your trial remains active until it ends. After that, you'll need to subscribe to continue using Midday. Your data will be kept safe."
+            ? "Your trial remains active until it ends. After that, you'll need to subscribe to continue using Creator Payments. Your data will be kept safe."
             : "Your plan remains active until the end of your billing period. Your data will be kept safe — you can resubscribe anytime."}
         </DialogDescription>
       </DialogHeader>

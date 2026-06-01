@@ -12,6 +12,9 @@ type Props = {
   vatRate: number;
   locale: string;
   currency: string | null;
+  exchangeRate?: number | null;
+  convertedCurrency?: string | null;
+  convertedAmount?: number | null;
   vatLabel: string;
   taxLabel: string;
   totalLabel: string;
@@ -31,6 +34,9 @@ export function Summary({
   taxRate,
   vatRate,
   currency,
+  exchangeRate,
+  convertedCurrency,
+  convertedAmount,
   vatLabel,
   taxLabel,
   totalLabel,
@@ -151,6 +157,38 @@ export function Summary({
             }).format(total)}
         </span>
       </div>
+
+      {currency &&
+        convertedCurrency &&
+        convertedAmount != null &&
+        exchangeRate && (
+          <div className="border-t border-border pt-3 space-y-1">
+            <div className="flex justify-between items-center py-1">
+              <span className="text-[11px] text-[#878787] font-mono">
+                Exchange rate
+              </span>
+              <span className="text-right text-[11px] text-[#878787]">
+                1 {currency} ={" "}
+                {new Intl.NumberFormat(locale, {
+                  maximumFractionDigits: 8,
+                }).format(exchangeRate)}{" "}
+                {convertedCurrency}
+              </span>
+            </div>
+            <div className="flex justify-between items-center py-1">
+              <span className="text-[11px] text-[#878787] font-mono">
+                Converted total
+              </span>
+              <span className="text-right text-[15px]">
+                {new Intl.NumberFormat(locale, {
+                  style: "currency",
+                  currency: convertedCurrency,
+                  maximumFractionDigits: 2,
+                }).format(convertedAmount)}
+              </span>
+            </div>
+          </div>
+        )}
     </div>
   );
 }

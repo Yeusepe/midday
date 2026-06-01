@@ -57,7 +57,7 @@ export function MCPZed() {
       {
         context_servers: {
           midday: {
-            url: "https://api.midday.ai/mcp",
+            url: "https://api.payments.yucp.club/mcp",
             headers: {
               Authorization: `Bearer ${key}`,
             },
@@ -101,7 +101,7 @@ export function MCPZed() {
                 Financial data in Zed
               </h2>
               <p className="font-sans text-base text-muted-foreground leading-relaxed">
-                Connect Midday to Zed and query your transactions, invoices, and
+                Connect Creator Payments to Zed and query your transactions, invoices, and
                 reports from the fastest code editor. Authentication is handled
                 automatically via OAuth.
               </p>
@@ -169,7 +169,7 @@ export function MCPZed() {
                       <span className="font-sans text-sm text-muted-foreground pt-0.5">
                         Enter the URL:{" "}
                         <span className="font-mono text-xs text-foreground">
-                          https://api.midday.ai/mcp
+                          https://api.payments.yucp.club/mcp
                         </span>
                       </span>
                     </li>
@@ -178,7 +178,7 @@ export function MCPZed() {
                         3
                       </span>
                       <span className="font-sans text-sm text-muted-foreground pt-0.5">
-                        When prompted, sign in to Midday in your browser and
+                        When prompted, sign in to Creator Payments in your browser and
                         select a team
                       </span>
                     </li>

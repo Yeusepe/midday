@@ -52,7 +52,7 @@ export const invoiceData = {
         {
           type: "paragraph",
           content: [
-            { type: "text", text: "Midday Labs AB", marks: [{ type: "bold" }] },
+            { type: "text", text: "YUCP Studio", marks: [{ type: "bold" }] },
           ],
         },
         {

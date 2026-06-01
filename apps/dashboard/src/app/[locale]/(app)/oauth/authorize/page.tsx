@@ -9,7 +9,7 @@ import { getQueryClient, HydrateClient, trpc } from "@/trpc/server";
 import { categorizeOAuthError, validateOAuthParams } from "@/utils/oauth-utils";
 
 export const metadata: Metadata = {
-  title: "Authorize API Access | Midday",
+  title: "Authorize API Access | Creator Payments",
 };
 
 type Props = {
@@ -41,7 +41,7 @@ export default async function Page(props: Props) {
 
   // Check if user is logged in; redirect to login with return path if not.
   // This is critical for the MCP OAuth flow where ChatGPT/Claude redirect
-  // the user's browser here before they've authenticated with Midday.
+  // the user's browser here before they've authenticated with Creator Payments.
   const user = await queryClient
     .fetchQuery(trpc.user.me.queryOptions())
     .catch(() => null);

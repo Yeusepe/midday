@@ -52,7 +52,7 @@ const appExtensions: Record<
   telegram: {
     slug: "telegram",
     features: [
-      "Open the Midday bot instantly",
+      "Open the Creator Payments bot instantly",
       "Forward receipts while on the go",
       "Smart document matching",
       "Real-time invoice and transaction notifications",
@@ -70,7 +70,7 @@ const appExtensions: Record<
   sendblue: {
     slug: "imessage",
     features: [
-      "Use Midday directly from iMessage",
+      "Use Creator Payments directly from iMessage",
       "Forward receipts from your iPhone",
       "Create invoices in chat",
       "Real-time invoice and transaction notifications",
@@ -269,7 +269,7 @@ const appExtensions: Record<
     slug: "n8n-mcp",
     features: [
       "Build automated financial workflows",
-      "AI agents with Midday tools",
+      "AI agents with Creator Payments tools",
       "Connect to 400+ apps via n8n",
       "MCP Client & Server support",
     ],

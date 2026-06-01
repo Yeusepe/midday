@@ -197,7 +197,7 @@ export const oauthApplicationsRouter = createTRPCRouter({
             );
 
             await resend.emails.send({
-              from: "Midday <middaybot@midday.ai>",
+              from: "Creator Payments <middaybot@midday.ai>",
               to: session.user.email,
               subject: "An app has been added to your team",
               html,
@@ -366,7 +366,7 @@ export const oauthApplicationsRouter = createTRPCRouter({
             );
 
             await resend.emails.send({
-              from: "Midday <middaybot@midday.ai>",
+              from: "Creator Payments <middaybot@midday.ai>",
               to: "pontus@midday.ai",
               subject: `Application Review Request - ${application.name}`,
               html,

@@ -58,7 +58,7 @@ export function MCPPerplexity() {
             args: [
               "-y",
               "mcp-remote@latest",
-              "https://api.midday.ai/mcp",
+              "https://api.payments.yucp.club/mcp",
               "--header",
               // biome-ignore lint/suspicious/noTemplateCurlyInString: Intentional shell variable reference in MCP config
               "Authorization:${AUTH_HEADER}",
@@ -110,7 +110,7 @@ export function MCPPerplexity() {
                 AI-powered search meets your data
               </h2>
               <p className="font-sans text-base text-muted-foreground leading-relaxed">
-                Connect Perplexity to your Midday account to query transactions,
+                Connect Perplexity to your Creator Payments account to query transactions,
                 invoices, and financial reports with natural language. Get
                 instant answers backed by your real business data.
               </p>
@@ -219,7 +219,7 @@ export function MCPPerplexity() {
                     4
                   </span>
                   <span className="font-sans text-sm text-muted-foreground pt-0.5">
-                    Restart Perplexity and ask questions about your Midday data
+                    Restart Perplexity and ask questions about your Creator Payments data
                   </span>
                 </li>
               </ol>

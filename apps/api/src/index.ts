@@ -156,11 +156,11 @@ const openAPIConfig = {
   openapi: "3.1.0",
   info: {
     version: "0.0.1",
-    title: "Midday API",
+    title: "Creator Payments API",
     description:
-      "Midday is a platform for Invoicing, Time tracking, File reconciliation, Storage & Financial Overview.",
+      "Creator Payments is a platform for Invoicing, Time tracking, File reconciliation, Storage & Financial Overview.",
     contact: {
-      name: "Midday Support",
+      name: "Creator Payments Support",
       email: "engineer@midday.ai",
       url: "https://midday.ai",
     },
@@ -326,7 +326,7 @@ app.openAPIRegistry.registerComponent("securitySchemes", "oauth2", {
 
 app.get(
   "/",
-  Scalar({ url: "/openapi", pageTitle: "Midday API", theme: "saturn" }),
+  Scalar({ url: "/openapi", pageTitle: "Creator Payments API", theme: "saturn" }),
 );
 
 app.route("/", routers);

@@ -737,7 +737,7 @@ export const connectorApps: ConnectorApp[] = [
     active: true,
     short_description: "Access QuickBooks accounting data via the AI assistant",
     description:
-      "Connect QuickBooks to let the AI assistant query invoices, expenses, and financial reports alongside your native Midday integration.",
+      "Connect QuickBooks to let the AI assistant query invoices, expenses, and financial reports alongside your native Creator Payments integration.",
     features: [
       "Query invoices and expenses",
       "Access financial reports",
@@ -752,7 +752,7 @@ export const connectorApps: ConnectorApp[] = [
     active: true,
     short_description: "Access Zoho Books accounting data via the AI assistant",
     description:
-      "Connect Zoho Books to let the AI assistant manage invoices, expenses, payments, and financial reports alongside your Midday data.",
+      "Connect Zoho Books to let the AI assistant manage invoices, expenses, payments, and financial reports alongside your Creator Payments data.",
     features: [
       "Manage invoices and expenses",
       "Track payments and bank reconciliation",
@@ -768,7 +768,7 @@ export const connectorApps: ConnectorApp[] = [
     active: false,
     short_description: "Access Xero accounting data via the AI assistant",
     description:
-      "Connect Xero to let the AI assistant query invoices, bank transactions, and financial reports alongside your native Midday integration.",
+      "Connect Xero to let the AI assistant query invoices, bank transactions, and financial reports alongside your native Creator Payments integration.",
     features: [
       "Query invoices and transactions",
       "Access financial reports",

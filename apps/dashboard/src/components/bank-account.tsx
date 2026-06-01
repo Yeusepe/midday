@@ -260,7 +260,7 @@ export function BankAccount({ data, provider }: Props) {
                           <p className="text-amber-700 dark:text-amber-300">
                             {provider
                               ? "Reconnecting later may not restore full history."
-                              : "Manual account data is stored only in Midday and cannot be recovered."}
+                              : "Manual account data is stored only in Creator Payments and cannot be recovered."}
                           </p>
                         </div>
                       </div>

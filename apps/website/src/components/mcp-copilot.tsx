@@ -58,7 +58,7 @@ export function MCPCopilot() {
 
   const connectionConfig = useMemo(() => {
     const key = apiKey || "YOUR_API_KEY";
-    return `Server URL: https://api.midday.ai/mcp
+    return `Server URL: https://api.payments.yucp.club/mcp
 Authentication: API Key
 Header Name: Authorization
 Header Value: Bearer ${key}`;
@@ -100,7 +100,7 @@ Header Value: Bearer ${key}`;
                 Query your business data from Microsoft 365
               </h2>
               <p className="font-sans text-base text-muted-foreground leading-relaxed">
-                Connect Midday to Microsoft Copilot Studio. Ask about invoices,
+                Connect Creator Payments to Microsoft Copilot Studio. Ask about invoices,
                 transactions, and reports from Word, Excel, Outlook, or any
                 Copilot-enabled app.
               </p>
@@ -135,7 +135,7 @@ Header Value: Bearer ${key}`;
                   htmlFor="api-key"
                   className="font-sans text-sm text-foreground"
                 >
-                  Your Midday API key
+                  Your Creator Payments API key
                 </label>
                 <Input
                   id="api-key"
@@ -163,7 +163,7 @@ Header Value: Bearer ${key}`;
                 Connection details
               </h3>
               <p className="font-sans text-sm text-muted-foreground">
-                Use these settings when adding Midday as an MCP server in
+                Use these settings when adding Creator Payments as an MCP server in
                 Copilot Studio:
               </p>
               <CodeBlock code={connectionConfig} />
@@ -224,7 +224,7 @@ Header Value: Bearer ${key}`;
                     <p className="font-sans text-sm text-muted-foreground mt-1">
                       Enter the server URL:{" "}
                       <code className="font-mono bg-secondary px-1">
-                        https://api.midday.ai/mcp
+                        https://api.payments.yucp.club/mcp
                       </code>
                     </p>
                     <p className="font-sans text-sm text-muted-foreground mt-1">
@@ -239,10 +239,10 @@ Header Value: Bearer ${key}`;
                   </span>
                   <div className="pt-0.5">
                     <span className="font-sans text-sm text-foreground font-medium">
-                      Start using Midday tools
+                      Start using Creator Payments tools
                     </span>
                     <p className="font-sans text-sm text-muted-foreground mt-1">
-                      Midday's tools will appear in your agent. Ask questions
+                      Creator Payments' tools will appear in your agent. Ask questions
                       about invoices, transactions, customers, and more.
                     </p>
                   </div>
@@ -262,7 +262,7 @@ Header Value: Bearer ${key}`;
                 </li>
                 <li className="font-sans text-sm text-muted-foreground flex items-start gap-2">
                   <span className="text-foreground">•</span>
-                  Midday API key (create in Settings → Developer)
+                  Creator Payments API key (create in Settings → Developer)
                 </li>
               </ul>
               <div className="mt-4">

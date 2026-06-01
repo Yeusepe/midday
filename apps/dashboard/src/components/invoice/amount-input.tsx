@@ -7,6 +7,7 @@ import type { NumericFormatProps } from "react-number-format";
 export function AmountInput({
   className,
   name,
+  onBlur: externalOnBlur,
   ...props
 }: Omit<NumericFormatProps, "value" | "onChange"> & {
   name: string;
@@ -38,9 +39,10 @@ export function AmountInput({
           );
         }}
         onFocus={() => setIsFocused(true)}
-        onBlur={() => {
+        onBlur={(event) => {
           setIsFocused(false);
           onBlur();
+          externalOnBlur?.(event);
         }}
         {...props}
         className={cn(

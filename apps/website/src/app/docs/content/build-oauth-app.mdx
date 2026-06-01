@@ -1,32 +1,32 @@
 ---
 title: Build an OAuth App
-description: Create applications that integrate with Midday using OAuth 2.0.
+description: Create applications that integrate with Creator Payments using OAuth 2.0.
 section: developer
 order: 2
 ---
 
-Build applications that let users connect their Midday accounts. OAuth apps can access financial data on behalf of users, enabling integrations, automations, and custom tools.
+Build applications that let users connect their Creator Payments accounts. OAuth apps can access financial data on behalf of users, enabling integrations, automations, and custom tools.
 
 ## What you can build
 
 With OAuth, you can build:
 
-- **Browser extensions** that display Midday data
-- **Mobile apps** with Midday integration
+- **Browser extensions** that display Creator Payments data
+- **Mobile apps** with Creator Payments integration
 - **Automation tools** that sync data between services
 - **Custom dashboards** for specific workflows
 - **Developer tools** like IDE extensions
-- **Public apps** listed in the Midday app directory
+- **Public apps** listed in the Creator Payments app directory
 
 ## How OAuth works
 
-OAuth 2.0 lets your app request access to a user's Midday data without handling their password:
+OAuth 2.0 lets your app request access to a user's Creator Payments data without handling their password:
 
-1. Your app redirects users to Midday's authorization page
+1. Your app redirects users to Creator Payments' authorization page
 2. Users log in and approve the requested permissions
-3. Midday redirects back with an authorization code
+3. Creator Payments redirects back with an authorization code
 4. Your app exchanges the code for access tokens
-5. Use access tokens to call the Midday API
+5. Use access tokens to call the Creator Payments API
 
 ## Getting started
 
@@ -73,7 +73,7 @@ https://app.midday.ai/oauth/authorize?
 
 ### Step 3: Handle the callback
 
-After the user authorizes, Midday redirects to your `redirect_uri`:
+After the user authorizes, Creator Payments redirects to your `redirect_uri`:
 
 ```
 https://yourapp.com/callback?code=AUTH_CODE&state=YOUR_STATE
@@ -90,7 +90,7 @@ https://yourapp.com/callback?error=access_denied&error_description=User%20denied
 Make a POST request to exchange the authorization code:
 
 ```bash
-curl -X POST https://api.midday.ai/v1/oauth/token \
+curl -X POST https://api.payments.yucp.club/v1/oauth/token \
   -H "Content-Type: application/json" \
   -d '{
     "grant_type": "authorization_code",
@@ -115,7 +115,7 @@ curl -X POST https://api.midday.ai/v1/oauth/token \
 
 ### Step 5: Make API requests
 
-Install the Midday SDK:
+Install the Creator Payments SDK:
 
 ```bash
 npm install @midday-ai/sdk
@@ -124,9 +124,9 @@ npm install @midday-ai/sdk
 Use the access token with the SDK:
 
 ```typescript
-import { Midday } from "@midday-ai/sdk";
+import { Creator Payments } from "@midday-ai/sdk";
 
-const midday = new Midday({
+const midday = new Creator Payments({
   token: "mid_at_xxxxx", // Access token from OAuth flow
 });
 
@@ -193,7 +193,7 @@ https://app.midday.ai/oauth/authorize?
 ### Include verifier in token exchange
 
 ```bash
-curl -X POST https://api.midday.ai/v1/oauth/token \
+curl -X POST https://api.payments.yucp.club/v1/oauth/token \
   -H "Content-Type: application/json" \
   -d '{
     "grant_type": "authorization_code",
@@ -211,7 +211,7 @@ Note: Public clients should not send `client_secret`.
 Access tokens expire after 1 hour. Use the refresh token to get new tokens:
 
 ```bash
-curl -X POST https://api.midday.ai/v1/oauth/token \
+curl -X POST https://api.payments.yucp.club/v1/oauth/token \
   -H "Content-Type: application/json" \
   -d '{
     "grant_type": "refresh_token",
@@ -228,7 +228,7 @@ Refresh tokens are valid for 30 days and rotate on each use.
 Allow users to disconnect your app by revoking tokens:
 
 ```bash
-curl -X POST https://api.midday.ai/v1/oauth/revoke \
+curl -X POST https://api.payments.yucp.club/v1/oauth/revoke \
   -H "Content-Type: application/json" \
   -d '{
     "token": "mid_at_xxxxx",
@@ -242,7 +242,7 @@ curl -X POST https://api.midday.ai/v1/oauth/revoke \
 ```typescript
 import express from "express";
 import crypto from "crypto";
-import { Midday } from "@midday-ai/sdk";
+import { Creator Payments } from "@midday-ai/sdk";
 
 const app = express();
 
@@ -287,7 +287,7 @@ app.get("/callback", async (req, res) => {
   }
   
   // Exchange code for tokens
-  const response = await fetch("https://api.midday.ai/v1/oauth/token", {
+  const response = await fetch("https://api.payments.yucp.club/v1/oauth/token", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -314,7 +314,7 @@ app.get("/transactions", async (req, res) => {
     return res.status(401).send("Not connected");
   }
   
-  const midday = new Midday({
+  const midday = new Creator Payments({
     token: session.accessToken,
   });
   

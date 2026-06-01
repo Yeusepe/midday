@@ -1,5 +1,5 @@
 /**
- * Production-grade E2E tests for the Midday REST API.
+ * Production-grade E2E tests for the Creator Payments REST API.
  *
  * Runs against a live API server (localhost or production).
  * Every test that creates data cleans up after itself.

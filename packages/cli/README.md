@@ -1,6 +1,6 @@
 # @midday-ai/cli
 
-Run your business from the command line. The Midday CLI gives you full access to transactions, invoices, time tracking, reports, and more — designed for humans and AI agents alike.
+Run your business from the command line. The Creator Payments CLI gives you full access to transactions, invoices, time tracking, reports, and more — designed for humans and AI agents alike.
 
 ## Install
 

@@ -3,12 +3,12 @@ import { ChatPlatformPage } from "@/components/chat-platform-page";
 import { createPageMetadata } from "@/lib/metadata";
 
 export const metadata = createPageMetadata({
-  title: "Midday for Telegram",
+  title: "Creator Payments for Telegram",
   description:
     "Run your business from Telegram. Send receipts, create invoices, track time, and get notifications — all from the messaging app you already use.",
   path: "/chat/telegram",
   og: {
-    title: "Midday for Telegram",
+    title: "Creator Payments for Telegram",
     description: "Your business, right in Telegram",
   },
   keywords: [
@@ -16,7 +16,7 @@ export const metadata = createPageMetadata({
     "Telegram invoicing",
     "Telegram receipts",
     "Telegram bookkeeping",
-    "Midday Telegram",
+    "Creator Payments Telegram",
     "Telegram finance bot",
     "Telegram accounting",
   ],
@@ -28,18 +28,18 @@ const config = {
   appId: "telegram",
   icon: <Icons.Telegram size={40} className="h-10 w-10" />,
   description:
-    "Connect Midday to Telegram and manage your finances without leaving your conversations. Send a photo of a receipt, ask about your cash flow, create an invoice — Midday handles it all through natural conversation.",
+    "Connect Creator Payments to Telegram and manage your finances without leaving your conversations. Send a photo of a receipt, ask about your cash flow, create an invoice — Creator Payments handles it all through natural conversation.",
   steps: [
     {
-      title: "Open Apps in Midday",
+      title: "Open Apps in Creator Payments",
       description:
-        "Go to the Apps section in your Midday dashboard and find Telegram.",
+        "Go to the Apps section in your Creator Payments dashboard and find Telegram.",
       href: "https://app.midday.ai/apps?app=telegram",
     },
     {
       title: "Connect Telegram",
       description:
-        "Click the link to open a chat with the Midday bot, then send the connection code to link your account.",
+        "Click the link to open a chat with the Creator Payments bot, then send the connection code to link your account.",
     },
     {
       title: "Start chatting",
@@ -56,7 +56,7 @@ const config = {
   capabilities: [
     "Send receipts and PDFs — just snap a photo or forward a document",
     "Create and send invoices through conversation",
-    "Track time by telling Midday what you worked on",
+    "Track time by telling Creator Payments what you worked on",
     "Ask questions about your finances in plain language",
     "Get real-time notifications for transactions and invoices",
   ],

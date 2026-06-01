@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     : "Compare Alternatives";
 
   const subtitle = competitorName
-    ? `See why founders are switching from ${competitorName} to Midday`
+    ? `See why founders are switching from ${competitorName} to Creator Payments`
     : "Built for founders, not accountants";
 
   return new ImageResponse(

@@ -35,7 +35,7 @@ function InfraDiagram() {
       {"│\n"}
       {" │"}
       {d("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░")}
-      {"  Midday  "}
+      {"  Creator Payments  "}
       {d("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░")}
       {"│\n"}
       {" │"}
@@ -523,7 +523,7 @@ function Terminal({ pixelFontClass }: { pixelFontClass?: string }) {
             midday
           </div>
           <div className="text-[hsl(225,60%,75%)] text-[10px] tracking-widest mt-1.5 mb-5">
-            v0.1.0 · agent@acme.corp · Midday Labs AB
+            v0.1.0 · agent@acme.corp · YUCP Studio
           </div>
 
           <div>
@@ -667,7 +667,7 @@ const possibilities = [
     agent: "Any MCP client",
     title: "One protocol, every tool",
     description:
-      "Any app that speaks MCP gets instant access to 80+ Midday tools. No custom integration code, no API wrangling.",
+      "Any app that speaks MCP gets instant access to 80+ Creator Payments tools. No custom integration code, no API wrangling.",
   },
   {
     agent: "Raycast",
@@ -725,7 +725,7 @@ export function Agents({ pixelFontClass }: { pixelFontClass?: string }) {
             </h1>
             <p className="text-[hsl(225,60%,75%)] text-base leading-normal mt-4 md:mt-8">
               One CLI. 80+ tools. Your agent can send invoices, reconcile
-              transactions, track time, pull reports. Anything you do in Midday,
+              transactions, track time, pull reports. Anything you do in Creator Payments,
               it can do too.
             </p>
           </div>
@@ -873,7 +873,7 @@ export function Agents({ pixelFontClass }: { pixelFontClass?: string }) {
             Infrastructure
           </h2>
           <p className="text-[hsl(225,60%,75%)] text-base leading-normal mt-4 max-w-md mx-auto">
-            Midday is the backbone. Agents connect via MCP, CLI, or API. Every
+            Creator Payments is the backbone. Agents connect via MCP, CLI, or API. Every
             operation syncs back to your dashboard.
           </p>
 

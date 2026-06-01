@@ -5,14 +5,14 @@ import { createPageMetadata } from "@/lib/metadata";
 export const metadata = createPageMetadata({
   title: "Agents — Let agents run your business",
   description:
-    "Midday CLI and MCP server let AI agents create invoices, reconcile transactions, track time, and manage your finances from any tool.",
+    "Creator Payments CLI and MCP server let AI agents create invoices, reconcile transactions, track time, and manage your finances from any tool.",
   path: "/agents",
   og: { title: "Agents", description: "Let AI agents run your business" },
   keywords: [
     "agent native cli",
     "business infrastructure for agents",
     "MCP",
-    "Midday CLI",
+    "Creator Payments CLI",
     "finance operations",
     "business automation",
   ],

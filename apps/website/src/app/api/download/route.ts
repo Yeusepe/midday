@@ -97,7 +97,7 @@ export async function GET(request: NextRequest) {
       "https://api.github.com/repos/midday-ai/midday/releases/latest",
       {
         headers: {
-          "User-Agent": "Midday-Desktop-Downloader",
+          "User-Agent": "Creator Payments-Desktop-Downloader",
           Accept: "application/vnd.github.v3+json",
         },
         // Cache for 5 minutes
@@ -141,7 +141,7 @@ export async function GET(request: NextRequest) {
     // Fetch the DMG file from GitHub
     const fileResponse = await fetch(downloadUrl, {
       headers: {
-        "User-Agent": "Midday-Desktop-Downloader",
+        "User-Agent": "Creator Payments-Desktop-Downloader",
       },
     });
 

@@ -19,6 +19,10 @@ export const connectorsRouter = createTRPCRouter({
   }),
 
   connections: protectedProcedure.query(async ({ ctx: { session } }) => {
+    if (!process.env.COMPOSIO_API_KEY) {
+      return [];
+    }
+
     const userId = session.user.id;
     const toolkits = await getUserToolkits(userId);
     return extractActiveConnections(toolkits);
@@ -27,6 +31,13 @@ export const connectorsRouter = createTRPCRouter({
   detail: protectedProcedure
     .input(z.object({ slug: z.string() }))
     .query(async ({ input }) => {
+      if (!process.env.COMPOSIO_API_KEY) {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: "Composio connectors are not configured",
+        });
+      }
+
       const [toolkit, toolsData] = await Promise.all([
         composioFetch<ToolkitDetail>(`/toolkits/${input.slug}`),
         composioFetch<ToolsResponse>(
@@ -61,6 +72,13 @@ export const connectorsRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx: { session }, input }) => {
+      if (!process.env.COMPOSIO_API_KEY) {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: "Composio connectors are not configured",
+        });
+      }
+
       const userId = session.user.id;
 
       if (
@@ -87,6 +105,13 @@ export const connectorsRouter = createTRPCRouter({
   disconnect: protectedProcedure
     .input(z.object({ connectedAccountId: z.string() }))
     .mutation(async ({ ctx: { session }, input }) => {
+      if (!process.env.COMPOSIO_API_KEY) {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: "Composio connectors are not configured",
+        });
+      }
+
       const userId = session.user.id;
 
       const { items } = await composio.connectedAccounts.list({

@@ -1,7 +1,7 @@
 ![hero](github.png)
 
 <p align="center">
-	<h1 align="center"><b>Midday</b></h1>
+	<h1 align="center"><b>YUCP Creator Payments powered by Midday Labs AB</b></h1>
 <p align="center">
     Your AI-Powered Business Assistant
     <br />
@@ -18,9 +18,9 @@
   </a>
 </p>
 
-## About Midday
+## About Creator Payments
 
-Midday is an all-in-one tool designed to help freelancers, contractors, consultants, and solo entrepreneurs manage their business operations more efficiently. It integrates various functions typically scattered across multiple platforms into a single, cohesive system.
+Creator Payments is an all-in-one tool designed to help freelancers, contractors, consultants, and solo entrepreneurs manage their business operations more efficiently. It integrates various functions typically scattered across multiple platforms into a single, cohesive system.
 
 
 ## Features
@@ -37,7 +37,7 @@ Midday is an all-in-one tool designed to help freelancers, contractors, consulta
 
 ## Get started
 
-We are working on the documentation to get started with Midday for local development: https://docs.midday.ai
+We are working on the documentation to get started with Creator Payments for local development: https://docs.midday.ai
 
 ## App Architecture
 

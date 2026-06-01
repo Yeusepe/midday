@@ -7,8 +7,8 @@ export default {
   active: true,
   logo: Logo,
   short_description:
-    "Connect Cline to your Midday financial data via MCP with OAuth.",
-  description: `Connect Cline to your Midday account using the Model Context Protocol (MCP). No API key needed — authentication is handled automatically via OAuth.
+    "Connect Cline to your Creator Payments financial data via MCP with OAuth.",
+  description: `Connect Cline to your Creator Payments account using the Model Context Protocol (MCP). No API key needed — authentication is handled automatically via OAuth.
 
 **What you can do:**
 - Query transactions, invoices, and reports from VS Code
@@ -17,8 +17,8 @@ export default {
 
 **Setup steps:**
 1. In the Cline sidebar, go to the **Remote Servers** tab
-2. Add the server URL: \`https://api.midday.ai/mcp\`
-3. Click **Authenticate** and sign in to Midday in your browser
+2. Add the server URL: \`https://api.payments.yucp.club/mcp\`
+3. Click **Authenticate** and sign in to Creator Payments in your browser
 
 **Requirements:** VS Code with the Cline extension installed.`,
   images: [],

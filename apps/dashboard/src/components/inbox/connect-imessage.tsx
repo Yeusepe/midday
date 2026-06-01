@@ -53,7 +53,7 @@ export function ConnectIMessage({ showTrigger = true }: ConnectIMessageProps) {
   });
 
   const sendblueNumber = process.env.NEXT_PUBLIC_SENDBLUE_NUMBER || "";
-  const message = linkCode ? `Connect to Midday: ${linkCode}` : "";
+  const message = linkCode ? `Connect to Creator Payments: ${linkCode}` : "";
   const smsUrl =
     sendblueNumber && message
       ? `sms:${sendblueNumber}?body=${encodeURIComponent(message)}`
@@ -214,7 +214,7 @@ export function ConnectIMessage({ showTrigger = true }: ConnectIMessageProps) {
 
           <p className="text-xs text-[#878787] text-center">
             Just send the prefilled message to link this phone number to your
-            Midday user.
+            Creator Payments user.
           </p>
 
           {connections.length > 0 && (

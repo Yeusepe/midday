@@ -127,7 +127,7 @@ export default async function Page({ params }: Props) {
               href="https://midday.ai"
               className="hover:text-foreground transition-colors"
             >
-              Midday
+              Creator Payments
             </a>
           </p>
         </div>

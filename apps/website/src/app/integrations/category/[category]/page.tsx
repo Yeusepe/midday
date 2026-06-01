@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: Props) {
 
   return createPageMetadata({
     title: `${categoryData.name} Integrations`,
-    description: `Connect Midday with ${categoryData.name.toLowerCase()} tools. Explore our ${categoryData.name.toLowerCase()} integrations to streamline your financial workflow.`,
+    description: `Connect Creator Payments with ${categoryData.name.toLowerCase()} tools. Explore our ${categoryData.name.toLowerCase()} integrations to streamline your financial workflow.`,
     path: `/integrations/category/${category}`,
   });
 }

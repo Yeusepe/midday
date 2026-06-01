@@ -25,7 +25,7 @@ const baseAppUrl = getAppUrl();
 
 export const PaymentIssueEmail = ({
   fullName = "",
-  teamName = "Midday",
+  teamName = "Creator Payments",
 }: Props) => {
   const firstName = fullName ? fullName.split(" ").at(0) : "";
   const previewText = `Your last payment for ${teamName} didn't go through.`;

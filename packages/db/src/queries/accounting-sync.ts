@@ -14,7 +14,7 @@ export type AccountingSyncRecord = {
   provider: "xero" | "quickbooks" | "fortnox";
   providerTenantId: string;
   providerTransactionId: string | null;
-  /** Maps Midday attachment IDs to provider attachment IDs */
+  /** Maps Creator Payments attachment IDs to provider attachment IDs */
   syncedAttachmentMapping: Record<string, string | null>;
   syncedAt: string;
   /** Sync type (always "manual" - auto-sync was removed) */
@@ -34,7 +34,7 @@ export type CreateAccountingSyncRecordParams = {
   provider: "xero" | "quickbooks" | "fortnox";
   providerTenantId: string;
   providerTransactionId?: string;
-  /** Maps Midday attachment IDs to provider attachment IDs */
+  /** Maps Creator Payments attachment IDs to provider attachment IDs */
   syncedAttachmentMapping?: Record<string, string | null>;
   /** Sync type (always "manual" - auto-sync was removed) */
   syncType?: "manual";
@@ -383,7 +383,7 @@ export type TransactionWithAttachmentChanges = {
   transactionId: string;
   providerTransactionId: string;
   syncRecordId: string;
-  /** Maps Midday attachment IDs to provider attachment IDs */
+  /** Maps Creator Payments attachment IDs to provider attachment IDs */
   syncedAttachmentMapping: Record<string, string | null>;
   currentAttachments: Array<{
     id: string;
@@ -525,7 +525,7 @@ export const getSyncedTransactionsWithAttachmentChanges = async (
 
 export type UpdateSyncedAttachmentMappingParams = {
   syncRecordId: string;
-  /** Maps Midday attachment IDs to provider attachment IDs */
+  /** Maps Creator Payments attachment IDs to provider attachment IDs */
   syncedAttachmentMapping: Record<string, string | null>;
   /** Optional status update (e.g., 'partial' if some attachments failed) */
   status?: "synced" | "partial" | "failed";

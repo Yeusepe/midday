@@ -4,7 +4,7 @@ import { createPageMetadata } from "@/lib/metadata";
 export const metadata = createPageMetadata({
   title: "Bank Coverage",
   description:
-    "We currently support over 25,000+ banks worldwide. Search to find your bank and connect your accounts to Midday.",
+    "We currently support over 25,000+ banks worldwide. Search to find your bank and connect your accounts to Creator Payments.",
   path: "/bank-coverage",
   og: {
     title: "Bank Coverage",

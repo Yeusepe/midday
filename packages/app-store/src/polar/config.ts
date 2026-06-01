@@ -7,7 +7,7 @@ export default {
   active: false,
   logo: Logo,
   short_description:
-    "Connect Polar to automatically sync your payments, subscriptions, and revenue data with Midday.",
+    "Connect Polar to automatically sync your payments, subscriptions, and revenue data with Creator Payments.",
   description: null,
   images: [],
 };

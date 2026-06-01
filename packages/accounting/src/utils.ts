@@ -73,7 +73,7 @@ export function decryptAccountingOAuthState(
  * - Same job retrying = same key = no duplicate (retry safe)
  * - New export job = new key = allows re-export after deletion
  *
- * @param transactionId - The Midday transaction ID
+ * @param transactionId - The Creator Payments transaction ID
  * @param jobId - The BullMQ job ID (unique per export session)
  * @returns Idempotency key for the transaction
  *

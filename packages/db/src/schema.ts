@@ -37,6 +37,8 @@ type NumericConfig = {
   scale?: number;
 };
 
+type InvoiceExchangeRateSource = "automatic" | "manual";
+
 export const numericCasted = customType<{
   data: number;
   driverData: string;
@@ -813,6 +815,19 @@ export const invoiceRecurring = pgTable(
     dueDateOffset: integer("due_date_offset").default(30).notNull(), // Days from issue date to due date
     amount: numericCasted({ precision: 10, scale: 2 }),
     currency: text(),
+    exchangeRate: numericCasted("exchange_rate", { precision: 20, scale: 8 }),
+    exchangeRateSource: text(
+      "exchange_rate_source",
+    ).$type<InvoiceExchangeRateSource>(),
+    exchangeRateUpdatedAt: timestamp("exchange_rate_updated_at", {
+      withTimezone: true,
+      mode: "string",
+    }),
+    convertedCurrency: text("converted_currency"),
+    convertedAmount: numericCasted("converted_amount", {
+      precision: 10,
+      scale: 2,
+    }),
     lineItems: jsonb("line_items"),
     template: jsonb(), // Invoice template snapshot (labels, settings, etc.)
     paymentDetails: jsonb("payment_details"),
@@ -897,6 +912,19 @@ export const invoices = pgTable(
     customerId: uuid("customer_id"),
     amount: numericCasted({ precision: 10, scale: 2 }),
     currency: text(),
+    exchangeRate: numericCasted("exchange_rate", { precision: 20, scale: 8 }),
+    exchangeRateSource: text(
+      "exchange_rate_source",
+    ).$type<InvoiceExchangeRateSource>(),
+    exchangeRateUpdatedAt: timestamp("exchange_rate_updated_at", {
+      withTimezone: true,
+      mode: "string",
+    }),
+    convertedCurrency: text("converted_currency"),
+    convertedAmount: numericCasted("converted_amount", {
+      precision: 10,
+      scale: 2,
+    }),
     lineItems: jsonb("line_items"),
     paymentDetails: jsonb("payment_details"),
     customerDetails: jsonb("customer_details"),
@@ -3912,7 +3940,7 @@ export const accountingSyncRecords = pgTable(
     provider: accountingProviderEnum().notNull(),
     providerTenantId: text("provider_tenant_id").notNull(),
     providerTransactionId: text("provider_transaction_id"),
-    // Maps Midday attachment IDs to provider attachment IDs for sync tracking
+    // Maps Creator Payments attachment IDs to provider attachment IDs for sync tracking
     // Format: { "midday-attachment-id": "provider-attachment-id" }
     syncedAttachmentMapping: jsonb("synced_attachment_mapping")
       .default(sql`'{}'::jsonb`)

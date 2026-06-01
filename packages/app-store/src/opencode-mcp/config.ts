@@ -7,8 +7,8 @@ export default {
   active: true,
   logo: Logo,
   short_description:
-    "Connect OpenCode to your Midday data via MCP. Track time for clients from your terminal.",
-  description: `Connect OpenCode to your Midday account using the Model Context Protocol (MCP).
+    "Connect OpenCode to your Creator Payments data via MCP. Track time for clients from your terminal.",
+  description: `Connect OpenCode to your Creator Payments account using the Model Context Protocol (MCP).
 
 **What you can do:**
 - Track time for client projects while you code
@@ -18,8 +18,8 @@ export default {
 
 **How it works:**
 1. Install OpenCode via curl, npm, bun, or brew
-2. Add your Midday API key to OpenCode's MCP configuration
-3. Restart OpenCode and ask about your Midday data`,
+2. Add your Creator Payments API key to OpenCode's MCP configuration
+3. Restart OpenCode and ask about your Creator Payments data`,
   images: [],
   installUrl: "https://midday.ai/mcp/opencode",
 };

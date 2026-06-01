@@ -35,6 +35,11 @@ export type CreateInvoiceRecurringParams = {
   dueDateOffset?: number;
   amount?: number | null;
   currency?: string | null;
+  exchangeRate?: number | null;
+  exchangeRateSource?: "automatic" | "manual" | null;
+  exchangeRateUpdatedAt?: string | null;
+  convertedCurrency?: string | null;
+  convertedAmount?: number | null;
   lineItems?: unknown;
   template?: unknown;
   paymentDetails?: unknown;
@@ -75,6 +80,11 @@ export async function createInvoiceRecurring(
     dueDateOffset = 30,
     amount,
     currency,
+    exchangeRate,
+    exchangeRateSource,
+    exchangeRateUpdatedAt,
+    convertedCurrency,
+    convertedAmount,
     lineItems,
     template,
     paymentDetails,
@@ -127,6 +137,11 @@ export async function createInvoiceRecurring(
       dueDateOffset,
       amount,
       currency,
+      exchangeRate,
+      exchangeRateSource,
+      exchangeRateUpdatedAt,
+      convertedCurrency,
+      convertedAmount,
       lineItems,
       template,
       paymentDetails,
@@ -164,6 +179,11 @@ export type UpdateInvoiceRecurringParams = {
   dueDateOffset?: number;
   amount?: number | null;
   currency?: string | null;
+  exchangeRate?: number | null;
+  exchangeRateSource?: "automatic" | "manual" | null;
+  exchangeRateUpdatedAt?: string | null;
+  convertedCurrency?: string | null;
+  convertedAmount?: number | null;
   lineItems?: unknown;
   template?: unknown;
   paymentDetails?: unknown;
@@ -322,6 +342,11 @@ export async function getInvoiceRecurringById(
       dueDateOffset: invoiceRecurring.dueDateOffset,
       amount: invoiceRecurring.amount,
       currency: invoiceRecurring.currency,
+      exchangeRate: invoiceRecurring.exchangeRate,
+      exchangeRateSource: invoiceRecurring.exchangeRateSource,
+      exchangeRateUpdatedAt: invoiceRecurring.exchangeRateUpdatedAt,
+      convertedCurrency: invoiceRecurring.convertedCurrency,
+      convertedAmount: invoiceRecurring.convertedAmount,
       lineItems: invoiceRecurring.lineItems,
       template: invoiceRecurring.template,
       paymentDetails: invoiceRecurring.paymentDetails,
@@ -402,6 +427,11 @@ export async function getInvoiceRecurringList(
       nextScheduledAt: invoiceRecurring.nextScheduledAt,
       amount: invoiceRecurring.amount,
       currency: invoiceRecurring.currency,
+      exchangeRate: invoiceRecurring.exchangeRate,
+      exchangeRateSource: invoiceRecurring.exchangeRateSource,
+      exchangeRateUpdatedAt: invoiceRecurring.exchangeRateUpdatedAt,
+      convertedCurrency: invoiceRecurring.convertedCurrency,
+      convertedAmount: invoiceRecurring.convertedAmount,
       customer: {
         id: customers.id,
         name: customers.name,
@@ -472,6 +502,11 @@ export async function getDueInvoiceRecurring(
       dueDateOffset: invoiceRecurring.dueDateOffset,
       amount: invoiceRecurring.amount,
       currency: invoiceRecurring.currency,
+      exchangeRate: invoiceRecurring.exchangeRate,
+      exchangeRateSource: invoiceRecurring.exchangeRateSource,
+      exchangeRateUpdatedAt: invoiceRecurring.exchangeRateUpdatedAt,
+      convertedCurrency: invoiceRecurring.convertedCurrency,
+      convertedAmount: invoiceRecurring.convertedAmount,
       lineItems: invoiceRecurring.lineItems,
       template: invoiceRecurring.template,
       paymentDetails: invoiceRecurring.paymentDetails,
@@ -925,6 +960,11 @@ export async function getUpcomingDueRecurring(
       nextScheduledAt: invoiceRecurring.nextScheduledAt,
       amount: invoiceRecurring.amount,
       currency: invoiceRecurring.currency,
+      exchangeRate: invoiceRecurring.exchangeRate,
+      exchangeRateSource: invoiceRecurring.exchangeRateSource,
+      exchangeRateUpdatedAt: invoiceRecurring.exchangeRateUpdatedAt,
+      convertedCurrency: invoiceRecurring.convertedCurrency,
+      convertedAmount: invoiceRecurring.convertedAmount,
       upcomingNotificationSentAt: invoiceRecurring.upcomingNotificationSentAt,
     })
     .from(invoiceRecurring)
@@ -990,6 +1030,11 @@ export async function getUpcomingDueRecurringByTeam(
       nextScheduledAt: invoiceRecurring.nextScheduledAt,
       amount: invoiceRecurring.amount,
       currency: invoiceRecurring.currency,
+      exchangeRate: invoiceRecurring.exchangeRate,
+      exchangeRateSource: invoiceRecurring.exchangeRateSource,
+      exchangeRateUpdatedAt: invoiceRecurring.exchangeRateUpdatedAt,
+      convertedCurrency: invoiceRecurring.convertedCurrency,
+      convertedAmount: invoiceRecurring.convertedAmount,
     })
     .from(invoiceRecurring)
     .where(
@@ -1139,6 +1184,11 @@ export async function getRecurringInvoiceProjection(
       id: invoiceRecurring.id,
       amount: invoiceRecurring.amount,
       currency: invoiceRecurring.currency,
+      exchangeRate: invoiceRecurring.exchangeRate,
+      exchangeRateSource: invoiceRecurring.exchangeRateSource,
+      exchangeRateUpdatedAt: invoiceRecurring.exchangeRateUpdatedAt,
+      convertedCurrency: invoiceRecurring.convertedCurrency,
+      convertedAmount: invoiceRecurring.convertedAmount,
       frequency: invoiceRecurring.frequency,
       frequencyDay: invoiceRecurring.frequencyDay,
       frequencyWeek: invoiceRecurring.frequencyWeek,

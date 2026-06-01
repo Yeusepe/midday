@@ -30,6 +30,8 @@ interface Props {
   invoiceNumber?: string;
   amount?: number;
   currency?: string;
+  convertedAmount?: number | null;
+  convertedCurrency?: string | null;
   dueDate?: string;
   // Customizable email content (falls back to defaults if not provided)
   emailHeading?: string | null;
@@ -65,11 +67,13 @@ function formatInvoiceDueDate(dueDate: string, dateFormat: string) {
 
 export const InvoiceEmail = ({
   customerName = "Customer",
-  teamName = "Midday",
+  teamName = "Creator Payments",
   link = "https://app.midday.ai/i/1234567890",
   invoiceNumber,
   amount,
   currency,
+  convertedAmount,
+  convertedCurrency,
   dueDate,
   emailHeading,
   emailBody,
@@ -92,6 +96,12 @@ export const InvoiceEmail = ({
   const formattedAmount =
     amount !== undefined && currency
       ? formatInvoiceAmount(amount, currency, resolvedLocale)
+      : null;
+  const formattedConvertedAmount =
+    convertedAmount !== undefined &&
+    convertedAmount !== null &&
+    convertedCurrency
+      ? formatInvoiceAmount(convertedAmount, convertedCurrency, resolvedLocale)
       : null;
   const formattedDueDate = dueDate
     ? formatInvoiceDueDate(dueDate, resolvedDateFormat)
@@ -157,6 +167,14 @@ export const InvoiceEmail = ({
               style={{ color: lightStyles.text.color }}
             >
               {formattedAmount}
+            </Text>
+          )}
+          {formattedConvertedAmount && (
+            <Text
+              className={`text-[14px] text-center mt-[4px] mb-0 p-0 ${themeClasses.mutedText}`}
+              style={{ color: lightStyles.mutedText.color }}
+            >
+              {formattedConvertedAmount}
             </Text>
           )}
 

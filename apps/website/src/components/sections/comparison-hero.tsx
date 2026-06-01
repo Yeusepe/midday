@@ -36,7 +36,7 @@ export function ComparisonHero({
         </h1>
         <p className="font-sans text-base text-muted-foreground leading-normal mb-8 max-w-2xl">
           {competitor.description} Compare features, pricing, and see why teams
-          are switching to Midday.
+          are switching to Creator Payments.
         </p>
 
         {/* CTA Buttons */}

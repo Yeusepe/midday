@@ -64,7 +64,7 @@ export function MCPOpenCode() {
       {
         mcpServers: {
           midday: {
-            url: "https://api.midday.ai/mcp",
+            url: "https://api.payments.yucp.club/mcp",
             headers: {
               Authorization: `Bearer ${key}`,
             },
@@ -191,7 +191,7 @@ export function MCPOpenCode() {
                   htmlFor="api-key"
                   className="font-sans text-sm text-foreground"
                 >
-                  Your Midday API key
+                  Your Creator Payments API key
                 </label>
                 <Input
                   id="api-key"
@@ -265,7 +265,7 @@ export function MCPOpenCode() {
                     4
                   </span>
                   <span className="font-sans text-sm text-muted-foreground pt-0.5">
-                    Restart OpenCode and ask about your Midday data
+                    Restart OpenCode and ask about your Creator Payments data
                   </span>
                 </li>
               </ol>

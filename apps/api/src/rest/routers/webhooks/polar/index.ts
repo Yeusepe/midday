@@ -201,7 +201,7 @@ app.openapi(
                   teamId,
                   email: owner.email,
                   fullName: owner.fullName ?? "there",
-                  teamName: team.name ?? "Midday",
+                  teamName: team.name ?? "Creator Payments",
                 },
                 "teams",
                 { jobId: `payment-issue-${teamId}` },

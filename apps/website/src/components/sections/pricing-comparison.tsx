@@ -20,10 +20,10 @@ export function PricingComparison({ competitor }: Props) {
       </p>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-        {/* Midday Pricing */}
+        {/* Creator Payments Pricing */}
         <div>
           <h3 className="font-sans text-lg text-foreground mb-6 text-center">
-            Midday
+            Creator Payments
           </h3>
           <div className="space-y-4">
             {competitor.pricing.midday.map((tier, index) => (

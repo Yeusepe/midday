@@ -10,7 +10,7 @@ import {
 } from "../config/store.js";
 import { getApiUrl, getDashboardUrl } from "../utils/env.js";
 
-const CLIENT_NAME = "Midday CLI";
+const CLIENT_NAME = "Creator Payments CLI";
 const SCOPES = [
   "transactions.read",
   "transactions.write",
@@ -311,7 +311,7 @@ export function getAuthStatus(): {
 }
 
 function successPage(): string {
-  return `<!DOCTYPE html><html><head><title>Midday CLI</title>
+  return `<!DOCTYPE html><html><head><title>Creator Payments CLI</title>
 <style>body{font-family:system-ui;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;background:#0a0a0a;color:#fafafa}
 .container{text-align:center}.check{font-size:48px;margin-bottom:16px}h1{font-size:24px;font-weight:500}p{color:#888;margin-top:8px}</style>
 </head><body><div class="container"><div class="check">&#10003;</div><h1>Authenticated</h1><p>You can close this window and return to your terminal.</p></div></body></html>`;
@@ -319,7 +319,7 @@ function successPage(): string {
 
 function errorPage(error: string): string {
   const safeError = escapeHtml(error);
-  return `<!DOCTYPE html><html><head><title>Midday CLI</title>
+  return `<!DOCTYPE html><html><head><title>Creator Payments CLI</title>
 <style>body{font-family:system-ui;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;background:#0a0a0a;color:#fafafa}
 .container{text-align:center}h1{font-size:24px;font-weight:500;color:#f87171}p{color:#888;margin-top:8px}</style>
 </head><body><div class="container"><h1>Authentication Failed</h1><p>${safeError}</p><p>Please try again in your terminal.</p></div></body></html>`;

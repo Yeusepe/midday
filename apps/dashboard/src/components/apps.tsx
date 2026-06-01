@@ -50,6 +50,10 @@ export function Apps() {
     trpc.apps.get.queryOptions(),
   );
 
+  const { data: appConfiguration } = useSuspenseQuery(
+    trpc.apps.configuration.queryOptions(),
+  );
+
   const { data: externalAppsData } = useSuspenseQuery(
     trpc.oauthApplications.list.queryOptions(),
   );
@@ -103,12 +107,26 @@ export function Apps() {
         : (installedOfficialApps?.some(
             (installed) => installed.app_id === app.id,
           ) ?? false);
+    const configurationStatus =
+      appConfiguration?.[app.id as keyof typeof appConfiguration];
+    const hasClientConfiguration =
+      (app.id !== "telegram" ||
+        Boolean(process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME)) &&
+      (app.id !== "whatsapp" ||
+        Boolean(process.env.NEXT_PUBLIC_WHATSAPP_NUMBER)) &&
+      (app.id !== "sendblue" ||
+        Boolean(process.env.NEXT_PUBLIC_SENDBLUE_NUMBER)) &&
+      (app.id !== "stripe-payments" ||
+        Boolean(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY));
 
     return {
       id: app.id,
       name: app.name,
       category: "category" in app ? app.category : "Integration",
-      active: app.active,
+      active:
+        app.active &&
+        (configurationStatus?.active ?? true) &&
+        hasClientConfiguration,
       beta:
         "beta" in app && typeof app.beta === "boolean" ? app.beta : undefined,
       logo: app.logo,

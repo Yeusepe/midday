@@ -207,6 +207,11 @@ export function Form() {
       "scheduledAt",
       "recurringConfig",
       "invoiceRecurringId",
+      "exchangeRate",
+      "exchangeRateSource",
+      "exchangeRateUpdatedAt",
+      "convertedCurrency",
+      "convertedAmount",
     ],
   });
 
@@ -288,6 +293,11 @@ export function Form() {
           topBlock: currentFormValues.topBlock,
           bottomBlock: currentFormValues.bottomBlock,
           amount: currentFormValues.amount,
+          exchangeRate: currentFormValues.exchangeRate,
+          exchangeRateSource: currentFormValues.exchangeRateSource,
+          exchangeRateUpdatedAt: currentFormValues.exchangeRateUpdatedAt,
+          convertedCurrency: currentFormValues.convertedCurrency,
+          convertedAmount: currentFormValues.convertedAmount,
         },
         {
           onSuccess: () => {
@@ -339,6 +349,11 @@ export function Form() {
             dueDateOffset: dueDateOffset >= 0 ? dueDateOffset : 30,
             amount: values.amount,
             currency: values.template.currency,
+            exchangeRate: values.exchangeRate,
+            exchangeRateSource: values.exchangeRateSource,
+            exchangeRateUpdatedAt: values.exchangeRateUpdatedAt,
+            convertedCurrency: values.convertedCurrency,
+            convertedAmount: values.convertedAmount,
             lineItems: values.lineItems,
             template: {
               ...templateWithoutDeliveryType,

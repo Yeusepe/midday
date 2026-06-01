@@ -1,6 +1,6 @@
-# Midday Desktop App
+# Creator Payments Desktop App
 
-A Tauri-based desktop application for Midday that supports multiple environments with a native transparent titlebar on macOS.
+A Tauri-based desktop application for Creator Payments that supports multiple environments with a native transparent titlebar on macOS.
 
 ## Features
 

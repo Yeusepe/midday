@@ -5,15 +5,15 @@ section: assistant
 order: 2
 ---
 
-The Midday MCP server gives AI tools like Claude, Cursor, ChatGPT, and Raycast full access to your business data — not just reading, but creating invoices, managing transactions, tracking time, and exporting to your accountant.
+The Creator Payments MCP server gives AI tools like Claude, Cursor, ChatGPT, and Raycast full access to your business data — not just reading, but creating invoices, managing transactions, tracking time, and exporting to your accountant.
 
 ## What is MCP?
 
-Model Context Protocol (MCP) is an open standard for connecting AI assistants to external data sources. Instead of copying and pasting data, MCP lets AI tools work with your Midday account directly and securely.
+Model Context Protocol (MCP) is an open standard for connecting AI assistants to external data sources. Instead of copying and pasting data, MCP lets AI tools work with your Creator Payments account directly and securely.
 
 ## Supported tools
 
-Midday MCP works with:
+Creator Payments MCP works with:
 
 - **Claude Desktop** - Anthropic's desktop app
 - **Cursor** - AI-powered code editor
@@ -39,14 +39,14 @@ Choose your tool below for specific setup instructions.
 
 ## Claude Desktop setup
 
-Add Midday to your Claude Desktop configuration.
+Add Creator Payments to your Claude Desktop configuration.
 
 ### Find your config file
 
 - **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
 - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 
-### Add Midday configuration
+### Add Creator Payments configuration
 
 Add or update the `mcpServers` section:
 
@@ -66,7 +66,7 @@ Add or update the `mcpServers` section:
 
 ### Restart Claude Desktop
 
-After saving, restart Claude Desktop. You should see Midday in your available tools.
+After saving, restart Claude Desktop. You should see Creator Payments in your available tools.
 
 ### Test it
 
@@ -79,7 +79,7 @@ Ask Claude something like:
 
 ## Cursor setup
 
-Use Midday data while coding in Cursor.
+Use Creator Payments data while coding in Cursor.
 
 ### Open Cursor settings
 
@@ -87,7 +87,7 @@ Use Midday data while coding in Cursor.
 2. Go to Settings (Cmd/Ctrl + ,)
 3. Find the MCP configuration section
 
-### Add Midday
+### Add Creator Payments
 
 Add to your MCP servers:
 
@@ -111,17 +111,17 @@ In Cursor's AI chat, you can now ask about your financial data while working on 
 
 ## ChatGPT setup
 
-Use Midday with ChatGPT via custom GPTs or plugins.
+Use Creator Payments with ChatGPT via custom GPTs or plugins.
 
 ### Custom GPT approach
 
 1. Create a Custom GPT in ChatGPT
-2. Add actions that call the Midday API
+2. Add actions that call the Creator Payments API
 3. Configure authentication with your API key
 
 ### Configuration
 
-Use the Midday API endpoints with your API key in the Authorization header:
+Use the Creator Payments API endpoints with your API key in the Authorization header:
 
 ```
 Authorization: Bearer your-api-key-here
@@ -133,23 +133,23 @@ See the [API reference](/docs/api-reference) for available endpoints.
 
 ## Raycast setup
 
-Access Midday from Raycast on Mac.
+Access Creator Payments from Raycast on Mac.
 
 ### Install the extension
 
 1. Open Raycast
-2. Search for "Midday" in the Store
+2. Search for "Creator Payments" in the Store
 3. Install the extension
 
 ### Configure
 
 1. Open Raycast preferences
-2. Find the Midday extension
+2. Find the Creator Payments extension
 3. Enter your API key
 
 ### Use it
 
-Trigger Raycast and use Midday commands to query your financial data.
+Trigger Raycast and use Creator Payments commands to query your financial data.
 
 ---
 
@@ -394,7 +394,7 @@ The MCP server exposes 107 tools covering your entire business workflow.
 
 > **You**: What's my financial health looking like?
 >
-> **Assistant**: Based on your Midday data:
+> **Assistant**: Based on your Creator Payments data:
 > - Cash balance: $45,230
 > - Monthly burn rate: $8,500
 > - Runway: 5.3 months

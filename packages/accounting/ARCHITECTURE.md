@@ -357,11 +357,11 @@ flowchart TB
 
 ## Data Mapping
 
-### Midday to Xero Transaction Mapping
+### Creator Payments to Xero Transaction Mapping
 
 ```mermaid
 flowchart LR
-    subgraph Midday["Midday Transaction"]
+    subgraph Creator Payments["Creator Payments Transaction"]
         M1[id]
         M2[date]
         M3[amount]
@@ -441,7 +441,7 @@ sequenceDiagram
 
 ### Rate Limits
 
-| Provider | Limit | Midday Handling |
+| Provider | Limit | Creator Payments Handling |
 |----------|-------|-----------------|
 | Xero | 60 calls/minute | BullMQ limiter (20/sec max) |
 | Xero | 5000 calls/day | Batch processing reduces calls |

@@ -7,7 +7,7 @@ import { DataTable } from "@/components/tables/categories/table";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 
 export const metadata: Metadata = {
-  title: "Categories | Midday",
+  title: "Categories | Creator Payments",
 };
 
 export default async function Categories() {

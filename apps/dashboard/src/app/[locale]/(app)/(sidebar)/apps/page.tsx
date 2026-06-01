@@ -13,7 +13,7 @@ import {
 } from "@/trpc/server";
 
 export const metadata: Metadata = {
-  title: "Apps | Midday",
+  title: "Apps | Creator Payments",
 };
 
 export default async function Page() {
@@ -21,6 +21,7 @@ export default async function Page() {
 
   batchPrefetch([
     trpc.apps.get.queryOptions(),
+    trpc.apps.configuration.queryOptions(),
     trpc.oauthApplications.list.queryOptions(),
     trpc.oauthApplications.authorized.queryOptions(),
     trpc.inboxAccounts.get.queryOptions(),

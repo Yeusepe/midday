@@ -37,7 +37,7 @@ export function MCPCline() {
                 Financial data in VS Code
               </h2>
               <p className="font-sans text-base text-muted-foreground leading-relaxed">
-                Connect Midday to Cline and query your transactions, invoices,
+                Connect Creator Payments to Cline and query your transactions, invoices,
                 and reports directly from VS Code. Authentication is handled
                 automatically via OAuth.
               </p>
@@ -68,7 +68,7 @@ export function MCPCline() {
                     <span className="font-sans text-sm text-muted-foreground pt-0.5">
                       Add the server URL:{" "}
                       <span className="font-mono text-xs text-foreground">
-                        https://api.midday.ai/mcp
+                        https://api.payments.yucp.club/mcp
                       </span>
                     </span>
                   </li>
@@ -81,7 +81,7 @@ export function MCPCline() {
                       <span className="font-medium text-foreground">
                         Authenticate
                       </span>{" "}
-                      and sign in to Midday in your browser
+                      and sign in to Creator Payments in your browser
                     </span>
                   </li>
                 </ol>

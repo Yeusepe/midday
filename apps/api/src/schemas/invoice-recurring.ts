@@ -114,6 +114,32 @@ export const createInvoiceRecurringSchema = z
       description: "Currency code (ISO 4217)",
       example: "USD",
     }),
+    exchangeRate: z.number().positive().nullable().optional().openapi({
+      description:
+        "Locked exchange rate from invoice currency to converted currency",
+      example: 535.25,
+    }),
+    exchangeRateSource: z
+      .enum(["automatic", "manual"])
+      .nullable()
+      .optional()
+      .openapi({
+        description:
+          "Whether the exchange rate was fetched automatically or entered manually",
+        example: "automatic",
+      }),
+    exchangeRateUpdatedAt: z.string().nullable().optional().openapi({
+      description: "Timestamp for the locked exchange rate",
+      example: "2026-06-01T12:00:00.000Z",
+    }),
+    convertedCurrency: z.string().nullable().optional().openapi({
+      description: "Currency code used for the converted invoice display total",
+      example: "CRC",
+    }),
+    convertedAmount: z.number().nullable().optional().openapi({
+      description: "Converted invoice display total",
+      example: 802875,
+    }),
     lineItems: z.array(draftLineItemSchema).nullable().optional().openapi({
       description: "Line items for the invoice",
     }),
@@ -322,6 +348,11 @@ export const updateInvoiceRecurringSchema = z
     dueDateOffset: z.number().int().min(0).optional(),
     amount: z.number().nullable().optional(),
     currency: z.string().nullable().optional(),
+    exchangeRate: z.number().positive().nullable().optional(),
+    exchangeRateSource: z.enum(["automatic", "manual"]).nullable().optional(),
+    exchangeRateUpdatedAt: z.string().nullable().optional(),
+    convertedCurrency: z.string().nullable().optional(),
+    convertedAmount: z.number().nullable().optional(),
     lineItems: z.array(draftLineItemSchema).nullable().optional(),
     template: upsertInvoiceTemplateSchema.nullable().optional(),
     paymentDetails: z.any().nullable().optional(),
@@ -686,6 +717,28 @@ export const invoiceRecurringResponseSchema = z.object({
   currency: z.string().nullable().openapi({
     description: "Currency code",
     example: "USD",
+  }),
+  exchangeRate: z.number().nullable().openapi({
+    description:
+      "Locked exchange rate from invoice currency to converted currency",
+    example: 535.25,
+  }),
+  exchangeRateSource: z.enum(["automatic", "manual"]).nullable().openapi({
+    description:
+      "Whether the exchange rate was fetched automatically or entered manually",
+    example: "automatic",
+  }),
+  exchangeRateUpdatedAt: z.string().nullable().openapi({
+    description: "Timestamp for the locked exchange rate",
+    example: "2026-06-01T12:00:00.000Z",
+  }),
+  convertedCurrency: z.string().nullable().openapi({
+    description: "Currency code used for the converted invoice display total",
+    example: "CRC",
+  }),
+  convertedAmount: z.number().nullable().openapi({
+    description: "Converted invoice display total",
+    example: 802875,
   }),
   customerId: z.string().uuid().nullable().openapi({
     description: "Customer ID",

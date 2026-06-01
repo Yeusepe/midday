@@ -85,7 +85,7 @@ export function MCPClaude() {
 
   const cliCommand = useMemo(() => {
     const key = apiKey || "YOUR_API_KEY";
-    return `claude mcp add --transport http midday https://api.midday.ai/mcp --header "Authorization: Bearer ${key}"`;
+    return `claude mcp add --transport http midday https://api.payments.yucp.club/mcp --header "Authorization: Bearer ${key}"`;
   }, [apiKey]);
 
   const desktopConfig = useMemo(() => {
@@ -98,7 +98,7 @@ export function MCPClaude() {
             args: [
               "-y",
               "mcp-remote@latest",
-              "https://api.midday.ai/mcp",
+              "https://api.payments.yucp.club/mcp",
               "--header",
               // biome-ignore lint/suspicious/noTemplateCurlyInString: Intentional shell variable reference in MCP config
               "Authorization:${AUTH_HEADER}",
@@ -146,7 +146,7 @@ export function MCPClaude() {
                 Conversations with real numbers
               </h2>
               <p className="font-sans text-base text-muted-foreground leading-relaxed">
-                Connect Midday to Claude and get AI-powered financial insights
+                Connect Creator Payments to Claude and get AI-powered financial insights
                 grounded in your real business data. Authentication is handled
                 automatically via OAuth.
               </p>
@@ -207,7 +207,7 @@ export function MCPClaude() {
                   <p className="font-sans text-sm text-muted-foreground">
                     Copy this URL and add it as a connector in Claude:
                   </p>
-                  <CopyableUrl url="https://api.midday.ai/mcp" />
+                  <CopyableUrl url="https://api.payments.yucp.club/mcp" />
                 </div>
 
                 <div className="mt-12 space-y-4">
@@ -244,7 +244,7 @@ export function MCPClaude() {
                       </span>
                       <span className="font-sans text-sm text-muted-foreground pt-0.5">
                         When you use the tools, you'll be prompted to sign in to
-                        Midday and select a team
+                        Creator Payments and select a team
                       </span>
                     </li>
                   </ol>
@@ -256,10 +256,10 @@ export function MCPClaude() {
             {activeTab === "code" && (
               <div className="space-y-6">
                 <p className="font-sans text-sm text-muted-foreground">
-                  Add the Midday MCP server to Claude Code. OAuth authentication
+                  Add the Creator Payments MCP server to Claude Code. OAuth authentication
                   will be handled automatically in your browser:
                 </p>
-                <CodeBlock code="claude mcp add --transport http midday https://api.midday.ai/mcp" />
+                <CodeBlock code="claude mcp add --transport http midday https://api.payments.yucp.club/mcp" />
 
                 <div className="mt-12 space-y-4">
                   <h3 className="font-sans text-sm font-medium text-foreground">
@@ -279,7 +279,7 @@ export function MCPClaude() {
                         2
                       </span>
                       <span className="font-sans text-sm text-muted-foreground pt-0.5">
-                        When prompted, sign in to Midday in your browser and
+                        When prompted, sign in to Creator Payments in your browser and
                         select a team
                       </span>
                     </li>

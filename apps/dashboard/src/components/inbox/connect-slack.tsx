@@ -50,7 +50,7 @@ export function ConnectSlack() {
     createLinkTokenMutation.mutate({ provider: "slack" });
   }, [open, isInstalled]);
 
-  const linkMessage = linkCode ? `Connect to Midday: ${linkCode}` : "";
+  const linkMessage = linkCode ? `Connect to Creator Payments: ${linkCode}` : "";
 
   const copyToClipboard = async () => {
     if (!linkMessage) {
@@ -109,7 +109,7 @@ export function ConnectSlack() {
           <DialogHeader>
             <DialogTitle>Link Your Slack User</DialogTitle>
             <DialogDescription>
-              Open a DM with the Midday bot in Slack and send the one-time code
+              Open a DM with the Creator Payments bot in Slack and send the one-time code
               below to link your Slack identity.
             </DialogDescription>
           </DialogHeader>
@@ -157,7 +157,7 @@ export function ConnectSlack() {
           </Button>
 
           <p className="text-xs text-[#878787] text-center">
-            This links your Slack user to your current Midday user. Workspace
+            This links your Slack user to your current Creator Payments user. Workspace
             installation and disconnect still live in the Slack app settings.
           </p>
         </div>

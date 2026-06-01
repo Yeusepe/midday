@@ -56,7 +56,7 @@ export async function publishAppHome({
         type: "header" as const,
         text: {
           type: "plain_text" as const,
-          text: "Midday",
+          text: "Creator Payments",
           emoji: false,
         },
       },
@@ -134,7 +134,7 @@ export async function publishAppHome({
             type: "button" as const,
             text: {
               type: "plain_text" as const,
-              text: "Open Midday",
+              text: "Open Creator Payments",
               emoji: false,
             },
             url: "https://app.midday.ai",
@@ -162,7 +162,7 @@ export async function publishAppHome({
         type: "section" as const,
         text: {
           type: "mrkdwn" as const,
-          text: "*Getting Started*\n\n1. *Upload a receipt*: Share a file in any channel where Midday is added\n2. *Configure notifications*: Set up your notification channel in settings\n3. *Review matches*: Approve or decline suggested matches directly in Slack",
+          text: "*Getting Started*\n\n1. *Upload a receipt*: Share a file in any channel where Creator Payments is added\n2. *Configure notifications*: Set up your notification channel in settings\n3. *Review matches*: Approve or decline suggested matches directly in Slack",
         },
       },
 
@@ -176,7 +176,7 @@ export async function publishAppHome({
         elements: [
           {
             type: "mrkdwn" as const,
-            text: "Upload receipts by sharing files in channels where Midday is added. Data will be automatically extracted and matched to your transactions.",
+            text: "Upload receipts by sharing files in channels where Creator Payments is added. Data will be automatically extracted and matched to your transactions.",
           },
         ],
       },

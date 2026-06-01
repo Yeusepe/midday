@@ -6,6 +6,7 @@ import {
   duplicateInvoiceSchema,
   getInvoiceByIdSchema,
   getInvoiceByTokenSchema,
+  getInvoiceExchangeRateSchema,
   getInvoicesSchema,
   invoiceSummarySchema,
   remindInvoiceSchema,
@@ -27,6 +28,7 @@ import {
   getAverageDaysToPayment,
   getAverageInvoiceSize,
   getCustomerById,
+  getExchangeRateDetails,
   getInactiveClientsCount,
   getInvoiceById,
   getInvoiceSummary,
@@ -76,6 +78,15 @@ export const invoiceRouter = createTRPCRouter({
         id: input.id,
         teamId: teamId!,
       });
+    }),
+
+  exchangeRate: protectedProcedure
+    .input(getInvoiceExchangeRateSchema)
+    .query(async ({ input, ctx: { db } }) => {
+      const base = input.base.toUpperCase();
+      const target = input.target.toUpperCase();
+
+      return getExchangeRateDetails(db, { base, target });
     }),
 
   getInvoiceByToken: publicProcedure
@@ -399,6 +410,11 @@ export const invoiceRouter = createTRPCRouter({
         topBlock: undefined,
         bottomBlock: undefined,
         amount: undefined,
+        exchangeRate: null,
+        exchangeRateSource: null,
+        exchangeRateUpdatedAt: null,
+        convertedCurrency: null,
+        convertedAmount: null,
         customerName: undefined,
         logoUrl: undefined,
         vat: undefined,

@@ -184,7 +184,7 @@ async function handleIncomingMessage(
     await forgetThreadState(thread);
     await thread
       .post(
-        "This chat is no longer linked to an authorized Midday workspace. Reconnect it from Midday and try again.",
+        "This chat is no longer linked to an authorized Creator Payments workspace. Reconnect it from Creator Payments and try again.",
       )
       .catch(() => {});
     return;
@@ -203,12 +203,12 @@ async function handleIncomingMessage(
 
   if (!user) {
     await thread.post(
-      "I couldn't resolve the Midday user for this connection. Reconnect it from the dashboard and try again.",
+      "I couldn't resolve the Creator Payments user for this connection. Reconnect it from the dashboard and try again.",
     );
     return;
   }
 
-  await thread.startTyping("Working in Midday...").catch(() => {});
+  await thread.startTyping("Working in Creator Payments...").catch(() => {});
 
   const { summaries: recentUploadSummaries, richMessages: uploadMessages } =
     await processIncomingAttachments({
@@ -438,14 +438,14 @@ function resolveWhatsAppConversation(
       {
         errorClass: WhatsAppAlreadyConnectedToAnotherTeamError,
         message:
-          "This WhatsApp number is already connected to another Midday workspace.",
+          "This WhatsApp number is already connected to another Creator Payments workspace.",
       },
     ],
     welcomeMessage: (name) => buildWelcomeMessage(name, "whatsapp"),
     invalidCodeMessage:
-      "That WhatsApp link code is invalid or expired. Open Midday and generate a new one.",
+      "That WhatsApp link code is invalid or expired. Open Creator Payments and generate a new one.",
     promptConnectMessage:
-      "Connect WhatsApp from Midday first, then send the prefilled connection message here.",
+      "Connect WhatsApp from Creator Payments first, then send the prefilled connection message here.",
   });
 }
 
@@ -474,9 +474,9 @@ function resolveSendblueConversation(
     },
     welcomeMessage: (name) => buildWelcomeMessage(name, "sendblue"),
     invalidCodeMessage:
-      "That iMessage link code is invalid or expired. Open Midday and generate a new one.",
+      "That iMessage link code is invalid or expired. Open Creator Payments and generate a new one.",
     promptConnectMessage:
-      "Connect iMessage from Midday first, then send the connection code here.",
+      "Connect iMessage from Creator Payments first, then send the connection code here.",
   });
 }
 
@@ -518,14 +518,14 @@ function resolveTelegramConversation(
       {
         errorClass: TelegramAlreadyConnectedToAnotherTeamError,
         message:
-          "This Telegram account is already connected to another Midday workspace.",
+          "This Telegram account is already connected to another Creator Payments workspace.",
       },
     ],
     welcomeMessage: (name) => buildWelcomeMessage(name, "telegram"),
     invalidCodeMessage:
-      "That Telegram link code is invalid or expired. Open Midday and generate a new one.",
+      "That Telegram link code is invalid or expired. Open Creator Payments and generate a new one.",
     promptConnectMessage:
-      "Open Telegram from Midday to connect this chat, then come back here.",
+      "Open Telegram from Creator Payments to connect this chat, then come back here.",
   });
 }
 
@@ -599,7 +599,7 @@ async function resolveSlackConversation(
     if (token) {
       if (app?.teamId && app.teamId !== token.teamId) {
         await thread.post(
-          "That Slack link code belongs to another Midday workspace. Generate a new code for this workspace.",
+          "That Slack link code belongs to another Creator Payments workspace. Generate a new code for this workspace.",
         );
         return { connected: false as const };
       }
@@ -635,7 +635,7 @@ async function resolveSlackConversation(
           externalUserId: slackUserId,
         });
 
-        await thread.post(buildWelcomeMessage(team?.name ?? "Midday", "slack"));
+        await thread.post(buildWelcomeMessage(team?.name ?? "Creator Payments", "slack"));
 
         return consumeResolvedConversation({
           connected: true as const,
@@ -658,7 +658,7 @@ async function resolveSlackConversation(
       isExplicitConnectionAttempt("slack", message?.text)
     ) {
       await thread.post(
-        "That Slack link code is invalid or expired. Open Midday and generate a new one.",
+        "That Slack link code is invalid or expired. Open Creator Payments and generate a new one.",
       );
       return { connected: false as const };
     }
@@ -666,7 +666,7 @@ async function resolveSlackConversation(
 
   if (!existingIdentity?.userId) {
     await thread.post(
-      "Slack is installed, but this Slack user is not linked yet. Open Midday, choose Link Slack User, and send the generated code to the Midday bot in Slack.",
+      "Slack is installed, but this Slack user is not linked yet. Open Creator Payments, choose Link Slack User, and send the generated code to the Creator Payments bot in Slack.",
     );
     return { connected: false as const };
   }
@@ -674,7 +674,7 @@ async function resolveSlackConversation(
   const resolvedTeamId = thread.isDM ? existingIdentity.teamId : app?.teamId;
   if (!resolvedTeamId) {
     await thread.post(
-      "Slack is installed, but I couldn't map this conversation to a Midday workspace.",
+      "Slack is installed, but I couldn't map this conversation to a Creator Payments workspace.",
     );
     return { connected: false as const };
   }

@@ -23,7 +23,7 @@ const VERSION = "0.1.0";
 export function createProgram(): Command {
   const program = new Command("midday")
     .version(VERSION, "-v, --version")
-    .description("Midday CLI — run your business from the command line")
+    .description("Creator Payments CLI — run your business from the command line")
     .option("--json, -j", "Output as JSON (default when piped)")
     .option("--table", "Output as table (default when TTY)")
     .option("--agent", "Agent mode: JSON output, no prompts, no spinners")

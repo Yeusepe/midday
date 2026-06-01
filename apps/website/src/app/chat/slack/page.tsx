@@ -3,12 +3,12 @@ import { ChatPlatformPage } from "@/components/chat-platform-page";
 import { createPageMetadata } from "@/lib/metadata";
 
 export const metadata = createPageMetadata({
-  title: "Midday for Slack",
+  title: "Creator Payments for Slack",
   description:
     "Run your business from Slack. Ask questions, upload receipts, track invoices, and get notifications — without leaving your workspace.",
   path: "/chat/slack",
   og: {
-    title: "Midday for Slack",
+    title: "Creator Payments for Slack",
     description: "Your business, without leaving Slack",
   },
   keywords: [
@@ -16,7 +16,7 @@ export const metadata = createPageMetadata({
     "Slack invoicing",
     "Slack receipts",
     "Slack bookkeeping",
-    "Midday Slack",
+    "Creator Payments Slack",
     "Slack finance bot",
     "Slack accounting",
   ],
@@ -28,18 +28,18 @@ const config = {
   appId: "slack",
   icon: <Icons.Slack size={40} className="h-10 w-10" />,
   description:
-    "Connect Midday to Slack and manage your finances without leaving your workspace. Ask about your cash flow, upload receipts, track invoices — Midday works right in your DMs or a shared channel.",
+    "Connect Creator Payments to Slack and manage your finances without leaving your workspace. Ask about your cash flow, upload receipts, track invoices — Creator Payments works right in your DMs or a shared channel.",
   steps: [
     {
-      title: "Open Apps in Midday",
+      title: "Open Apps in Creator Payments",
       description:
-        "Go to the Apps section in your Midday dashboard and find Slack.",
+        "Go to the Apps section in your Creator Payments dashboard and find Slack.",
       href: "https://app.midday.ai/apps?app=slack",
     },
     {
       title: "Install to your workspace",
       description:
-        "Click Connect and authorize Midday in your Slack workspace. Choose a channel or use direct messages.",
+        "Click Connect and authorize Creator Payments in your Slack workspace. Choose a channel or use direct messages.",
     },
     {
       title: "Start chatting",

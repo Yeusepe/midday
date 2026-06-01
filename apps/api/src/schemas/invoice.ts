@@ -249,6 +249,32 @@ const baseDraftInvoiceSchema = z.object({
     description: "Total amount of the invoice",
     example: 1500.75,
   }),
+  exchangeRate: z.number().positive().nullable().optional().openapi({
+    description:
+      "Locked exchange rate from invoice currency to converted currency",
+    example: 535.25,
+  }),
+  exchangeRateSource: z
+    .enum(["automatic", "manual"])
+    .nullable()
+    .optional()
+    .openapi({
+      description:
+        "Whether the exchange rate was fetched automatically or entered manually",
+      example: "automatic",
+    }),
+  exchangeRateUpdatedAt: z.string().nullable().optional().openapi({
+    description: "Timestamp for the locked exchange rate",
+    example: "2026-06-01T12:00:00.000Z",
+  }),
+  convertedCurrency: z.string().nullable().optional().openapi({
+    description: "Currency code used for the converted invoice display total",
+    example: "CRC",
+  }),
+  convertedAmount: z.number().nullable().optional().openapi({
+    description: "Converted invoice display total",
+    example: 802875,
+  }),
   token: z.string().optional().openapi({
     description:
       "Unique token for the draft invoice (for sharing or public access)",
@@ -720,6 +746,11 @@ export const remindInvoiceSchema = z.object({
   date: z.string(),
 });
 
+export const getInvoiceExchangeRateSchema = z.object({
+  base: z.string().min(3).max(3),
+  target: z.string().min(3).max(3),
+});
+
 export const updateScheduledInvoiceSchema = z.object({
   id: z.string().uuid(),
   scheduledAt: z.string().datetime({ offset: true }),
@@ -852,6 +883,32 @@ export const createInvoiceRequestSchema = z
     amount: z.number().nullable().optional().openapi({
       description: "Total amount of the invoice",
       example: 1500.75,
+    }),
+    exchangeRate: z.number().positive().nullable().optional().openapi({
+      description:
+        "Locked exchange rate from invoice currency to converted currency",
+      example: 535.25,
+    }),
+    exchangeRateSource: z
+      .enum(["automatic", "manual"])
+      .nullable()
+      .optional()
+      .openapi({
+        description:
+          "Whether the exchange rate was fetched automatically or entered manually",
+        example: "automatic",
+      }),
+    exchangeRateUpdatedAt: z.string().nullable().optional().openapi({
+      description: "Timestamp for the locked exchange rate",
+      example: "2026-06-01T12:00:00.000Z",
+    }),
+    convertedCurrency: z.string().nullable().optional().openapi({
+      description: "Currency code used for the converted invoice display total",
+      example: "CRC",
+    }),
+    convertedAmount: z.number().nullable().optional().openapi({
+      description: "Converted invoice display total",
+      example: 802875,
     }),
     lineItems: z.array(restDraftLineItemSchema).optional().openapi({
       description: "List of line items for the invoice",
@@ -1265,6 +1322,28 @@ export const invoiceResponseSchema = z
     currency: z.string().nullable().openapi({
       description: "Currency code (ISO 4217) for the invoice amount",
       example: "USD",
+    }),
+    exchangeRate: z.number().nullable().openapi({
+      description:
+        "Locked exchange rate from invoice currency to converted currency",
+      example: 535.25,
+    }),
+    exchangeRateSource: z.enum(["automatic", "manual"]).nullable().openapi({
+      description:
+        "Whether the exchange rate was fetched automatically or entered manually",
+      example: "automatic",
+    }),
+    exchangeRateUpdatedAt: z.string().nullable().openapi({
+      description: "Timestamp for the locked exchange rate",
+      example: "2026-06-01T12:00:00.000Z",
+    }),
+    convertedCurrency: z.string().nullable().openapi({
+      description: "Currency code used for the converted invoice display total",
+      example: "CRC",
+    }),
+    convertedAmount: z.number().nullable().openapi({
+      description: "Converted invoice display total",
+      example: 802875,
     }),
     customer: z
       .object({

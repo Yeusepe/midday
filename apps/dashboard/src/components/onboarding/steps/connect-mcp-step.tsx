@@ -84,7 +84,7 @@ export function ConnectMcpStep() {
         transition={{ duration: 0.4, delay: 0.1 }}
         className="text-lg lg:text-xl font-serif"
       >
-        Use Midday where you already work
+        Use Creator Payments where you already work
       </motion.h1>
 
       <motion.p

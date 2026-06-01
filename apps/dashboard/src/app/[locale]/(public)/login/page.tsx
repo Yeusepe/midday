@@ -8,7 +8,7 @@ import { SunsetBanner } from "@/components/sunset-banner";
 import { Cookies } from "@/utils/constants";
 
 export const metadata: Metadata = {
-  title: "Login | Midday",
+  title: "Login | Creator Payments",
 };
 
 export default async function Page() {
@@ -44,7 +44,7 @@ export default async function Page() {
             {/* Header */}
             <div className="text-center space-y-2">
               <h1 className="text-lg lg:text-xl mb-4 font-serif">
-                Welcome to Midday
+                Welcome to Creator Payments
               </h1>
               <p className="font-sans text-sm text-[#878787]">
                 Sign in or create an account

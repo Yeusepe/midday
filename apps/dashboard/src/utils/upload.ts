@@ -13,6 +13,12 @@ export async function resumableUpload(
   client: SupabaseClient,
   { file, path, bucket, onProgress }: ResumableUploadParmas,
 ) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+
+  if (!supabaseUrl) {
+    throw new Error("NEXT_PUBLIC_SUPABASE_URL is required for file uploads");
+  }
+
   const {
     data: { session },
   } = await client.auth.getSession();
@@ -23,7 +29,7 @@ export async function resumableUpload(
 
   return new Promise((resolve, reject) => {
     const upload = new tus.Upload(file, {
-      endpoint: `https://${process.env.NEXT_PUBLIC_SUPABASE_ID}.supabase.co/storage/v1/upload/resumable`,
+      endpoint: `${supabaseUrl.replace(/\/$/, "")}/storage/v1/upload/resumable`,
       retryDelays: [0, 3000, 5000, 10000],
       headers: {
         authorization: `Bearer ${session?.access_token}`,

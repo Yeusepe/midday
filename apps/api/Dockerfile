@@ -32,7 +32,7 @@ WORKDIR /app
 
 COPY --from=builder /app/out/json/ .
 COPY bunfig.toml .
-RUN bun install --production --no-save
+RUN CI=false bun install --production
 
 # Runner stage - clean image
 FROM oven/bun:1.3.10 AS runner

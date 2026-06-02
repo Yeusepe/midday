@@ -11,7 +11,9 @@ export function createMiddayBot() {
     userName: "midday",
     adapters: {
       whatsapp: createWhatsAppAdapter(),
-      telegram: createTelegramAdapter(),
+      ...(process.env.TELEGRAM_BOT_TOKEN
+        ? { telegram: createTelegramAdapter() }
+        : {}),
       slack: createSlackAdapter(),
       sendblue: createSendblueAdapter(),
     },

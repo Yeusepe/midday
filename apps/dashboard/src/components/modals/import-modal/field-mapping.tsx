@@ -1,6 +1,13 @@
 "use client";
 
-import { formatAmountValue, formatDate } from "@midday/import";
+import {
+  COMPUTED_AMOUNT_COLUMN,
+  formatAmountValue,
+  formatDate,
+  getPreferredAmountColumn,
+  isCreditLikeColumn,
+  isDebitLikeColumn,
+} from "@midday/import";
 import {
   Accordion,
   AccordionContent,
@@ -72,6 +79,14 @@ export function FieldMapping({ currencies }: { currencies: string[] }) {
       return;
     }
 
+    const preferredAmountColumn = getPreferredAmountColumn(fileColumns);
+
+    if (preferredAmountColumn) {
+      setValue("amount", preferredAmountColumn, {
+        shouldValidate: true,
+      });
+    }
+
     // Abort previous request if it exists
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -103,6 +118,14 @@ export function FieldMapping({ currencies }: { currencies: string[] }) {
                 shouldValidate: true,
               });
             }
+          }
+
+          const preferredAmountColumn = getPreferredAmountColumn(fileColumns);
+
+          if (preferredAmountColumn) {
+            setValue("amount", preferredAmountColumn, {
+              shouldValidate: true,
+            });
           }
 
           if (!isActiveRequest(requestId, mappingRequestIdRef)) {
@@ -313,6 +336,21 @@ function FieldRow({
   const isLoading = isStreaming && !value;
 
   const firstRow = firstRows?.at(0);
+  const selectableColumns =
+    field === "amount"
+      ? [
+          ...(fileColumns?.includes(COMPUTED_AMOUNT_COLUMN)
+            ? [COMPUTED_AMOUNT_COLUMN]
+            : []),
+          ...(fileColumns?.filter(
+            (column) =>
+              column !== "" &&
+              column !== COMPUTED_AMOUNT_COLUMN &&
+              !isDebitLikeColumn(column) &&
+              !isCreditLikeColumn(column),
+          ) || []),
+        ]
+      : fileColumns?.filter((column) => column !== "") || [];
 
   // For balance: use value from row with latest date (current balance)
   const balanceFromLatestDate =
@@ -432,7 +470,7 @@ function FieldRow({
                     <SelectLabel>{label}</SelectLabel>
                     {[
                       // Filter out empty columns
-                      ...(fileColumns?.filter((column) => column !== "") || []),
+                      ...selectableColumns,
                       ...(controllerField.value && !required ? ["None"] : []),
                     ]?.map((column) => {
                       return (

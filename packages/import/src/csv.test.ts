@@ -1,5 +1,9 @@
 import { describe, expect, it } from "bun:test";
-import { decodeImportCsvContent, normalizeImportCsvContent } from "./csv";
+import {
+  decodeImportCsvContent,
+  getPreferredAmountColumn,
+  normalizeImportCsvContent,
+} from "./csv";
 
 describe("decodeImportCsvContent", () => {
   it("uses windows-1252 when utf-8 replacement characters would be introduced", () => {
@@ -67,5 +71,17 @@ describe("normalizeImportCsvContent", () => {
     );
 
     expect(normalizeImportCsvContent(content)).toBe(content);
+  });
+});
+
+describe("getPreferredAmountColumn", () => {
+  it("prefers computed Amount when debit and credit columns are present", () => {
+    expect(
+      getPreferredAmountColumn(["Date", "Debit", "Credit", "Amount"]),
+    ).toBe("Amount");
+  });
+
+  it("does not force an amount column when debit and credit are not both present", () => {
+    expect(getPreferredAmountColumn(["Date", "Credit", "Amount"])).toBeNull();
   });
 });

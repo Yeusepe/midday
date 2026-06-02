@@ -1,7 +1,7 @@
 import Papa from "papaparse";
 import { formatAmountValue } from "./utils";
 
-const COMPUTED_AMOUNT_COLUMN = "Amount";
+export const COMPUTED_AMOUNT_COLUMN = "Amount";
 const MIN_TRANSACTION_HEADER_SCORE = 8;
 
 function normalizeForMatch(value: string) {
@@ -33,6 +33,27 @@ export function decodeImportCsvContent(input: ArrayBuffer | Uint8Array) {
     countReplacementCharacters(utf8)
     ? windows1252
     : utf8;
+}
+
+export function isDebitLikeColumn(value: string) {
+  return isDebitColumn(normalizeForMatch(value));
+}
+
+export function isCreditLikeColumn(value: string) {
+  return isCreditColumn(normalizeForMatch(value));
+}
+
+export function getPreferredAmountColumn(fields: string[]) {
+  const hasSplitAmount =
+    fields.some(isDebitLikeColumn) && fields.some(isCreditLikeColumn);
+
+  if (!hasSplitAmount) {
+    return null;
+  }
+
+  return fields.includes(COMPUTED_AMOUNT_COLUMN)
+    ? COMPUTED_AMOUNT_COLUMN
+    : null;
 }
 
 function findColumn(

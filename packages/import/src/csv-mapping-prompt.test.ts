@@ -54,6 +54,26 @@ describe("buildCsvMappingPrompt", () => {
     expect(prompt).toContain("Never invent column names.");
   });
 
+  it("tells the mapper to prefer combined Amount over split debit and credit columns", () => {
+    const prompt = buildCsvMappingPrompt(
+      ["Date", "Description", "Debit", "Credit", "Amount"],
+      [
+        {
+          Date: "2026-06-01",
+          Description: "Payment",
+          Debit: "0",
+          Credit: "100",
+          Amount: "100",
+        },
+      ],
+    );
+
+    expect(prompt).toContain("map amount to Amount");
+    expect(prompt).toContain(
+      '<result>{"date":"Date","description":"Description","amount":"Amount"}</result>',
+    );
+  });
+
   it("handles empty rows without breaking prompt", () => {
     const prompt = buildCsvMappingPrompt(["Date", "Amount"], []);
 

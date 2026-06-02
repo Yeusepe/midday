@@ -115,8 +115,10 @@ export function MetricsView({
 }: MetricsViewProps) {
   const trpc = useTRPC();
   const { data: user } = useUserQuery();
-  const { data: connections } = useQuery(
-    trpc.bankConnections.get.queryOptions(),
+  const { data: bankAccounts } = useQuery(
+    trpc.bankAccounts.get.queryOptions({
+      enabled: true,
+    }),
   );
   const { from, to, currency, revenueType } = useMetricsFilter();
   const [layout, setLayout] = useState<ChartLayoutItem[]>(
@@ -163,8 +165,8 @@ export function MetricsView({
   }, [layout]);
 
   const [_, setStep] = useQueryState("step");
-  const hasConnections = connections && connections.length > 0;
-  const showConnectOverlay = connections !== undefined && !hasConnections;
+  const hasBankAccounts = bankAccounts && bankAccounts.length > 0;
+  const showImportOverlay = bankAccounts !== undefined && !hasBankAccounts;
 
   const renderChart = (chartId: ChartId, index: number) => {
     const commonProps = {
@@ -212,24 +214,24 @@ export function MetricsView({
         isEditing={isEditing}
         onResize={(newColSpan) => handleResizeChart(chartId, newColSpan)}
       >
-        {showConnectOverlay ? (
+        {showImportOverlay ? (
           <div
-            className="relative overflow-hidden group/connect cursor-pointer border border-border bg-background"
-            onClick={() => setStep("connect")}
-            onKeyDown={(e) => e.key === "Enter" && setStep("connect")}
+            className="relative overflow-hidden group/import cursor-pointer border border-border bg-background"
+            onClick={() => setStep("import")}
+            onKeyDown={(e) => e.key === "Enter" && setStep("import")}
             role="button"
             tabIndex={0}
           >
-            <div className="transition-all duration-200 group-hover/connect:blur-[7px] group-hover/connect:opacity-20 group-hover/connect:pointer-events-none group-hover/connect:select-none [&>*]:border-0">
+            <div className="transition-all duration-200 group-hover/import:blur-[7px] group-hover/import:opacity-20 group-hover/import:pointer-events-none group-hover/import:select-none [&>*]:border-0">
               {chartContent}
             </div>
-            <div className="absolute inset-0 z-10 flex items-center justify-center opacity-0 pointer-events-none group-hover/connect:opacity-100 transition-opacity duration-200">
+            <div className="absolute inset-0 z-10 flex items-center justify-center opacity-0 pointer-events-none group-hover/import:opacity-100 transition-opacity duration-200">
               <div className="text-center flex flex-col items-center">
                 <h2 className="text-lg font-medium mb-2">No data available</h2>
                 <p className="text-sm text-[#878787] mb-4">
-                  Connect your bank account to unlock this metric.
+                  Import transactions from CSV to unlock this metric.
                 </p>
-                <Button>Connect Bank</Button>
+                <Button>Import CSV</Button>
               </div>
             </div>
           </div>

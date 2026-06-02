@@ -388,36 +388,45 @@ export function ImportModal() {
 
                       setIsImporting(true);
 
-                      const filename = stripSpecialCharacters(data.file.name);
-                      const { path } = await uploadFile({
-                        bucket: "vault",
-                        path: [user?.team?.id ?? "", "imports", filename],
-                        file,
-                      });
+                      try {
+                        const filename = stripSpecialCharacters(data.file.name);
+                        const { path } = await uploadFile({
+                          bucket: "vault",
+                          path: [user?.team?.id ?? "", "imports", filename],
+                          file,
+                        });
 
-                      const currentBalance =
-                        firstRows && data.date && data.balance
-                          ? getBalanceFromLatestDate(
-                              firstRows,
-                              data.date,
-                              data.balance,
-                            )
-                          : undefined;
+                        const currentBalance =
+                          firstRows && data.date && data.balance
+                            ? getBalanceFromLatestDate(
+                                firstRows,
+                                data.date,
+                                data.balance,
+                              )
+                            : undefined;
 
-                      importTransactions.mutate({
-                        filePath: path,
-                        currency: data.currency,
-                        bankAccountId: data.bank_account_id,
-                        currentBalance,
-                        inverted: data.inverted,
-                        mappings: {
-                          amount: data.amount,
-                          date: data.date,
-                          description: data.description,
-                          counterparty: data.counterparty,
-                          balance: data.balance,
-                        },
-                      });
+                        importTransactions.mutate({
+                          filePath: path,
+                          currency: data.currency,
+                          bankAccountId: data.bank_account_id,
+                          currentBalance,
+                          inverted: data.inverted,
+                          mappings: {
+                            amount: data.amount,
+                            date: data.date,
+                            description: data.description,
+                            counterparty: data.counterparty,
+                            balance: data.balance,
+                          },
+                        });
+                      } catch {
+                        setIsImporting(false);
+                        toast({
+                          duration: 3500,
+                          variant: "error",
+                          title: "File upload failed. Please try again.",
+                        });
+                      }
                     })}
                   >
                     {page === "select-file" && <SelectFile />}

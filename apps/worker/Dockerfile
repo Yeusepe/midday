@@ -33,8 +33,9 @@ RUN bun install
 # Copy full source from worker pruned workspace
 COPY --from=builder /app/out/worker/full/ .
 
-# Build workbench
-RUN cd packages/workbench && bun run build
+# Drop dev dependencies after the build/install stage so the runtime image only
+# carries packages needed by the background worker.
+RUN rm -rf node_modules && bun install --production
 
 # Runner stage - clean image
 FROM oven/bun:1.3.10 AS runner

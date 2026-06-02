@@ -11,7 +11,6 @@ import { createLoggerWithContext } from "@midday/logger";
 import * as Sentry from "@sentry/bun";
 import { Worker } from "bullmq";
 import { Hono } from "hono";
-import { workbench } from "workbench/hono";
 import { getProcessor } from "./processors/registry";
 import { getAllQueues, queueConfigs } from "./queues";
 import { registerStaticSchedulers } from "./schedulers/registry";
@@ -129,15 +128,24 @@ registerStaticSchedulers().catch((error) => {
 const app = new Hono();
 
 const basePath = "/admin";
+const isWorkbenchEnabled =
+  process.env.WORKER_ADMIN_DASHBOARD_ENABLED === "true";
 
 // Initialize Workbench dashboard
-function initializeWorkbench() {
+async function initializeWorkbench() {
+  if (!isWorkbenchEnabled) {
+    logger.info("Workbench dashboard disabled");
+    return;
+  }
+
   const queues = getAllQueues();
 
   if (queues.length === 0) {
     logger.warn("No queues found when initializing Workbench");
     return;
   }
+
+  const { workbench } = await import("workbench/hono");
 
   // Mount workbench with optional auth
   app.route(
@@ -162,7 +170,12 @@ function initializeWorkbench() {
 }
 
 // Initialize Workbench on startup
-initializeWorkbench();
+initializeWorkbench().catch((error) => {
+  logger.error("Failed to initialize Workbench", {
+    error: error instanceof Error ? error.message : String(error),
+  });
+  process.exit(1);
+});
 
 // Health check endpoint - verifies service is running
 app.get("/", (c) => {
@@ -186,7 +199,7 @@ app.get("/info", (c) => {
   const queues = getAllQueues();
   return c.json({
     queues: queues.map((q) => ({ name: q.name })),
-    dashboardUrl: `${basePath}/queues`,
+    dashboardUrl: isWorkbenchEnabled ? `${basePath}/queues` : null,
   });
 });
 

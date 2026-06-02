@@ -1,6 +1,5 @@
 {
-  "ignore_dockerfile": true,
-  "app_dir": "apps/worker",
-  "build_command": "cd ../../packages/workbench && bun run build",
-  "start_command": "bun run start"
+  "dockerfile": {
+    "path": "apps/worker/Dockerfile"
+  }
 }

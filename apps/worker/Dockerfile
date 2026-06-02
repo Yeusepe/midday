@@ -26,16 +26,12 @@ RUN apt-get update && apt-get install -y \
 COPY --from=builder /app/out/worker/json/ .
 COPY bunfig.toml .
 
-# Install dependencies (before copying full source to maximize cache hits)
+# Install production dependencies before copying full source to maximize cache hits.
 RUN rm -f bun.lock
-RUN bun install
+RUN bun install --production
 
 # Copy full source from worker pruned workspace
 COPY --from=builder /app/out/worker/full/ .
-
-# Drop dev dependencies after the build/install stage so the runtime image only
-# carries packages needed by the background worker.
-RUN rm -rf node_modules && bun install --production
 
 # Runner stage - clean image
 FROM oven/bun:1.3.10 AS runner

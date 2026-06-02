@@ -1,9 +1,9 @@
 import type { MCPClient } from "@ai-sdk/mcp";
 import { createMCPClient } from "@ai-sdk/mcp";
-import { openai } from "@ai-sdk/openai";
 import { createMcpServer } from "@api/mcp/server";
 import type { McpContext } from "@api/mcp/types";
 import { expandScopes } from "@api/utils/scopes";
+import { getEmbeddingModel, getToolIndexCacheName } from "@midday/ai";
 import { logger } from "@midday/logger";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import type { PrepareStepFunction, Tool } from "ai";
@@ -45,8 +45,8 @@ export function ensureToolIndex(ctx: McpContext): Promise<ToolIndex<any>> {
     cachedDefinitions = definitions;
 
     const index = await createToolIndex(tools, {
-      embeddingModel: openai.embeddingModel("text-embedding-3-small"),
-      embeddingCache: fileCache(".toolpick-cache.json"),
+      embeddingModel: getEmbeddingModel(),
+      embeddingCache: fileCache(getToolIndexCacheName()),
       relatedTools: {
         invoices_create: ["customers_list"],
         invoices_create_from_tracker: ["customers_list"],

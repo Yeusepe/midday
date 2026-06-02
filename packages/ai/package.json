@@ -1,0 +1,23 @@
+{
+  "name": "@midday/ai",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/index.ts",
+  "scripts": {
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "typecheck": "tsc --noEmit"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.64",
+    "@ai-sdk/google": "catalog:",
+    "@ai-sdk/openai": "catalog:"
+  },
+  "devDependencies": {
+    "@midday/tsconfig": "workspace:*",
+    "typescript": "catalog:"
+  }
+}

@@ -13,10 +13,15 @@
   "dependencies": {
     "change-case": "catalog:",
     "chrono-node": "^2.9.0",
-    "date-fns": "catalog:"
+    "date-fns": "catalog:",
+    "papaparse": "catalog:"
+  },
+  "devDependencies": {
+    "@types/papaparse": "^5.5.2"
   },
   "exports": {
     ".": "./src/index.ts",
+    "./csv": "./src/csv.ts",
     "./mappings": "./src/mappings.ts",
     "./transform": "./src/transform.ts",
     "./validate": "./src/validate.ts"

@@ -1,4 +1,4 @@
-import { openai } from "@ai-sdk/openai";
+import { getLanguageModel } from "@midday/ai";
 import { generateObject } from "ai";
 import { z } from "zod";
 
@@ -68,7 +68,7 @@ export async function generateLLMFilters(
   query: string,
 ): Promise<z.infer<typeof schema>> {
   const { object } = await generateObject({
-    model: openai("gpt-4o-mini"),
+    model: getLanguageModel("small"),
     system: `You are an AI assistant that converts natural language search queries into structured search filters.
 
 Current date: ${new Date().toISOString().split("T")[0]}

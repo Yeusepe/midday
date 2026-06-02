@@ -1,4 +1,3 @@
-import { openai } from "@ai-sdk/openai";
 import {
   buildPrepareStep,
   createExecutionClient,
@@ -8,6 +7,7 @@ import {
 } from "@api/chat/tools";
 import { getComposioTools } from "@api/composio/client";
 import type { McpContext } from "@api/mcp/types";
+import { getLanguageModel, getWebSearchTools } from "@midday/ai";
 import { logger } from "@midday/logger";
 import {
   type ModelMessage,
@@ -47,25 +47,28 @@ export async function streamMiddayAssistant(params: {
       });
     }
 
+    const webSearchTools = getWebSearchTools({
+      countryCode: mcpCtx.countryCode,
+      timezone: mcpCtx.timezone,
+    });
+    const webSearchToolNames = Object.keys(webSearchTools);
+
     const agent = new ToolLoopAgent({
-      model: openai("gpt-4.1-mini"),
+      model: getLanguageModel("default"),
       instructions: systemPrompt,
       tools: {
         ...mcpTools,
         ...composioMetaTools,
         search_tools: getSearchTool(),
-        web_search: openai.tools.webSearch({
-          searchContextSize: "medium",
-          userLocation: {
-            type: "approximate",
-            country: mcpCtx.countryCode ?? undefined,
-            timezone: mcpCtx.timezone ?? undefined,
-          },
-        }),
+        ...webSearchTools,
       },
       prepareStep: buildPrepareStep({
         maxTools: 12,
-        alwaysActive: ["web_search", "search_tools", ...composioToolNames],
+        alwaysActive: [
+          ...webSearchToolNames,
+          "search_tools",
+          ...composioToolNames,
+        ],
       }),
       stopWhen: stepCountIs(10),
       onFinish: closeClient,

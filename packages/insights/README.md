@@ -42,8 +42,15 @@ const result = await service.generateInsight({
 ## Environment Variables
 
 ```bash
-# Required for AI content generation
+# Required for AI content generation.
+# Defaults to OpenAI. Set MIDDAY_AI_PROVIDER to google or anthropic to switch.
+MIDDAY_AI_PROVIDER=openai
 OPENAI_API_KEY=sk-...
+
+# Optional provider overrides
+MIDDAY_AI_MODEL=gpt-4.1-mini
+MIDDAY_AI_SMALL_MODEL=gpt-4o-mini
+MIDDAY_AI_NANO_MODEL=gpt-5-nano
 ```
 
 ## Architecture
@@ -59,7 +66,7 @@ OPENAI_API_KEY=sk-...
 │   ├── calculator.ts # Metric value calculations
 │   └── definitions.ts # Metric metadata (labels, units, categories)
 ├── content/
-│   ├── generator.ts  # AI content generation using OpenAI
+│   ├── generator.ts  # AI content generation using the configured provider
 │   └── prompts.ts    # Prompt templates
 └── period/
     └── utils.ts      # Date range calculations for different periods

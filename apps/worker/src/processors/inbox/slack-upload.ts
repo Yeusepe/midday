@@ -1,4 +1,4 @@
-import { openai } from "@ai-sdk/openai";
+import { getLanguageModel } from "@midday/ai";
 import {
   createSlackWebClient,
   downloadFile,
@@ -365,7 +365,7 @@ export class SlackUploadProcessor extends BaseProcessor<SlackUploadPayload> {
 Focus on what was purchased (e.g., "office supplies", "software subscription", "restaurant meal", "equipment") rather than repeating vendor name, date, or amount. Be specific and helpful for expense tracking. Keep it under 15 words.`;
 
             const summaryResult = await generateText({
-              model: openai("gpt-4o-mini"),
+              model: getLanguageModel("small"),
               messages: [
                 {
                   role: "user",

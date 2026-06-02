@@ -1,0 +1,94 @@
+# yaml-language-server: $schema=https://schema.zeabur.app/template.json
+apiVersion: zeabur.com/v1
+kind: Template
+metadata:
+  name: CliRelay
+spec:
+  description: OpenAI-compatible gateway for CLI and OAuth AI providers.
+  icon: https://avatars.githubusercontent.com/u/233033915?s=64&v=4
+  variables:
+    - key: PUBLIC_DOMAIN
+      type: DOMAIN
+      name: Domain
+      description: Public domain for CliRelay.
+    - key: MANAGEMENT_SECRET
+      type: STRING
+      name: Management Secret
+      description: Secret used by the remote management API.
+    - key: MIDDAY_PROXY_KEY
+      type: STRING
+      name: Midday Proxy API Key
+      description: Bearer token Midday will use when calling CliRelay.
+  tags:
+    - AI
+    - API
+    - Proxy
+  readme: |
+    # CliRelay
+
+    CliRelay exposes CLI and OAuth-backed AI providers through OpenAI-compatible API endpoints.
+
+    After deployment, open `/manage` on the generated domain to configure providers. Use `/v1` as the OpenAI-compatible base path.
+  services:
+    - name: clirelay
+      icon: https://avatars.githubusercontent.com/u/233033915?s=64&v=4
+      template: PREBUILT_V2
+      domainKey: PUBLIC_DOMAIN
+      spec:
+        source:
+          image: ghcr.io/kittors/clirelay:latest
+          command:
+            - /bin/sh
+            - -c
+            - |
+              mkdir -p /data/auth /CLIProxyAPI/data /CLIProxyAPI/logs
+              exec ./CLIProxyAPI --config /CLIProxyAPI/config.yaml
+        ports:
+          - id: web
+            port: 8317
+            type: HTTP
+        healthCheck:
+          type: TCP
+          port: web
+        volumes:
+          - id: auth
+            dir: /data/auth
+          - id: data
+            dir: /CLIProxyAPI/data
+          - id: logs
+            dir: /CLIProxyAPI/logs
+        configs:
+          - path: /CLIProxyAPI/config.yaml
+            permission: 420
+            envsubst: true
+            template: |
+              host: ""
+              port: 8317
+              timezone: "America/Bogota"
+
+              remote-management:
+                allow-remote: true
+                secret-key: "${MANAGEMENT_SECRET}"
+                disable-control-panel: false
+
+              auto-update:
+                enabled: false
+
+              auth-dir: "/data/auth"
+
+              api-keys:
+                - "${MIDDAY_PROXY_KEY}"
+
+              allow-unauthenticated: false
+              usage-statistics-enabled: true
+              logging-to-file: false
+
+              request-log-storage:
+                store-content: false
+        env:
+          DEPLOY:
+            default: cloud
+          CLIRELAY_LOCALE:
+            default: en
+          AUTH_PATH:
+            default: /data/auth

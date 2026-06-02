@@ -14,6 +14,10 @@ describe("formatAmountValue", () => {
     expect(formatAmountValue({ amount: "1234.56" })).toBe(1234.56);
   });
 
+  it("should handle numbers with comma as thousands separator and period as decimal separator", () => {
+    expect(formatAmountValue({ amount: "1,234.56" })).toBe(1234.56);
+  });
+
   it("should handle plain numbers", () => {
     expect(formatAmountValue({ amount: "1234" })).toBe(1234);
   });

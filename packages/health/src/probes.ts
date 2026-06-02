@@ -269,6 +269,40 @@ export function openaiProbe(): Dependency {
   };
 }
 
+/** Anthropic: GET /v1/models (lightweight list) */
+export function anthropicProbe(): Dependency {
+  return {
+    name: "anthropic",
+    tier: 2,
+    cacheTtlMs: 60_000,
+    timeoutMs: 5_000,
+    probe: async () => {
+      const key = process.env.ANTHROPIC_API_KEY;
+      if (!key) return false;
+      const res = await fetch("https://api.anthropic.com/v1/models?limit=1", {
+        headers: {
+          "anthropic-version": "2023-06-01",
+          "x-api-key": key,
+        },
+        signal: AbortSignal.timeout(5_000),
+      });
+      return res.ok;
+    },
+  };
+}
+
+/** Configured AI provider: follows MIDDAY_AI_PROVIDER */
+export function aiProviderProbe(): Dependency {
+  switch (process.env.MIDDAY_AI_PROVIDER) {
+    case "google":
+      return { ...googleAiProbe(), tier: 2 };
+    case "anthropic":
+      return anthropicProbe();
+    default:
+      return openaiProbe();
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Tier 3 — Integrations (check token endpoint reachability)
 // ---------------------------------------------------------------------------
@@ -323,7 +357,8 @@ export function googleAiProbe(): Dependency {
     cacheTtlMs: 300_000,
     timeoutMs: 5_000,
     probe: async () => {
-      const key = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+      const key =
+        process.env.GOOGLE_GENERATIVE_AI_API_KEY ?? process.env.GEMINI_API_KEY;
       if (!key) return false;
       const res = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models?key=${key}&pageSize=1`,
@@ -423,7 +458,7 @@ export function apiDependencies(): Dependency[] {
     polarProbe(),
     resendProbe(),
     triggerDevProbe(),
-    openaiProbe(),
+    aiProviderProbe(),
     // Tier 3 — Integrations
     slackProbe(),
     xeroProbe(),
@@ -449,7 +484,7 @@ export function workerDependencies(): Dependency[] {
     enableBankingProbe(),
     tellerProbe(),
     resendProbe(),
-    openaiProbe(),
+    aiProviderProbe(),
     // Tier 4 — Optional
     googleAiProbe(),
     mistralProbe(),

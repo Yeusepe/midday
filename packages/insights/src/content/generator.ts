@@ -1,4 +1,3 @@
-import { createOpenAI } from "@ai-sdk/openai";
 /**
  * AI content generation for insights
  *
@@ -8,6 +7,7 @@ import { createOpenAI } from "@ai-sdk/openai";
  * - Story: Forward-looking or actionable insight (max 15 words)
  * - Actions: Specific actionable items with exact names/amounts
  */
+import { getAIModelName, getLanguageModel } from "@midday/ai";
 import { createLoggerWithContext } from "@midday/logger";
 import { generateObject, generateText } from "ai";
 import { z } from "zod/v4";
@@ -33,10 +33,6 @@ import {
   buildTitlePrompt,
   computeSlots,
 } from "./prompts/index";
-
-const openai = createOpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
-});
 
 export type ContentGeneratorOptions = {
   model?: string;
@@ -100,11 +96,10 @@ export type ContentGenerationContext = {
  * 3. Actions generated in parallel with story (only needs slots)
  */
 export class ContentGenerator {
-  private model: string;
+  private model?: string;
 
   constructor(options: ContentGeneratorOptions = {}) {
-    // gpt-4.1-mini: best instruction following + cost efficiency for text generation
-    this.model = options.model ?? "gpt-4.1-mini";
+    this.model = options.model;
   }
 
   /**
@@ -165,7 +160,7 @@ export class ContentGenerator {
 
       const duration = Date.now() - startTime;
       logger.info("Content generated", {
-        model: this.model,
+        model: getAIModelName("default", this.model),
         durationMs: duration,
         actionsCount: actions.length,
       });
@@ -175,7 +170,7 @@ export class ContentGenerator {
       const duration = Date.now() - startTime;
       logger.error("Failed to generate AI content", {
         error: error instanceof Error ? error.message : "Unknown error",
-        model: this.model,
+        model: getAIModelName("default", this.model),
         durationMs: duration,
         periodLabel,
       });
@@ -194,7 +189,7 @@ export class ContentGenerator {
     const prompt = buildTitlePrompt(slots);
 
     const { text } = await generateText({
-      model: openai(this.model),
+      model: getLanguageModel("default", this.model),
       temperature: 0.3, // Lower for consistency
       prompt,
     });
@@ -211,7 +206,7 @@ export class ContentGenerator {
     const prompt = buildSummaryPrompt(slots);
 
     const { text } = await generateText({
-      model: openai(this.model),
+      model: getLanguageModel("default", this.model),
       temperature: 0.3,
       prompt,
     });
@@ -228,7 +223,7 @@ export class ContentGenerator {
     const prompt = buildStoryPrompt(slots);
 
     const { text } = await generateText({
-      model: openai(this.model),
+      model: getLanguageModel("default", this.model),
       temperature: 0.4, // Slightly higher for creative forward-looking content
       prompt,
     });
@@ -258,7 +253,7 @@ export class ContentGenerator {
     }
 
     const { object } = await generateObject({
-      model: openai(this.model),
+      model: getLanguageModel("default", this.model),
       temperature: 0.2, // Low for consistent structured output
       schema: z.object({
         actions: z.array(z.object({ text: z.string() })),

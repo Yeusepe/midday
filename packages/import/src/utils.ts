@@ -66,9 +66,20 @@ export function formatAmountValue({
   // Handle special minus sign (−) by replacing with standard minus (-)
   const normalizedAmount = trimmed.replace(/−/g, "-");
 
-  if (normalizedAmount.includes(",")) {
-    // Remove thousands separators and replace the comma with a period.
-    value = +normalizedAmount.replace(/\./g, "").replace(",", ".");
+  if (normalizedAmount.includes(",") && normalizedAmount.includes(".")) {
+    const lastCommaIndex = normalizedAmount.lastIndexOf(",");
+    const lastDotIndex = normalizedAmount.lastIndexOf(".");
+
+    value =
+      lastCommaIndex > lastDotIndex
+        ? +normalizedAmount.replace(/\./g, "").replace(",", ".")
+        : +normalizedAmount.replace(/,/g, "");
+  } else if (normalizedAmount.includes(",")) {
+    const isThousandsSeparated = /^-?\d{1,3}(,\d{3})+$/.test(normalizedAmount);
+
+    value = isThousandsSeparated
+      ? +normalizedAmount.replace(/,/g, "")
+      : +normalizedAmount.replace(/\./g, "").replace(",", ".");
   } else if (normalizedAmount.match(/\.\d{2}$/)) {
     // If it ends with .XX, it's likely a decimal; remove internal periods.
     value = +normalizedAmount.replace(/\.(?=\d{3})/g, "");

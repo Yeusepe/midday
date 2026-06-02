@@ -1,4 +1,8 @@
 import { upsertTransactions } from "@midday/db/queries";
+import {
+  decodeImportCsvContent,
+  normalizeImportCsvContent,
+} from "@midday/import";
 import { mapTransactions } from "@midday/import/mappings";
 import { transform } from "@midday/import/transform";
 import { validateTransactions } from "@midday/import/validate";
@@ -51,7 +55,10 @@ export class ImportTransactionsProcessor extends BaseProcessor<ImportTransaction
       `File download timed out after ${TIMEOUTS.FILE_DOWNLOAD}ms`,
     );
 
-    const content = await fileData?.text();
+    const fileBuffer = await fileData?.arrayBuffer();
+    const content = fileBuffer
+      ? normalizeImportCsvContent(decodeImportCsvContent(fileBuffer))
+      : undefined;
 
     if (!content) {
       throw new Error("File content is required");

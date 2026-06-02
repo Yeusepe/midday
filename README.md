@@ -70,8 +70,7 @@ We are working on the documentation to get started with Creator Payments for loc
 - OpenPanel (Events and Analytics)
 - Polar (Payment processing)
 - Typesense (Search)
-- Gemini
-- OpenAI
+- AI providers (OpenAI, Gemini, Claude)
 
 ## Repo Activity
 

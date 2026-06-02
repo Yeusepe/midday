@@ -10,10 +10,13 @@
     "lint:fix": "biome check --write ."
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.64",
+    "@ai-sdk/google": "catalog:",
     "@ai-sdk/openai": "catalog:",
     "@fast-csv/format": "catalog:",
     "@hono/node-server": "^1.19.11",
     "@midday/accounting": "workspace:*",
+    "@midday/ai": "workspace:*",
     "@midday/app-store": "workspace:*",
     "@midday/banking": "workspace:*",
     "@midday/bot": "workspace:*",

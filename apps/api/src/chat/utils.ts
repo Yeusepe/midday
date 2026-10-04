@@ -70,12 +70,13 @@ const titleSchema = z.object({
  */
 export async function generateChatTitle(
   userText: string,
+  sessionId?: string,
 ): Promise<string | null> {
   const trimmed = userText.trim();
   if (!trimmed) return null;
 
   const { output: result } = await generateText({
-    model: getLanguageModel("small"),
+    model: getLanguageModel("small", undefined, sessionId),
     output: Output.object({ schema: titleSchema }),
     prompt: `Generate a concise 3-5 word title for this conversation.\n\nUser: ${trimmed}`,
   });
@@ -90,6 +91,7 @@ export async function generateChatTitle(
 export async function writeChatTitle(
   writer: UIMessageStreamWriter,
   uiMessages: UIMessage[],
+  sessionId?: string,
 ): Promise<void> {
   const userMessages = uiMessages.filter((m) => m.role === "user");
   if (userMessages.length !== 1) return;
@@ -98,7 +100,7 @@ export async function writeChatTitle(
   if (!text.trim()) return;
 
   try {
-    const title = await generateChatTitle(text);
+    const title = await generateChatTitle(text, sessionId);
 
     if (title) {
       writer.write({

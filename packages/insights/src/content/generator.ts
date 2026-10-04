@@ -116,6 +116,7 @@ export class ContentGenerator {
     context: ContentGenerationContext = {},
   ): Promise<InsightContent> {
     const startTime = Date.now();
+    const sessionId = crypto.randomUUID();
 
     try {
       // 1. Compute all slots (exact values for AI to use)
@@ -150,13 +151,13 @@ export class ContentGenerator {
 
       // 2. Generate title, summary, and actions in parallel
       const [title, summary, actions] = await Promise.all([
-        this.generateTitle(slots),
-        this.generateSummary(slots),
-        this.generateActions(slots),
+        this.generateTitle(slots, sessionId),
+        this.generateSummary(slots, sessionId),
+        this.generateActions(slots, sessionId),
       ]);
 
       // 3. Generate story
-      const story = await this.generateStory(slots);
+      const story = await this.generateStory(slots, sessionId);
 
       const duration = Date.now() - startTime;
       logger.info("Content generated", {
@@ -185,11 +186,12 @@ export class ContentGenerator {
    */
   private async generateTitle(
     slots: ReturnType<typeof computeSlots>,
+    sessionId: string,
   ): Promise<string> {
     const prompt = buildTitlePrompt(slots);
 
     const { text } = await generateText({
-      model: getLanguageModel("default", this.model),
+      model: getLanguageModel("default", this.model, sessionId),
       temperature: 0.3, // Lower for consistency
       prompt,
     });
@@ -202,11 +204,12 @@ export class ContentGenerator {
    */
   private async generateSummary(
     slots: ReturnType<typeof computeSlots>,
+    sessionId: string,
   ): Promise<string> {
     const prompt = buildSummaryPrompt(slots);
 
     const { text } = await generateText({
-      model: getLanguageModel("default", this.model),
+      model: getLanguageModel("default", this.model, sessionId),
       temperature: 0.3,
       prompt,
     });
@@ -219,11 +222,12 @@ export class ContentGenerator {
    */
   private async generateStory(
     slots: ReturnType<typeof computeSlots>,
+    sessionId: string,
   ): Promise<string> {
     const prompt = buildStoryPrompt(slots);
 
     const { text } = await generateText({
-      model: getLanguageModel("default", this.model),
+      model: getLanguageModel("default", this.model, sessionId),
       temperature: 0.4, // Slightly higher for creative forward-looking content
       prompt,
     });
@@ -237,6 +241,7 @@ export class ContentGenerator {
    */
   private async generateActions(
     slots: ReturnType<typeof computeSlots>,
+    sessionId: string,
   ): Promise<
     Array<{
       text: string;
@@ -253,7 +258,7 @@ export class ContentGenerator {
     }
 
     const { object } = await generateObject({
-      model: getLanguageModel("default", this.model),
+      model: getLanguageModel("default", this.model, sessionId),
       temperature: 0.2, // Low for consistent structured output
       schema: z.object({
         actions: z.array(z.object({ text: z.string() })),

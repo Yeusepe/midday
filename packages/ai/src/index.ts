@@ -1,8 +1,10 @@
+import { createHash } from "node:crypto";
 import { anthropic } from "@ai-sdk/anthropic";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { openai } from "@ai-sdk/openai";
+import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 
-export type AIProvider = "openai" | "google" | "anthropic";
+export type AIProvider = "openai" | "google" | "anthropic" | "opencode-go";
 export type AIModelPurpose = "default" | "small" | "nano";
 export type AIEmbeddingProvider = "openai" | "google";
 
@@ -24,6 +26,11 @@ const LANGUAGE_MODELS: Record<AIProvider, Record<AIModelPurpose, string>> = {
     small: "claude-3-5-haiku-latest",
     nano: "claude-3-5-haiku-latest",
   },
+  "opencode-go": {
+    default: "deepseek-v4-flash",
+    small: "deepseek-v4-flash",
+    nano: "deepseek-v4-flash",
+  },
 };
 
 const EMBEDDING_MODELS: Record<AIEmbeddingProvider, string> = {
@@ -37,7 +44,12 @@ const google = createGoogleGenerativeAI({
 });
 
 function parseProvider(value: string | undefined): AIProvider {
-  if (value === "google" || value === "anthropic" || value === "openai") {
+  if (
+    value === "google" ||
+    value === "anthropic" ||
+    value === "openai" ||
+    value === "opencode-go"
+  ) {
     return value;
   }
 
@@ -77,14 +89,48 @@ export function getAIModelName(
   return envModel ?? LANGUAGE_MODELS[provider][purpose];
 }
 
+/** Stable, scoped identity without sending raw user or platform IDs upstream. */
+export function getAISessionId(...parts: string[]): string {
+  return createHash("sha256").update(JSON.stringify(parts)).digest("hex");
+}
+
 export function getLanguageModel(
   purpose: AIModelPurpose = "default",
   modelOverride?: string,
+  sessionId?: string,
 ) {
   const provider = getAIProvider();
   const model = getAIModelName(purpose, modelOverride);
 
   switch (provider) {
+    case "opencode-go": {
+      const apiKey = process.env.OPENCODE_API_KEY;
+      if (!apiKey) {
+        throw new Error("OPENCODE_API_KEY is required for OpenCode Go");
+      }
+
+      return createOpenAICompatible({
+        name: "opencode-go",
+        baseURL: "https://opencode.ai/zen/go/v1",
+        apiKey,
+        headers: {
+          // One ID per conversation or standalone operation, including retries.
+          "x-opencode-session": sessionId ?? crypto.randomUUID(),
+        },
+        fetch: Object.assign(
+          (
+            input: Parameters<typeof fetch>[0],
+            init?: Parameters<typeof fetch>[1],
+          ) => {
+            const headers = new Headers(init?.headers);
+            // AI SDK's per-call User-Agent overrides provider headers.
+            headers.set("User-Agent", "creator-payments/1.0");
+            return fetch(input, { ...init, headers });
+          },
+          { preconnect: fetch.preconnect },
+        ),
+      }).chatModel(model);
+    }
     case "google":
       return google(model);
     case "anthropic":

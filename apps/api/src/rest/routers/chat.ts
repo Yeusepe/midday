@@ -10,6 +10,7 @@ import type { McpContext } from "@api/mcp/types";
 import type { Context } from "@api/rest/types";
 import { getGeoContext } from "@api/utils/geo";
 import { OpenAPIHono } from "@hono/zod-openapi";
+import { getAISessionId } from "@midday/ai";
 import {
   formatProcessedUploadSummary,
   getPlatformInstructions,
@@ -23,6 +24,7 @@ import {
   createUIMessageStreamResponse,
 } from "ai";
 import { type RateLimitInfo, rateLimiter } from "hono-rate-limiter";
+import { z } from "zod";
 
 type ChatContext = {
   Variables: Context["Variables"] & {
@@ -55,6 +57,16 @@ app.post("/", async (c) => {
     const user = c.get("user");
 
     const body = await c.req.json();
+    const chatId = z.string().min(1).max(256).safeParse(body.id);
+    if (!chatId.success) {
+      return c.json({ error: "A valid conversation id is required" }, 400);
+    }
+    const aiSessionId = getAISessionId(
+      "dashboard",
+      teamId,
+      session.user.id,
+      chatId.data,
+    );
     const uiMessages = body.messages as any[];
     const latestUserMessage = [...uiMessages]
       .reverse()
@@ -152,11 +164,12 @@ app.post("/", async (c) => {
           });
         }
 
-        const titlePromise = writeChatTitle(writer, uiMessages);
+        const titlePromise = writeChatTitle(writer, uiMessages, aiSessionId);
         const result = await streamMiddayAssistant({
           mcpCtx,
           systemPrompt,
           modelMessages,
+          sessionId: aiSessionId,
         });
 
         writer.merge(result.toUIMessageStream({ sendSources: true }));

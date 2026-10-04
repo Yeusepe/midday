@@ -294,6 +294,25 @@ export function anthropicProbe(): Dependency {
 /** Configured AI provider: follows MIDDAY_AI_PROVIDER */
 export function aiProviderProbe(): Dependency {
   switch (process.env.MIDDAY_AI_PROVIDER) {
+    case "opencode-go":
+      return {
+        name: "opencode_go",
+        tier: 2,
+        cacheTtlMs: 60_000,
+        timeoutMs: 5_000,
+        probe: async () => {
+          const key = process.env.OPENCODE_API_KEY;
+          if (!key) return false;
+          const res = await fetch("https://opencode.ai/zen/go/v1/models", {
+            headers: {
+              Authorization: `Bearer ${key}`,
+              "User-Agent": "creator-payments/1.0",
+            },
+            signal: AbortSignal.timeout(5_000),
+          });
+          return res.ok;
+        },
+      };
     case "google":
       return { ...googleAiProbe(), tier: 2 };
     case "anthropic":

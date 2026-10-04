@@ -14,7 +14,8 @@
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.64",
     "@ai-sdk/google": "catalog:",
-    "@ai-sdk/openai": "catalog:"
+    "@ai-sdk/openai": "catalog:",
+    "@ai-sdk/openai-compatible": "2.0.81"
   },
   "devDependencies": {
     "@midday/tsconfig": "workspace:*",

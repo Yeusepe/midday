@@ -31,6 +31,7 @@ import { stripFileAndImageParts } from "@api/chat/utils";
 import type { McpContext } from "@api/mcp/types";
 import { expandScopes } from "@api/utils/scopes";
 import type { SlackAdapter } from "@chat-adapter/slack";
+import { getAISessionId } from "@midday/ai";
 import {
   type BotPlatform,
   bot,
@@ -276,6 +277,12 @@ async function handleIncomingMessage(
     mcpCtx,
     systemPrompt,
     modelMessages: modelMessages as Array<ModelMessage>,
+    sessionId: getAISessionId(
+      platform,
+      connectedConversation.teamId,
+      user.id,
+      thread.id,
+    ),
   });
 
   try {
@@ -635,7 +642,9 @@ async function resolveSlackConversation(
           externalUserId: slackUserId,
         });
 
-        await thread.post(buildWelcomeMessage(team?.name ?? "Creator Payments", "slack"));
+        await thread.post(
+          buildWelcomeMessage(team?.name ?? "Creator Payments", "slack"),
+        );
 
         return consumeResolvedConversation({
           connected: true as const,

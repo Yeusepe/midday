@@ -20,6 +20,7 @@ export async function streamMiddayAssistant(params: {
   mcpCtx: McpContext;
   systemPrompt: string;
   modelMessages: Array<ModelMessage>;
+  sessionId: string;
 }) {
   const { mcpCtx, systemPrompt, modelMessages } = params;
 
@@ -54,7 +55,7 @@ export async function streamMiddayAssistant(params: {
     const webSearchToolNames = Object.keys(webSearchTools);
 
     const agent = new ToolLoopAgent({
-      model: getLanguageModel("default"),
+      model: getLanguageModel("default", undefined, params.sessionId),
       instructions: systemPrompt,
       tools: {
         ...mcpTools,

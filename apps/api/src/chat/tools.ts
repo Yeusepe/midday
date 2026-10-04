@@ -45,6 +45,8 @@ export function ensureToolIndex(ctx: McpContext): Promise<ToolIndex<any>> {
     cachedDefinitions = definitions;
 
     const index = await createToolIndex(tools, {
+      strategy:
+        process.env.MIDDAY_TOOL_SEARCH === "keyword" ? "hybrid" : undefined,
       embeddingModel: getEmbeddingModel(),
       embeddingCache: fileCache(getToolIndexCacheName()),
       relatedTools: {

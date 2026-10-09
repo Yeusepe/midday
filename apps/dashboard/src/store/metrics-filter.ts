@@ -22,6 +22,7 @@ function isPeriodOption(
   const validPeriods: PeriodOption[] = [
     "3-months",
     "6-months",
+    "this-year",
     "1-year",
     "2-years",
     "5-years",
@@ -191,6 +192,7 @@ export const useMetricsFilterStore = create<MetricsFilterState>()(
      * Loads preferences from localStorage
      */
     initialize: (teamId, fiscalYearStartMonth) => {
+      if (get().teamId === teamId && get().isReady) return;
       set({
         teamId,
         fiscalYearStartMonth,
@@ -211,6 +213,14 @@ export const useMetricsFilterStore = create<MetricsFilterState>()(
           currency: stored.currency,
           customFrom: stored.customFrom,
           customTo: stored.customTo,
+        });
+      } else {
+        set({
+          period: "1-year",
+          revenueType: "net",
+          currency: null,
+          customFrom: undefined,
+          customTo: undefined,
         });
       }
       set({ isReady: true });

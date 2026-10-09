@@ -3,6 +3,7 @@
 import { Button } from "@midday/ui/button";
 import { Icons } from "@midday/ui/icons";
 import { Check } from "lucide-react";
+import { MetricsCurrencySelect } from "@/components/metrics/components/metrics-currency-select";
 import { MetricsFilter } from "@/components/metrics/components/metrics-filter";
 
 interface WidgetsHeaderProps {
@@ -15,7 +16,8 @@ export function WidgetsHeader({
   onToggleEditing,
 }: WidgetsHeaderProps) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center justify-end gap-2">
+      <MetricsCurrencySelect />
       <Button
         variant="outline"
         className="gap-2 px-2"

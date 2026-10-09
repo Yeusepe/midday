@@ -1,5 +1,4 @@
 import { UTCDate } from "@date-fns/utc";
-import { CASH_ACCOUNT_TYPES } from "@midday/banking/account";
 import {
   CONTRA_REVENUE_CATEGORIES,
   REVENUE_CATEGORIES,
@@ -145,7 +144,8 @@ async function getTargetCurrency(
  * Returns a SQL CASE expression that picks the correct amount column:
  *   1. baseAmount — when baseCurrency matches target (proper converted amount)
  *   2. amount    — when the transaction's own currency matches target (no conversion needed)
- *   3. NULL      — when neither matches (unconverted foreign currency)
+ *   3. amount × exchange rate — when a rate to the target is available
+ *   4. NULL — when no conversion is available
  *
  * NULL is intentional: SUM/AVG skip NULLs, and NULL < 0 / NULL > 0 evaluate to
  * false, so unconverted transactions are safely excluded from every aggregate
@@ -159,6 +159,19 @@ function resolvedAmount(targetCurrency: string) {
       SELECT ${exchangeRates.rate} FROM ${exchangeRates}
       WHERE ${exchangeRates.base} = ${transactions.currency}
         AND ${exchangeRates.target} = ${sql`${targetCurrency}`}
+      ORDER BY ${exchangeRates.updatedAt} DESC NULLS LAST
+      LIMIT 1
+    )
+  END`;
+}
+
+function resolvedInvoiceAmount(targetCurrency: string) {
+  return sql<number>`CASE
+    WHEN ${invoices.currency} = ${targetCurrency} THEN ${invoices.amount}
+    ELSE ${invoices.amount} * (
+      SELECT ${exchangeRates.rate} FROM ${exchangeRates}
+      WHERE ${exchangeRates.base} = ${invoices.currency}
+        AND ${exchangeRates.target} = ${targetCurrency}
       ORDER BY ${exchangeRates.updatedAt} DESC NULLS LAST
       LIMIT 1
     )
@@ -236,12 +249,6 @@ async function getProfitImpl(db: Database, params: GetReportsParams) {
 
   if (targetCurrency) {
     expenseConditions.push(sql`(${resolvedAmount(targetCurrency)} < 0)`);
-    expenseConditions.push(
-      or(
-        eq(transactions.currency, targetCurrency),
-        eq(transactions.baseCurrency, targetCurrency),
-      )!,
-    );
   } else {
     expenseConditions.push(lt(transactions.baseAmount, 0));
   }
@@ -404,12 +411,6 @@ async function getRevenueImpl(db: Database, params: GetReportsParams) {
 
   if (targetCurrency) {
     conditions.push(sql`(${resolvedAmount(targetCurrency)} > 0)`);
-    conditions.push(
-      or(
-        eq(transactions.currency, targetCurrency),
-        eq(transactions.baseCurrency, targetCurrency),
-      )!,
-    );
   } else {
     conditions.push(gt(transactions.baseAmount, 0));
   }
@@ -609,12 +610,6 @@ export async function getBurnRate(db: Database, params: GetBurnRateParams) {
 
   if (targetCurrency) {
     conditions.push(sql`(${resolvedAmount(targetCurrency)} < 0)`);
-    conditions.push(
-      or(
-        eq(transactions.currency, targetCurrency),
-        eq(transactions.baseCurrency, targetCurrency),
-      )!,
-    );
   } else {
     conditions.push(lt(sql`COALESCE(${transactions.baseAmount}, 0)`, 0));
   }
@@ -722,18 +717,8 @@ export async function getExpenses(db: Database, params: GetExpensesParams) {
     lte(transactions.date, format(toDate, "yyyy-MM-dd")),
   ];
 
-  // Add currency and amount conditions
-  // When inputCurrency is provided, we want to show transactions in that currency
-  // This includes transactions where either:
-  // 1. The original currency matches, OR
-  // 2. The baseCurrency matches (for converted transactions)
+  // Resolve all convertible transactions into the reporting currency.
   if (targetCurrency) {
-    conditions.push(
-      or(
-        eq(transactions.currency, targetCurrency),
-        eq(transactions.baseCurrency, targetCurrency),
-      )!,
-    );
     conditions.push(sql`(${resolvedAmount(targetCurrency)} < 0)`);
   } else {
     conditions.push(lt(transactions.baseAmount, 0));
@@ -890,12 +875,6 @@ export async function getSpending(
   ];
 
   if (targetCurrency) {
-    totalAmountConditions.push(
-      or(
-        eq(transactions.currency, targetCurrency),
-        eq(transactions.baseCurrency, targetCurrency),
-      )!,
-    );
     totalAmountConditions.push(sql`(${spendAmtExpr} < 0)`);
   } else {
     totalAmountConditions.push(lt(transactions.baseAmount, 0));
@@ -937,12 +916,6 @@ export async function getSpending(
   ];
 
   if (targetCurrency) {
-    spendingConditions.push(
-      or(
-        eq(transactions.currency, targetCurrency),
-        eq(transactions.baseCurrency, targetCurrency),
-      )!,
-    );
     spendingConditions.push(sql`(${spendAmtExpr} < 0)`);
   } else {
     spendingConditions.push(lt(transactions.baseAmount, 0));
@@ -1006,12 +979,6 @@ export async function getSpending(
   ];
 
   if (targetCurrency) {
-    uncategorizedConditions.push(
-      or(
-        eq(transactions.currency, targetCurrency),
-        eq(transactions.baseCurrency, targetCurrency),
-      )!,
-    );
     uncategorizedConditions.push(sql`(${spendAmtExpr} < 0)`);
   } else {
     uncategorizedConditions.push(lt(transactions.baseAmount, 0));
@@ -1097,23 +1064,8 @@ export async function getRunway(db: Database, params: GetRunwayParams) {
     return zeroResult;
   }
 
-  const balanceConditions = [
-    eq(bankAccounts.teamId, teamId),
-    eq(bankAccounts.enabled, true),
-    inArray(bankAccounts.type, [...CASH_ACCOUNT_TYPES]),
-  ];
-
   const [balanceResult, burnRateData] = await Promise.all([
-    db
-      .select({
-        totalBalance: sql<number>`SUM(CASE
-          WHEN ${bankAccounts.currency} = ${targetCurrency} THEN COALESCE(${bankAccounts.balance}, 0)
-          WHEN ${bankAccounts.baseCurrency} = ${targetCurrency} THEN COALESCE(${bankAccounts.baseBalance}, 0)
-          ELSE 0
-        END)`,
-      })
-      .from(bankAccounts)
-      .where(and(...balanceConditions)),
+    getCashBalance(db, { teamId, currency: targetCurrency }),
     getBurnRate(db, {
       teamId,
       from: burnRateFrom,
@@ -1122,7 +1074,7 @@ export async function getRunway(db: Database, params: GetRunwayParams) {
     }),
   ]);
 
-  const totalBalance = balanceResult[0]?.totalBalance || 0;
+  const totalBalance = balanceResult.totalBalance;
   if (burnRateData.length === 0) {
     return zeroResult;
   }
@@ -1932,11 +1884,7 @@ export async function getOutstandingInvoices(
     inArray(invoices.status, status),
   ];
 
-  if (inputCurrency && targetCurrency) {
-    conditions.push(eq(invoices.currency, targetCurrency));
-  } else {
-    conditions.push(sql`(${resolvedInvoiceAmount} IS NOT NULL)`);
-  }
+  conditions.push(sql`(${resolvedInvoiceAmount} IS NOT NULL)`);
 
   const result = await db
     .select({
@@ -2175,16 +2123,6 @@ async function getRecurringTransactionProjection(
     gte(transactions.date, sixMonthsAgo),
   ];
 
-  // Currency filter: include transactions where either currency OR baseCurrency matches
-  if (currency) {
-    conditions.push(
-      or(
-        eq(transactions.currency, currency),
-        eq(transactions.baseCurrency, currency),
-      )!,
-    );
-  }
-
   // Query with LEFT JOIN to transactionCategories for category exclusion
   // This matches the pattern used by all other report functions
   const recurringIncome = await db
@@ -2224,7 +2162,7 @@ async function getRecurringTransactionProjection(
       if (
         tx.currency &&
         tx.currency !== currency &&
-        tx.baseCurrency !== currency
+        (tx.baseCurrency !== currency || tx.baseAmount === null)
       ) {
         const key = `${tx.currency}:${currency}`;
         if (!seenPairs.has(key)) {
@@ -2412,14 +2350,10 @@ async function calculateExpectedCollections(
     inArray(invoices.status, ["unpaid", "overdue"]),
   ];
 
-  if (currency) {
-    conditions.push(eq(invoices.currency, currency));
-  }
-
   const outstandingInvoices = await db
     .select({
       id: invoices.id,
-      amount: invoices.amount,
+      amount: currency ? resolvedInvoiceAmount(currency) : invoices.amount,
       issueDate: invoices.issueDate,
       dueDate: invoices.dueDate,
       status: invoices.status,
@@ -2554,14 +2488,9 @@ async function getHistoricalRecurringInvoiceAverage(
     gte(invoices.paidAt, sixMonthsAgo),
   ];
 
-  // Filter by currency when provided
-  if (currency) {
-    conditions.push(eq(invoices.currency, currency));
-  }
-
   const paidRecurringInvoices = await db
     .select({
-      amount: invoices.amount,
+      amount: currency ? resolvedInvoiceAmount(currency) : invoices.amount,
       paidAt: invoices.paidAt,
     })
     .from(invoices)
@@ -2918,7 +2847,21 @@ export async function getRevenueForecast(
 
   // Billable hours value (convert from seconds to value)
   const billableHoursTotal = Math.round(billableHoursData.totalDuration / 3600);
-  const billableHoursValue = billableHoursData.totalAmount;
+  const billableRates = await getExchangeRatesBatch(db, {
+    pairs: Object.keys(billableHoursData.earningsByCurrency).map((base) => ({
+      base,
+      target: effectiveCurrency,
+    })),
+  });
+  const billableHoursValue = Object.entries(
+    billableHoursData.earningsByCurrency,
+  ).reduce((total, [base, amount]) => {
+    const rate =
+      base === effectiveCurrency
+        ? 1
+        : billableRates.get(`${base}:${effectiveCurrency}`);
+    return total + (rate === undefined ? 0 : amount * rate);
+  }, 0);
 
   // ============================================================================
   // BUILD BOTTOM-UP FORECAST

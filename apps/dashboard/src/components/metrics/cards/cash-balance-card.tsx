@@ -102,7 +102,9 @@ export function CashBalanceCard({
           </ChartFadeIn>
         ) : isPending ? null : (
           <div className="flex items-center justify-center h-full text-xs text-muted-foreground -mt-10">
-            No accounts connected
+            {data?.result?.accountCount
+              ? "No positive balances available in this currency"
+              : "No accounts connected"}
           </div>
         )}
       </div>

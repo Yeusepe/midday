@@ -1,7 +1,8 @@
 "use client";
 
+import { uniqueCurrencies } from "@midday/location/currencies";
 import { useQueryStates } from "nuqs";
-import { parseAsString } from "nuqs/server";
+import { parseAsString, parseAsStringLiteral } from "nuqs/server";
 import { useEffect, useMemo } from "react";
 import { useTeamQuery } from "@/hooks/use-team";
 import { useMetricsFilterStore } from "@/store/metrics-filter";
@@ -17,7 +18,7 @@ const DEFAULT_REVENUE_TYPE = "net" as const;
 export const metricsFilterSchema = {
   period: parseAsString.withDefault(DEFAULT_PERIOD),
   revenueType: parseAsString.withDefault(DEFAULT_REVENUE_TYPE),
-  currency: parseAsString,
+  currency: parseAsStringLiteral(uniqueCurrencies),
   from: parseAsString,
   to: parseAsString,
 };
@@ -32,6 +33,7 @@ function isPeriodOption(
   const validPeriods: PeriodOption[] = [
     "3-months",
     "6-months",
+    "this-year",
     "1-year",
     "2-years",
     "5-years",
@@ -169,7 +171,9 @@ export function useMetricsFilter() {
     if (!isAtDefaults && params.currency !== undefined) {
       return params.currency || null;
     }
-    return storeCurrency;
+    return storeCurrency && uniqueCurrencies.includes(storeCurrency)
+      ? storeCurrency
+      : null;
   }, [params.currency, isAtDefaults, storeCurrency, storeIsReady]);
 
   /**
@@ -256,7 +260,11 @@ export function useMetricsFilter() {
 
     // If switching to custom, keep existing dates if they exist
     if (period === "custom" && params.from && params.to) {
-      setParams({ period });
+      setParams({
+        period,
+        revenueType: effectiveRevenueType,
+        currency: effectiveCurrency,
+      });
       return;
     }
 
@@ -265,6 +273,8 @@ export function useMetricsFilter() {
 
     setParams({
       period,
+      revenueType: effectiveRevenueType,
+      currency: effectiveCurrency,
       from: newDateRange.from,
       to: newDateRange.to,
     });
@@ -275,7 +285,13 @@ export function useMetricsFilter() {
    */
   const updateRevenueType = (revenueType: "gross" | "net") => {
     setRevenueType(revenueType);
-    setParams({ revenueType });
+    setParams({
+      revenueType,
+      period: effectivePeriod,
+      currency: effectiveCurrency,
+      from: dateRange.from,
+      to: dateRange.to,
+    });
   };
 
   /**
@@ -285,14 +301,14 @@ export function useMetricsFilter() {
    */
   const updateCurrency = (currency: string | null) => {
     setCurrency(currency);
-    // When base currency is selected (null), remove the param from URL
-    // When a specific currency is selected, set it in the URL
-    if (currency === null) {
-      // Explicitly set to null to clear the currency param from URL
-      setParams({ currency: null });
-    } else {
-      setParams({ currency });
-    }
+    // Preserve filters loaded from localStorage when adding a currency to the URL.
+    setParams({
+      currency,
+      period: effectivePeriod,
+      revenueType: effectiveRevenueType,
+      from: dateRange.from,
+      to: dateRange.to,
+    });
   };
 
   /**
@@ -305,6 +321,8 @@ export function useMetricsFilter() {
       from,
       to,
       period: "custom",
+      revenueType: effectiveRevenueType,
+      currency: effectiveCurrency,
     });
   };
 

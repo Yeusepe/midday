@@ -1,5 +1,18 @@
 import { z } from "@hono/zod-openapi";
 
+export const getTransactionInsightsSchema = z
+  .object({
+    from: z.iso.date(),
+    to: z.iso.date(),
+    currency: z
+      .string()
+      .regex(/^[A-Z]{3}$/)
+      .optional(),
+  })
+  .refine(({ from, to }) => from <= to, {
+    message: "Start date must be on or before end date",
+  });
+
 export const getRevenueSchema = z
   .object({
     from: z

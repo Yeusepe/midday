@@ -8,6 +8,43 @@ const createCaller = createCallerFactory(reportsRouter);
 
 const DATE_RANGE = { from: "2026-01-01", to: "2026-03-31" } as const;
 
+describe("tRPC: reports.transactionInsights", () => {
+  beforeEach(() => mocks.getTransactionInsights.mockClear());
+
+  test("scopes insights to the authenticated team and selected currency", async () => {
+    const caller = createCaller(createTestContext());
+    await caller.transactionInsights({ ...DATE_RANGE, currency: "COP" });
+    expect(mocks.getTransactionInsights).toHaveBeenCalledWith(
+      expect.anything(),
+      {
+        ...DATE_RANGE,
+        currency: "COP",
+        teamId: "test-team-id",
+      },
+    );
+  });
+
+  test("rejects invalid and reversed dates before querying", async () => {
+    const caller = createCaller(createTestContext());
+    for (const input of [
+      { from: "invalid", to: "2026-03-31" },
+      { from: "2026-03-31", to: "2026-01-01" },
+    ]) {
+      await expect(caller.transactionInsights(input)).rejects.toThrow();
+    }
+    expect(mocks.getTransactionInsights).not.toHaveBeenCalled();
+  });
+
+  test("propagates a query failure for the dashboard retry state", async () => {
+    mocks.getTransactionInsights.mockRejectedValueOnce(
+      new Error("insights unavailable"),
+    );
+    await expect(
+      createCaller(createTestContext()).transactionInsights(DATE_RANGE),
+    ).rejects.toThrow("insights unavailable");
+  });
+});
+
 describe("tRPC: reports.revenue", () => {
   beforeEach(() => {
     mocks.getReports.mockReset();

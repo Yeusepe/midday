@@ -46,6 +46,7 @@ import {
   transactions,
 } from "../schema";
 import { dedupeByDb } from "../utils/dedupe";
+import { buildTransactionInsights } from "../utils/transaction-insights";
 import { getCashBalance } from "./bank-accounts";
 import { getExchangeRatesBatch } from "./exhange-rates";
 import { getRecurringInvoiceProjection } from "./invoice-recurring";
@@ -1907,6 +1908,63 @@ export type GetRecurringExpensesParams = {
   from?: string; // ISO date string (YYYY-MM-DD)
   to?: string; // ISO date string (YYYY-MM-DD)
 };
+
+export async function getTransactionInsights(
+  db: Database,
+  params: { teamId: string; from: string; to: string; currency?: string },
+) {
+  const { teamId, from, to } = params;
+  const currency =
+    (await getTargetCurrency(db, teamId, params.currency)) || "USD";
+  const asOf = new Date().toISOString().slice(0, 10);
+  const rows = await db
+    .select({
+      id: transactions.id,
+      teamId: transactions.teamId,
+      name: transactions.name,
+      merchantName: transactions.merchantName,
+      bankAccountId: transactions.bankAccountId,
+      amount: transactions.amount,
+      currency: transactions.currency,
+      convertedAmount: sql<number | null>`${resolvedAmount(currency)}`,
+      date: transactions.date,
+      recurring: transactions.recurring,
+      frequency: transactions.frequency,
+    })
+    .from(transactions)
+    .leftJoin(
+      transactionCategories,
+      and(
+        eq(transactionCategories.slug, transactions.categorySlug),
+        eq(transactionCategories.teamId, teamId),
+      ),
+    )
+    .where(
+      and(
+        eq(transactions.teamId, teamId),
+        eq(transactions.internal, false),
+        ne(transactions.status, "excluded"),
+        lte(transactions.date, asOf),
+        or(
+          eq(transactions.recurring, true),
+          and(gte(transactions.date, from), lte(transactions.date, to)),
+        ),
+        or(
+          isNull(transactionCategories.excluded),
+          eq(transactionCategories.excluded, false),
+        ),
+      ),
+    );
+  return buildTransactionInsights(
+    rows.map((row) => ({
+      ...row,
+      amount: Number(row.amount),
+      convertedAmount:
+        row.convertedAmount === null ? null : Number(row.convertedAmount),
+    })),
+    { from, to, currency, asOf },
+  );
+}
 
 interface RecurringExpenseItem {
   name: string;

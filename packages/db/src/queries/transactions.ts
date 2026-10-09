@@ -358,18 +358,31 @@ export async function getTransactions(
     whereConditions.push(sql`EXISTS (${tagsExistSubquery})`);
   }
 
-  // Recurring filter
+  // Match any selected recurrence filter, including unmarked transactions.
   if (filterRecurring && filterRecurring.length > 0) {
+    const recurrenceConditions = [];
+    if (filterRecurring.includes("none")) {
+      recurrenceConditions.push(
+        or(eq(transactions.recurring, false), isNull(transactions.recurring))!,
+      );
+    }
     if (filterRecurring.includes("all")) {
-      whereConditions.push(eq(transactions.recurring, true));
+      recurrenceConditions.push(eq(transactions.recurring, true));
     } else {
       const validFrequencies = filterRecurring.filter(
-        (f) => f !== "all",
+        (f) => !["all", "none"].includes(f),
       ) as TransactionFrequency[];
       if (validFrequencies.length > 0) {
-        whereConditions.push(inArray(transactions.frequency, validFrequencies));
+        recurrenceConditions.push(
+          and(
+            eq(transactions.recurring, true),
+            inArray(transactions.frequency, validFrequencies),
+          )!,
+        );
       }
     }
+    if (recurrenceConditions.length)
+      whereConditions.push(or(...recurrenceConditions)!);
   }
 
   // Type filter (expense/income)

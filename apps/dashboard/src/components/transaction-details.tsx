@@ -185,6 +185,7 @@ export function TransactionDetails() {
         );
       },
       onSettled: () => {
+        queryClient.invalidateQueries({ queryKey: trpc.reports.pathKey() });
         queryClient.invalidateQueries({
           queryKey: trpc.transactions.getById.queryKey({ id: transactionId! }),
         });
@@ -227,6 +228,7 @@ export function TransactionDetails() {
   const updateTransactionsMutation = useMutation(
     trpc.transactions.updateMany.mutationOptions({
       onSuccess: (_, _data) => {
+        queryClient.invalidateQueries({ queryKey: trpc.reports.pathKey() });
         queryClient.invalidateQueries({
           queryKey: trpc.transactions.getById.queryKey({ id: transactionId! }),
         });

@@ -10,7 +10,7 @@ export type TransactionFilters = {
   assignees?: string[] | null;
   amount_range?: number[] | null;
   amount?: string[] | null;
-  recurring?: ("all" | "weekly" | "monthly" | "annually")[] | null;
+  recurring?: ("all" | "none" | "weekly" | "monthly" | "annually")[] | null;
   statuses?:
     | (
         | "blank"

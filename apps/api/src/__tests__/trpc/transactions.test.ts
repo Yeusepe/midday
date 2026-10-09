@@ -15,11 +15,57 @@ import { mocks } from "../setup";
 // Create a test caller
 const createCaller = createCallerFactory(transactionsRouter);
 
+describe("tRPC: transactions.detectRecurring", () => {
+  test("analyzes history using the authenticated team only", async () => {
+    mocks.detectAndSaveTransactionRecurrence.mockClear();
+    const result = await createCaller(createTestContext()).detectRecurring();
+    expect(result).toEqual({ detected: 0, ruleMatches: 0 });
+    expect(mocks.detectAndSaveTransactionRecurrence).toHaveBeenCalledWith(
+      expect.anything(),
+      { teamId: "test-team-id" },
+    );
+  });
+  test("rejects unauthenticated analysis", async () => {
+    mocks.detectAndSaveTransactionRecurrence.mockClear();
+    await expect(
+      createCaller({ ...createTestContext(), session: null }).detectRecurring(),
+    ).rejects.toThrow();
+    expect(mocks.detectAndSaveTransactionRecurrence).not.toHaveBeenCalled();
+  });
+});
+
 describe("tRPC: transactions.get", () => {
   beforeEach(() => {
     mocks.getTransactions.mockReset();
     mocks.getTransactions.mockImplementation(() =>
       createTransactionsListResponse(),
+    );
+  });
+
+  test("rejects unsupported recurrence values before invoking the query", async () => {
+    const caller = createCaller(createTestContext());
+    await expect(
+      caller.get({ recurring: ["daily" as "weekly"] }),
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+    expect(mocks.getTransactions).not.toHaveBeenCalled();
+  });
+
+  test("accepts all/none alongside every supported database cadence", async () => {
+    const recurring = [
+      "all",
+      "none",
+      "weekly",
+      "biweekly",
+      "monthly",
+      "semi_monthly",
+      "annually",
+      "irregular",
+      "unknown",
+    ] as const;
+    await createCaller(createTestContext()).get({ recurring: [...recurring] });
+    expect(mocks.getTransactions).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ recurring: [...recurring] }),
     );
   });
 

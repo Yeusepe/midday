@@ -185,6 +185,7 @@ export function TransactionDetails() {
         );
       },
       onSettled: () => {
+        queryClient.invalidateQueries({ queryKey: trpc.reports.pathKey() });
         queryClient.invalidateQueries({
           queryKey: trpc.transactions.getById.queryKey({ id: transactionId! }),
         });
@@ -227,6 +228,7 @@ export function TransactionDetails() {
   const updateTransactionsMutation = useMutation(
     trpc.transactions.updateMany.mutationOptions({
       onSuccess: (_, _data) => {
+        queryClient.invalidateQueries({ queryKey: trpc.reports.pathKey() });
         queryClient.invalidateQueries({
           queryKey: trpc.transactions.getById.queryKey({ id: transactionId! }),
         });
@@ -531,6 +533,7 @@ export function TransactionDetails() {
                     id: data?.id,
                     frequency: value as
                       | "weekly"
+                      | "biweekly"
                       | "monthly"
                       | "annually"
                       | "irregular",
@@ -542,6 +545,7 @@ export function TransactionDetails() {
                       name: data.name,
                       frequency: value as
                         | "weekly"
+                        | "biweekly"
                         | "monthly"
                         | "annually"
                         | "irregular",
@@ -570,6 +574,7 @@ export function TransactionDetails() {
                                 recurring: true,
                                 frequency: value as
                                   | "weekly"
+                                  | "biweekly"
                                   | "monthly"
                                   | "annually"
                                   | "irregular",
@@ -592,6 +597,7 @@ export function TransactionDetails() {
                   <SelectGroup>
                     {[
                       { id: "weekly", name: "Weekly" },
+                      { id: "biweekly", name: "Every 2 weeks" },
                       { id: "monthly", name: "Monthly" },
                       { id: "annually", name: "Annually" },
                     ].map(({ id, name }) => (

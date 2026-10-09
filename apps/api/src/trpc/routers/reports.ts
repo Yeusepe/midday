@@ -11,6 +11,7 @@ import {
   getRunwaySchema,
   getSpendingSchema,
   getTaxSummarySchema,
+  getTransactionInsightsSchema,
 } from "@api/schemas/reports";
 import {
   createTRPCRouter,
@@ -34,10 +35,16 @@ import {
   getRunway,
   getSpending,
   getTaxSummary,
+  getTransactionInsights,
 } from "@midday/db/queries";
 import { TRPCError } from "@trpc/server";
 
 export const reportsRouter = createTRPCRouter({
+  transactionInsights: protectedProcedure
+    .input(getTransactionInsightsSchema)
+    .query(({ ctx: { db, teamId }, input }) =>
+      getTransactionInsights(db, { ...input, teamId: teamId! }),
+    ),
   revenue: protectedProcedure
     .input(getRevenueSchema)
     .query(async ({ ctx: { db, teamId }, input }) => {

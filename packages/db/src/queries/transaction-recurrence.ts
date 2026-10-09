@@ -1,11 +1,194 @@
-import { and, desc, eq, inArray, sql } from "drizzle-orm";
-import type { DatabaseOrTransaction } from "../client";
+import { and, desc, eq, inArray, isNull, lte, ne, or, sql } from "drizzle-orm";
+import type { Database, DatabaseOrTransaction } from "../client";
 import {
   transactionRecurrenceRules as rules,
   transactionCategories,
   transactions,
 } from "../schema";
 import { matchesRecurrenceRule } from "../utils/transaction-recurrence";
+import { detectTransactionRecurrence } from "../utils/detect-transaction-recurrence";
+
+/** Infer history without locking it, then lock only changed rows in ID order.
+ * Re-read candidates and saved corrections after locking so manual choices win.
+ */
+export async function detectAndSaveTransactionRecurrence(
+  db: Database,
+  params: { teamId: string; dryRun?: boolean },
+) {
+  return db.transaction(async (tx) => {
+    const fields = {
+      id: transactions.id,
+      teamId: transactions.teamId,
+      name: transactions.name,
+      merchantName: transactions.merchantName,
+      amount: transactions.amount,
+      currency: transactions.currency,
+      date: transactions.date,
+      bankAccountId: transactions.bankAccountId,
+      recurring: transactions.recurring,
+      recurrenceOverride: transactions.recurrenceOverride,
+      frequency: transactions.frequency,
+      categorySlug: transactions.categorySlug,
+    };
+    const eligible = and(
+      eq(transactions.teamId, params.teamId),
+      eq(transactions.internal, false),
+      ne(transactions.status, "excluded"),
+      ne(transactions.status, "pending"),
+      or(
+        isNull(transactions.categorySlug),
+        ne(transactions.categorySlug, "transfer"),
+      ),
+      lte(transactions.date, new Date().toISOString().slice(0, 10)),
+      or(
+        isNull(transactionCategories.excluded),
+        eq(transactionCategories.excluded, false),
+      ),
+    );
+    const categoryJoin = and(
+      eq(transactionCategories.teamId, params.teamId),
+      eq(transactionCategories.slug, transactions.categorySlug),
+    );
+    const history = await tx
+      .select(fields)
+      .from(transactions)
+      .leftJoin(transactionCategories, categoryJoin)
+      .where(eligible);
+    /** Read corrections in precedence order, including edits committed during lock waits. */
+    const readRules = () =>
+      tx
+        .select()
+        .from(rules)
+        .where(eq(rules.teamId, params.teamId))
+        .orderBy(desc(rules.updatedAt), desc(rules.id));
+    const savedRules = await readRules();
+    const categories = new Set(
+      (
+        await tx
+          .select({ slug: transactionCategories.slug })
+          .from(transactionCategories)
+          .where(eq(transactionCategories.teamId, params.teamId))
+      ).map((row) => row.slug),
+    );
+
+    /** Build only real changes; rule sources already refresh during edits/enrichment. */
+    function changesFor(rows: typeof history, corrections: typeof savedRules) {
+      const detected = detectTransactionRecurrence(rows, corrections);
+      const changes = new Map<
+        string,
+        {
+          recurring: boolean;
+          frequency: typeof transactions.$inferSelect.frequency;
+          categorySlug?: string;
+          detected: boolean;
+        }
+      >();
+      for (const row of rows) {
+        if (row.recurrenceOverride) continue;
+        const rule = corrections.find((candidate) =>
+          matchesRecurrenceRule(row, candidate),
+        );
+        if (rule) {
+          const frequency = rule.recurring ? rule.frequency : null;
+          const categorySlug =
+            !row.categorySlug &&
+            rule.recurring &&
+            rule.categorySlug &&
+            categories.has(rule.categorySlug)
+              ? rule.categorySlug
+              : undefined;
+          if (
+            row.recurring !== rule.recurring ||
+            row.frequency !== frequency ||
+            categorySlug
+          ) {
+            changes.set(row.id, {
+              recurring: rule.recurring,
+              frequency,
+              categorySlug,
+              detected: false,
+            });
+          }
+        } else {
+          const match = detected.get(row.id);
+          if (match)
+            changes.set(row.id, {
+              recurring: true,
+              frequency: match.frequency,
+              detected: true,
+            });
+        }
+      }
+      return changes;
+    }
+    let changes = changesFor(history, savedRules);
+    if (!params.dryRun && changes.size) {
+      const ids = [...changes.keys()].sort();
+      const refreshed = new Map(history.map((row) => [row.id, row]));
+      const lockedIds = new Set<string>();
+      for (let i = 0; i < ids.length; i += 500) {
+        const batch = ids.slice(i, i + 500);
+        const targets = await tx
+          .select(fields)
+          .from(transactions)
+          .leftJoin(transactionCategories, categoryJoin)
+          .where(and(eligible, inArray(transactions.id, batch)))
+          .orderBy(transactions.id)
+          .for("update", { of: transactions });
+        for (const id of batch) refreshed.delete(id);
+        for (const row of targets) {
+          refreshed.set(row.id, row);
+          lockedIds.add(row.id);
+        }
+      }
+      // A correction committed while waiting for a candidate lock may suppress
+      // its entire pattern. Recompute with the latest rules before any writes.
+      changes = changesFor([...refreshed.values()], await readRules());
+      const batches = new Map<
+        string,
+        {
+          values: {
+            recurring: boolean;
+            frequency: typeof transactions.$inferSelect.frequency;
+            categorySlug?: string;
+          };
+          ids: string[];
+        }
+      >();
+      for (const [id, change] of changes) {
+        if (!lockedIds.has(id)) {
+          changes.delete(id);
+          continue;
+        }
+        const { detected: _, ...values } = change;
+        const key = JSON.stringify(values);
+        const batch = batches.get(key) ?? { values, ids: [] };
+        batch.ids.push(id);
+        batches.set(key, batch);
+      }
+      for (const { values, ids } of batches.values()) {
+        for (let i = 0; i < ids.length; i += 500) {
+          await tx
+            .update(transactions)
+            .set(values)
+            .where(
+              and(
+                eq(transactions.teamId, params.teamId),
+                inArray(transactions.id, ids.slice(i, i + 500)),
+                eq(transactions.recurrenceOverride, false),
+              ),
+            );
+        }
+      }
+    }
+    return {
+      detected: [...changes.values()].filter((change) => change.detected)
+        .length,
+      ruleMatches: [...changes.values()].filter((change) => !change.detected)
+        .length,
+    };
+  });
+}
 
 /** Call inside the same transaction as a user's explicit recurrence correction. */
 export async function saveTransactionRecurrenceRules(

@@ -31,7 +31,7 @@ import {
   tags,
   transactionAttachments,
   transactionCategories,
-  type transactionFrequencyEnum,
+  transactionFrequencyEnum,
   transactionMatchSuggestions,
   transactions,
   transactionTags,
@@ -124,6 +124,19 @@ export async function getTransactions(
     exported,
     fulfilled,
   } = params;
+
+  if (
+    filterRecurring?.some(
+      (value) =>
+        value !== "all" &&
+        value !== "none" &&
+        !transactionFrequencyEnum.enumValues.some(
+          (frequency) => frequency === value,
+        ),
+    )
+  ) {
+    throw new Error("Unsupported recurring filter");
+  }
 
   // Always start with teamId filter
   const whereConditions: (SQL | undefined)[] = [
@@ -358,24 +371,42 @@ export async function getTransactions(
     whereConditions.push(sql`EXISTS (${tagsExistSubquery})`);
   }
 
-  // Recurring filter
+  // Match any selected recurrence filter, including unmarked transactions.
   if (filterRecurring && filterRecurring.length > 0) {
+    const recurrenceConditions = [];
+    if (filterRecurring.includes("none")) {
+      recurrenceConditions.push(
+        or(eq(transactions.recurring, false), isNull(transactions.recurring))!,
+      );
+    }
     if (filterRecurring.includes("all")) {
-      whereConditions.push(eq(transactions.recurring, true));
+      recurrenceConditions.push(eq(transactions.recurring, true));
     } else {
       const validFrequencies = filterRecurring.filter(
-        (f) => f !== "all",
+        (f) => !["all", "none"].includes(f),
       ) as TransactionFrequency[];
       if (validFrequencies.length > 0) {
-        whereConditions.push(inArray(transactions.frequency, validFrequencies));
+        recurrenceConditions.push(
+          and(
+            eq(transactions.recurring, true),
+            inArray(transactions.frequency, validFrequencies),
+          )!,
+        );
       }
     }
+    if (recurrenceConditions.length)
+      whereConditions.push(or(...recurrenceConditions)!);
   }
 
   // Type filter (expense/income)
   if (type === "expense") {
     whereConditions.push(lt(transactions.amount, 0));
-    whereConditions.push(ne(transactions.categorySlug, "transfer"));
+    whereConditions.push(
+      or(
+        isNull(transactions.categorySlug),
+        ne(transactions.categorySlug, "transfer"),
+      )!,
+    );
   } else if (type === "income") {
     whereConditions.push(
       inArray(transactions.categorySlug, REVENUE_CATEGORIES),
@@ -988,7 +1019,7 @@ type GetSimilarTransactionsParams = {
   name: string;
   teamId: string;
   categorySlug?: string;
-  frequency?: "weekly" | "monthly" | "annually" | "irregular";
+  frequency?: "weekly" | "biweekly" | "monthly" | "annually" | "irregular";
   transactionId?: string;
 };
 
@@ -1558,7 +1589,13 @@ type UpdateTransactionData = {
   note?: string | null;
   assignedId?: string | null;
   recurring?: boolean;
-  frequency?: "weekly" | "monthly" | "annually" | "irregular" | null;
+  frequency?:
+    | "weekly"
+    | "biweekly"
+    | "monthly"
+    | "annually"
+    | "irregular"
+    | null;
   taxRate?: number | null;
   taxAmount?: number | null;
   taxType?: string | null;
@@ -1756,7 +1793,13 @@ type UpdateTransactionsData = {
   assignedId?: string | null;
   tagId?: string | null;
   recurring?: boolean;
-  frequency?: "weekly" | "monthly" | "annually" | "irregular" | null;
+  frequency?:
+    | "weekly"
+    | "biweekly"
+    | "monthly"
+    | "annually"
+    | "irregular"
+    | null;
   taxRate?: number | null;
   taxAmount?: number | null;
   taxType?: string | null;

@@ -1,3 +1,4 @@
+import { DetectRecurrenceProcessor } from "./detect-recurrence";
 import { EnrichTransactionProcessor } from "./enrich-transaction";
 import { ExportTransactionsProcessor } from "./export";
 import { ExportTeamDataProcessor } from "./export-team-data";
@@ -25,6 +26,7 @@ export { UpdateBaseCurrencyProcessor } from "./update-base-currency";
  * Job names are derived from class names: ExportTransactionsProcessor -> export-transactions
  */
 export const transactionProcessors = {
+  "detect-transaction-recurrence": new DetectRecurrenceProcessor(),
   "enrich-transactions": new EnrichTransactionProcessor(),
   "export-team-data": new ExportTeamDataProcessor(),
   "export-transactions": new ExportTransactionsProcessor(),

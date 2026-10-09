@@ -8,10 +8,11 @@ import {
 } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import type { Database } from "../client";
+import { getTransactionInsights } from "../queries/reports";
 import {
   getPendingImportedTransactionIds,
   getTransactionsForEnrichment,
@@ -19,6 +20,7 @@ import {
 } from "../queries/transaction-enrichment";
 import {
   applyTransactionRecurrenceRules,
+  detectAndSaveTransactionRecurrence,
   refreshTransactionRecurrenceRules,
   saveTransactionRecurrenceRules,
 } from "../queries/transaction-recurrence";
@@ -61,7 +63,8 @@ suite("recurrence persistence and enrichment recovery", () => {
       END $$;
       CREATE TYPE transaction_frequency AS ENUM ('weekly', 'biweekly', 'monthly', 'semi_monthly', 'annually', 'irregular', 'unknown');
       CREATE TABLE teams (id uuid PRIMARY KEY);
-      CREATE TABLE transaction_categories (team_id uuid, slug text);
+      CREATE TABLE transaction_categories (team_id uuid, slug text, excluded boolean DEFAULT false);
+      CREATE TABLE exchange_rates (base text, target text, rate numeric, updated_at timestamptz);
       CREATE TABLE transactions (
         id uuid PRIMARY KEY DEFAULT gen_random_uuid(), created_at timestamptz NOT NULL DEFAULT now(),
         date date NOT NULL, name text NOT NULL, method text NOT NULL, amount numeric(10,2) NOT NULL,
@@ -110,7 +113,7 @@ suite("recurrence persistence and enrichment recovery", () => {
       otherTeam,
     ]);
     await pool.query(
-      "INSERT INTO transaction_categories VALUES ($1, 'software'), ($1, 'office-supplies')",
+      "INSERT INTO transaction_categories (team_id, slug) VALUES ($1, 'software'), ($1, 'office-supplies')",
       [teamId],
     );
     sourceId = await insert({
@@ -150,6 +153,298 @@ suite("recurrence persistence and enrichment recovery", () => {
         .where(eq(schema.transactions.id, id))
     )[0]!;
   }
+
+  test("insights exclude transfer-category payments and non-revenue deposits", async () => {
+    const today = new Date().toISOString().slice(0, 10);
+    await pool.query(
+      "INSERT INTO transaction_categories (team_id, slug, excluded) VALUES ($1, 'transfer', false), ($1, 'income', false), ($1, 'loan-proceeds', false), ($1, 'capital-contribution', false), ($1, 'customer-refunds', false)",
+      [teamId],
+    );
+    for (const [name, categorySlug, amount, recurring] of [
+      ["Outgoing transfer", "transfer", -900, true],
+      ["Incoming transfer", "transfer", 900, true],
+      ["Loan", "loan-proceeds", 5000, true],
+      ["Capital", "capital-contribution", 1000, true],
+      ["Contra revenue", "customer-refunds", 200, true],
+      ["Uncategorized deposit", null, 300, true],
+      ["Recurring revenue", "income", 100, true],
+      ["One-off revenue", "income", 25, false],
+      ["Uncategorized expense", null, -20, false],
+    ] as const) {
+      await insert({
+        name,
+        merchantName: name,
+        categorySlug,
+        amount,
+        recurring,
+        frequency: "weekly",
+        date: today,
+        internal: false,
+      });
+    }
+    const report = await getTransactionInsights(db, {
+      teamId,
+      from: today,
+      to: today,
+      currency: "USD",
+    });
+    expect(report.actuals).toMatchObject({
+      recurringExpenses: 0,
+      otherExpenses: 20,
+      recurringIncome: 100,
+      otherIncome: 25,
+      count: 3,
+    });
+    expect(report.forecast).toMatchObject({ expenses: 0, income: 400 });
+    expect(
+      report.series
+        .filter((row) => row.lastDate === today)
+        .map((row) => row.name),
+    ).toEqual(["Recurring revenue"]);
+  });
+
+  test("detects and persists previously unmarked history without a seed rule", async () => {
+    const ids = [];
+    for (const date of ["2026-01-05", "2026-02-05", "2026-03-05"]) {
+      ids.push(
+        await insert({
+          name: "Netflix",
+          merchantName: "Netflix",
+          date,
+          recurring: false,
+        }),
+      );
+    }
+    const report = await getTransactionInsights(db, {
+      teamId,
+      from: "2026-03-01",
+      to: "2026-03-31",
+      currency: "USD",
+    });
+    expect(report.series.find((row) => row.name === "Netflix")).toMatchObject({
+      detected: true,
+      frequency: "monthly",
+      observations: 3,
+    });
+    expect(report.detectedCount).toBe(3);
+    expect(
+      await detectAndSaveTransactionRecurrence(db, { teamId, dryRun: true }),
+    ).toMatchObject({ detected: 3 });
+    expect((await read(ids[0]!)).recurring).toBe(false);
+    expect(
+      await detectAndSaveTransactionRecurrence(db, { teamId }),
+    ).toMatchObject({ detected: 3 });
+    for (const id of ids)
+      expect(await read(id)).toMatchObject({
+        recurring: true,
+        frequency: "monthly",
+        recurrenceOverride: false,
+      });
+    const savedReport = await getTransactionInsights(db, {
+      teamId,
+      from: "2026-03-01",
+      to: "2026-03-31",
+      currency: "USD",
+    });
+    expect(savedReport.detectedCount).toBe(0);
+    expect(savedReport.actuals.recurringExpenses).toBe(20);
+    expect(
+      await detectAndSaveTransactionRecurrence(db, { teamId }),
+    ).toMatchObject({ detected: 0 });
+  });
+
+  test("a concurrent opt-out wins against history-based detection", async () => {
+    const ids = [];
+    for (const date of ["2026-01-05", "2026-02-05", "2026-03-05"]) {
+      ids.push(
+        await insert({
+          name: "Netflix",
+          merchantName: "Netflix",
+          date,
+          recurring: false,
+        }),
+      );
+    }
+    let release!: () => void;
+    let locked!: () => void;
+    const hold = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const ready = new Promise<void>((resolve) => {
+      locked = resolve;
+    });
+    const edit = db.transaction(async (tx) => {
+      await tx
+        .update(schema.transactions)
+        .set({ recurring: false, recurrenceOverride: true })
+        .where(eq(schema.transactions.id, ids[0]!));
+      locked();
+      await hold;
+      await saveTransactionRecurrenceRules(tx, teamId, [ids[0]!]);
+    });
+    await ready;
+    const scan = detectAndSaveTransactionRecurrence(db, { teamId });
+    // Ensure detection read the old history/rules and is waiting on our edit.
+    try {
+      await waitForCandidateLock();
+    } finally {
+      release();
+    }
+    const [, result] = await Promise.all([edit, scan]);
+    expect(result.detected).toBe(0);
+    for (const id of ids) expect((await read(id)).recurring).toBe(false);
+  });
+
+  /** Wait for a real lock conflict so the concurrent-correction test is deterministic. */
+  async function waitForCandidateLock() {
+    for (let attempt = 0; attempt < 200; attempt++) {
+      const { rows } = await pool.query(
+        "SELECT 1 FROM pg_stat_activity WHERE datname = current_database() AND wait_event_type = 'Lock' AND query LIKE '%for update%'",
+      );
+      if (rows.length) return;
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    }
+    throw new Error("Detection did not reach the candidate row lock");
+  }
+
+  test("detection does not wait for edits to unrelated or already classified history", async () => {
+    const ids = [];
+    for (const date of ["2026-01-05", "2026-02-05", "2026-03-05"]) {
+      ids.push(
+        await insert({
+          name: "Netflix",
+          merchantName: "Netflix",
+          date,
+          recurring: false,
+        }),
+      );
+    }
+    const unrelated = await insert({
+      name: "One off",
+      merchantName: "One off",
+    });
+    await db.transaction(async (edit) => {
+      await edit
+        .update(schema.transactions)
+        .set({ note: "Editing" })
+        .where(eq(schema.transactions.id, unrelated));
+      const result = await db.transaction(async (scan) => {
+        await scan.execute(sql`SET LOCAL lock_timeout = '500ms'`);
+        return detectAndSaveTransactionRecurrence(scan as unknown as Database, {
+          teamId,
+        });
+      });
+      expect(result.detected).toBe(3);
+    });
+    await db.transaction(async (edit) => {
+      await edit
+        .update(schema.transactions)
+        .set({ note: "Editing" })
+        .where(eq(schema.transactions.id, ids[0]!));
+      const result = await db.transaction(async (scan) => {
+        await scan.execute(sql`SET LOCAL lock_timeout = '500ms'`);
+        return detectAndSaveTransactionRecurrence(scan as unknown as Database, {
+          teamId,
+        });
+      });
+      expect(result).toEqual({ detected: 0, ruleMatches: 0 });
+    });
+  });
+
+  test("history scans update only changed rule matches and previews do not lock candidates", async () => {
+    const id = await insert();
+    await db.transaction(async (edit) => {
+      await edit
+        .update(schema.transactions)
+        .set({ note: "Editing" })
+        .where(eq(schema.transactions.id, id));
+      const result = await db.transaction(async (scan) => {
+        await scan.execute(sql`SET LOCAL lock_timeout = '500ms'`);
+        return detectAndSaveTransactionRecurrence(scan as unknown as Database, {
+          teamId,
+          dryRun: true,
+        });
+      });
+      expect(result).toEqual({ detected: 0, ruleMatches: 1 });
+    });
+    expect((await read(id)).recurring).toBeNull();
+    expect(await detectAndSaveTransactionRecurrence(db, { teamId })).toEqual({
+      detected: 0,
+      ruleMatches: 1,
+    });
+    expect(await read(id)).toMatchObject({
+      recurring: true,
+      frequency: "monthly",
+      categorySlug: "software",
+    });
+    expect(await detectAndSaveTransactionRecurrence(db, { teamId })).toEqual({
+      detected: 0,
+      ruleMatches: 0,
+    });
+  });
+
+  test("history detection respects opt-outs and excludes transfers, pending rows, categories and other teams", async () => {
+    const ids = [];
+    for (const date of ["2026-01-05", "2026-02-05", "2026-03-05"]) {
+      ids.push(
+        await insert({
+          name: "Netflix",
+          merchantName: "Netflix",
+          date,
+          recurring: false,
+        }),
+      );
+      await insert({
+        name: "Transfer",
+        merchantName: "Transfer",
+        date,
+        internal: true,
+      });
+      await insert({
+        name: "External transfer",
+        merchantName: "External transfer",
+        date,
+        categorySlug: "transfer",
+        internal: false,
+      });
+      await insert({
+        name: "Pending",
+        merchantName: "Pending",
+        date,
+        status: "pending",
+      });
+      await insert({
+        name: "Other team",
+        merchantName: "Other team",
+        date,
+        teamId: otherTeam,
+      });
+      await insert({
+        name: "Excluded category",
+        merchantName: "Excluded category",
+        date,
+        categorySlug: "excluded",
+      });
+    }
+    await pool.query(
+      "INSERT INTO transaction_categories (team_id, slug, excluded) VALUES ($1, 'excluded', true)",
+      [teamId],
+    );
+    await db
+      .update(schema.transactions)
+      .set({ recurring: false, recurrenceOverride: true })
+      .where(eq(schema.transactions.id, ids[0]!));
+    await saveTransactionRecurrenceRules(db, teamId, [ids[0]!]);
+    expect(
+      await detectAndSaveTransactionRecurrence(db, { teamId }),
+    ).toMatchObject({ detected: 0 });
+    for (const id of ids) expect((await read(id)).recurring).toBe(false);
+    const others = await db
+      .select()
+      .from(schema.transactions)
+      .where(eq(schema.transactions.teamId, otherTeam));
+    expect(others.every((row) => !row.recurring)).toBe(true);
+  });
   async function apply(ids: string[]) {
     return applyTransactionRecurrenceRules(db, { teamId, transactionIds: ids });
   }

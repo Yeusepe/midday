@@ -18,6 +18,7 @@ import { createTRPCRouter, protectedProcedure } from "@api/trpc/init";
 import {
   createTransaction,
   deleteTransactions,
+  detectAndSaveTransactionRecurrence,
   getBankAccountById,
   getSimilarTransactions,
   getTransactionById,
@@ -54,6 +55,9 @@ const csvMappingInFlight = new Map<
 >();
 
 export const transactionsRouter = createTRPCRouter({
+  detectRecurring: protectedProcedure.mutation(({ ctx: { db, teamId } }) =>
+    detectAndSaveTransactionRecurrence(db, { teamId: teamId! }),
+  ),
   retryEnrichment: protectedProcedure
     .input(z.object({ id: z.uuid() }))
     .mutation(async ({ input, ctx: { db, teamId } }) => {

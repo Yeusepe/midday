@@ -181,15 +181,27 @@ export const getTransactionsSchema = z.object({
       },
     }),
   recurring: z
-    .array(z.string())
+    .array(
+      z.enum([
+        "all",
+        "none",
+        "weekly",
+        "biweekly",
+        "monthly",
+        "semi_monthly",
+        "annually",
+        "irregular",
+        "unknown",
+      ]),
+    )
     .nullable()
     .optional()
     .describe(
-      "Filter by recurring frequency: weekly, monthly, annually, irregular",
+      "Filter by recurring frequency, all recurring, or none (not marked recurring)",
     )
     .openapi({
       description:
-        "Array of recurring frequency values to filter by. Available frequencies: 'weekly', 'monthly', 'annually', 'irregular'",
+        "Array of recurring filters: 'all', 'none', 'weekly', 'biweekly', 'monthly', 'semi_monthly', 'annually', 'irregular', 'unknown'",
       example: ["monthly", "annually"],
       param: {
         in: "query",
@@ -662,7 +674,7 @@ export const updateTransactionSchema = z.object({
       description: "Whether the transaction is recurring.",
     }),
   frequency: z
-    .enum(["weekly", "monthly", "annually", "irregular"])
+    .enum(["weekly", "biweekly", "monthly", "annually", "irregular"])
     .nullable()
     .optional()
     .describe("Recurring frequency if recurring is true")
@@ -738,7 +750,7 @@ export const updateTransactionsSchema = z.object({
       description: "Status to set for the transactions.",
     }),
   frequency: z
-    .enum(["weekly", "monthly", "annually", "irregular"])
+    .enum(["weekly", "biweekly", "monthly", "annually", "irregular"])
     .nullable()
     .optional()
     .openapi({
@@ -778,7 +790,7 @@ export const getSimilarTransactionsSchema = z.object({
       },
     }),
   frequency: z
-    .enum(["weekly", "monthly", "annually", "irregular"])
+    .enum(["weekly", "biweekly", "monthly", "annually", "irregular"])
     .optional()
     .openapi({
       description: "Recurring frequency to filter similar transactions.",

@@ -1,7 +1,10 @@
 // Usage: bun run src/scripts/backfill-transaction-recurrence.ts --team-id UUID [--apply]
 // Requires migration 0044. Dry run by default; use the worker's database credentials.
 import { and, eq, gt } from "drizzle-orm";
-import { applyTransactionRecurrenceRules } from "../queries/transaction-recurrence";
+import {
+  applyTransactionRecurrenceRules,
+  detectAndSaveTransactionRecurrence,
+} from "../queries/transaction-recurrence";
 import { transactions } from "../schema";
 
 import { closeWorkerDb, getWorkerDb } from "../worker-client";
@@ -46,7 +49,11 @@ async function main() {
       });
       cursor = batch.at(-1)!.id;
     }
-    console.log(JSON.stringify({ teamId, dryRun, matched }));
+    const { detected } = await detectAndSaveTransactionRecurrence(db, {
+      teamId,
+      dryRun,
+    });
+    console.log(JSON.stringify({ teamId, dryRun, matched, detected }));
   } finally {
     await closeWorkerDb();
   }

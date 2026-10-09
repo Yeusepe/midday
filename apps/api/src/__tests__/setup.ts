@@ -88,6 +88,10 @@ export function asMock(fn: (...args: any[]) => any): MockFn {
 // Create reusable mock functions that tests can access
 export const mocks = {
   // Transaction queries
+  getTransactionsForEnrichment: mock(() => Promise.resolve([])),
+  detectAndSaveTransactionRecurrence: mock(() =>
+    Promise.resolve({ detected: 0, ruleMatches: 0 }),
+  ),
   getTransactions: mock(() => ({
     data: [],
     meta: { hasNextPage: false, hasPreviousPage: false },
@@ -610,6 +614,9 @@ export const mocks = {
       topCategory: null,
     }),
   ) as MockFn,
+  getTransactionInsights: mock(() =>
+    Promise.resolve({ series: [], currency: "USD" }),
+  ) as MockFn,
   getRecurringExpenses: mock(() =>
     Promise.resolve({
       summary: {
@@ -806,6 +813,9 @@ const dbQueriesMock = new Proxy(
   {
     // Transaction functions
     getTransactions: mocks.getTransactions,
+    getTransactionsForEnrichment: mocks.getTransactionsForEnrichment,
+    detectAndSaveTransactionRecurrence:
+      mocks.detectAndSaveTransactionRecurrence,
     getTransactionById: mocks.getTransactionById,
     createTransaction: mocks.createTransaction,
     createTransactions: mocks.createTransactions,
@@ -1130,6 +1140,7 @@ const dbQueriesMock = new Proxy(
     getProfitMargin: mocks.getProfitMargin,
     getRecentDocuments: mocks.getRecentDocuments,
     getRecurringExpenses: mocks.getRecurringExpenses,
+    getTransactionInsights: mocks.getTransactionInsights,
     getSpendingForPeriod: mocks.getSpendingForPeriod,
     getTrackedTime: mocks.getTrackedTime,
 

@@ -16,6 +16,7 @@ import {
   prepareUpdateData,
 } from "../../utils/enrichment-helpers";
 import { enrichmentSchema } from "../../utils/enrichment-schema";
+import { enqueueRecurrenceDetection } from "../../utils/recurrence-detection";
 import { processBatch } from "../../utils/process-batch";
 import { BaseProcessor } from "../base";
 
@@ -51,6 +52,7 @@ export class EnrichTransactionProcessor extends BaseProcessor<EnrichTransactions
 
     if (transactionsToEnrich.length === 0) {
       await applyTransactionRecurrenceRules(db, { teamId, transactionIds });
+      await enqueueRecurrenceDetection(teamId);
       this.logger.info("No transactions need enrichment", { teamId });
       return { enrichedCount: 0, teamId };
     }
@@ -259,6 +261,9 @@ export class EnrichTransactionProcessor extends BaseProcessor<EnrichTransactions
     );
 
     await applyTransactionRecurrenceRules(db, { teamId, transactionIds });
+
+    // Merchant normalization can reveal repetitions that raw bank names hid.
+    await enqueueRecurrenceDetection(teamId);
 
     this.logger.info("Transaction enrichment completed", {
       totalEnriched,

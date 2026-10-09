@@ -15,6 +15,7 @@ import {
 } from "date-fns";
 import {
   and,
+  desc,
   eq,
   gt,
   gte,
@@ -43,9 +44,12 @@ import {
   reports,
   teams,
   transactionCategories,
+  transactionRecurrenceRules,
   transactions,
 } from "../schema";
 import { dedupeByDb } from "../utils/dedupe";
+import { buildTransactionInsights } from "../utils/transaction-insights";
+import { detectTransactionRecurrence } from "../utils/detect-transaction-recurrence";
 import { getCashBalance } from "./bank-accounts";
 import { getExchangeRatesBatch } from "./exhange-rates";
 import { getRecurringInvoiceProjection } from "./invoice-recurring";
@@ -1907,6 +1911,95 @@ export type GetRecurringExpensesParams = {
   from?: string; // ISO date string (YYYY-MM-DD)
   to?: string; // ISO date string (YYYY-MM-DD)
 };
+
+/** Read eligible expense/revenue history, infer recurrence, and build report insights. */
+export async function getTransactionInsights(
+  db: Database,
+  params: { teamId: string; from: string; to: string; currency?: string },
+) {
+  const { teamId, from, to } = params;
+  const currency =
+    (await getTargetCurrency(db, teamId, params.currency)) || "USD";
+  const asOf = new Date().toISOString().slice(0, 10);
+  const rows = await db
+    .select({
+      id: transactions.id,
+      teamId: transactions.teamId,
+      name: transactions.name,
+      merchantName: transactions.merchantName,
+      bankAccountId: transactions.bankAccountId,
+      amount: transactions.amount,
+      currency: transactions.currency,
+      convertedAmount: sql<number | null>`${resolvedAmount(currency)}`,
+      date: transactions.date,
+      recurring: transactions.recurring,
+      recurrenceOverride: transactions.recurrenceOverride,
+      frequency: transactions.frequency,
+    })
+    .from(transactions)
+    .leftJoin(
+      transactionCategories,
+      and(
+        eq(transactionCategories.slug, transactions.categorySlug),
+        eq(transactionCategories.teamId, teamId),
+      ),
+    )
+    .where(
+      and(
+        eq(transactions.teamId, teamId),
+        eq(transactions.internal, false),
+        ne(transactions.status, "excluded"),
+        ne(transactions.status, "pending"),
+        lte(transactions.date, asOf),
+        or(
+          isNull(transactions.categorySlug),
+          ne(transactions.categorySlug, "transfer"),
+        ),
+        // Match the income drill-down's revenue categories; financing and
+        // uncategorized deposits are not operating income or projected revenue.
+        or(
+          lt(transactions.amount, 0),
+          and(
+            inArray(transactions.categorySlug, REVENUE_CATEGORIES),
+            not(inArray(transactions.categorySlug, CONTRA_REVENUE_CATEGORIES)),
+          ),
+        ),
+        or(
+          isNull(transactionCategories.excluded),
+          eq(transactionCategories.excluded, false),
+        ),
+      ),
+    );
+  const savedRules = await db
+    .select()
+    .from(transactionRecurrenceRules)
+    .where(eq(transactionRecurrenceRules.teamId, teamId))
+    .orderBy(
+      desc(transactionRecurrenceRules.updatedAt),
+      desc(transactionRecurrenceRules.id),
+    );
+  const detected = detectTransactionRecurrence(rows, savedRules, {
+    includeClassified: true,
+  });
+  return buildTransactionInsights(
+    rows.map((row) => ({
+      ...row,
+      ...(detected.has(row.id)
+        ? {
+            recurring: true,
+            recordedRecurring: row.recurring === true,
+            frequency: detected.get(row.id)!.frequency,
+            detected: detected.get(row.id)!.needsUpdate,
+            recurrencePatternId: detected.get(row.id)!.patternId,
+          }
+        : {}),
+      amount: Number(row.amount),
+      convertedAmount:
+        row.convertedAmount === null ? null : Number(row.convertedAmount),
+    })),
+    { from, to, currency, asOf },
+  );
+}
 
 interface RecurringExpenseItem {
   name: string;

@@ -36,7 +36,13 @@ type StatusFilter =
   | "excluded"
   | "exported";
 type AttachmentFilter = "include" | "exclude";
-type RecurringFilter = "all" | "weekly" | "monthly" | "annually";
+type RecurringFilter =
+  | "all"
+  | "none"
+  | "weekly"
+  | "biweekly"
+  | "monthly"
+  | "annually";
 type ManualFilter = "include" | "exclude";
 
 interface BaseFilterItem {
@@ -95,7 +101,9 @@ const attachmentsFilters: FilterItem<AttachmentFilter>[] = [
 
 const recurringFilters: FilterItem<RecurringFilter>[] = [
   { id: "all", name: "All recurring" },
+  { id: "none", name: "Not marked recurring" },
   { id: "weekly", name: "Weekly recurring" },
+  { id: "biweekly", name: "Every 2 weeks" },
   { id: "monthly", name: "Monthly recurring" },
   { id: "annually", name: "Annually recurring" },
 ];

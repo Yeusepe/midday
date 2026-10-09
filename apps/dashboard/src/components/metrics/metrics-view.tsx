@@ -19,6 +19,7 @@ import { RevenueForecastCard } from "./cards/revenue-forecast-card";
 import { RunwayCard } from "./cards/runway-card";
 import { DraggableChartCard } from "./components/draggable-chart-card";
 import { MetricsGrid } from "./components/metrics-grid";
+import { TransactionInsights } from "./transaction-insights";
 import {
   type ChartId,
   type ChartLayoutItem,
@@ -268,6 +269,7 @@ export function MetricsView({
 
   return (
     <div className="flex flex-col gap-6" ref={gridRef}>
+      <TransactionInsights from={from} to={to} currency={currency} />
       <MetricsGrid
         layout={normalizedLayout}
         onLayoutChange={handleLayoutChange}

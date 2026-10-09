@@ -2,6 +2,14 @@ import { z } from "zod";
 
 // Transaction categories that the LLM can assign (only categories suitable for AI categorization)
 export const transactionCategories = [
+  // Revenue and non-revenue deposits
+  "income",
+  "interest-income",
+  "other-income",
+  "loan-proceeds",
+  "capital-investment",
+  "internal-transfer",
+
   // Core operational expenses (high confidence)
   "software", // SaaS subscriptions, development tools
   "travel", // Business trips, transportation

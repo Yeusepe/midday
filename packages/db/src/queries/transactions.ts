@@ -50,6 +50,7 @@ import {
 } from "../utils/transaction-recurrence";
 import { createActivity } from "./activities";
 import { type Attachment, createAttachments } from "./transaction-attachments";
+import { resolveIncomingCategories } from "./transaction-category-history";
 import {
   applyTransactionRecurrenceRules,
   refreshTransactionRecurrenceRules,
@@ -1907,7 +1908,7 @@ export async function createTransaction(
     categorySlug,
     assignedId,
     ...rest
-  } = params;
+  } = (await resolveIncomingCategories(db, [params]))[0]!;
 
   const result = await db.transaction(async (tx) => {
     const [created] = await tx
@@ -1956,7 +1957,8 @@ export async function createTransactions(
   db: Database,
   params: CreateTransactionParams[],
 ) {
-  const transactionsToInsert = params.map(
+  const categorized = await resolveIncomingCategories(db, params);
+  const transactionsToInsert = categorized.map(
     ({ attachments, teamId, ...rest }) => {
       return {
         ...rest,

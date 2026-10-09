@@ -806,6 +806,7 @@ const dbQueriesMock = new Proxy(
   {
     // Transaction functions
     getTransactions: mocks.getTransactions,
+    getTransactionsForEnrichment: mock(() => []),
     getTransactionById: mocks.getTransactionById,
     createTransaction: mocks.createTransaction,
     createTransactions: mocks.createTransactions,
@@ -1188,6 +1189,7 @@ mock.module("@midday/supabase/storage", () => ({
 // Mock @midday/job-client
 mock.module("@midday/job-client", () => ({
   triggerJob: mocks.triggerJob,
+  triggerJobAndWait: mock(() => Promise.resolve({ result: null })),
   getJobStatus: mocks.getJobStatus,
   getQueue: mock(() => ({
     getJob: mock(() => null),

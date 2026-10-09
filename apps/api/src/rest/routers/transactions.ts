@@ -17,6 +17,7 @@ import {
   updateTransactionsSchema,
 } from "@api/schemas/transactions";
 import { createAdminClient } from "@api/services/supabase";
+import { enqueueTransactionEnrichment } from "@api/utils/enqueue-transaction-enrichment";
 import { validateResponse } from "@api/utils/validate-response";
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import {
@@ -29,7 +30,6 @@ import {
   updateTransaction,
   updateTransactions,
 } from "@midday/db/queries";
-import { triggerJob } from "@midday/job-client";
 import { signedUrl } from "@midday/supabase/storage";
 import { withRequiredScope } from "../middleware";
 
@@ -261,12 +261,7 @@ app.openapi(
     const params = c.req.valid("json");
 
     const result = await createTransaction(db, { teamId, ...params });
-    if (result)
-      await triggerJob(
-        "enrich-transactions",
-        { teamId, transactionIds: [result.id] },
-        "transactions",
-      );
+    await enqueueTransactionEnrichment(teamId, result ? [result] : []);
 
     return c.json(validateResponse(result, transactionResponseSchema));
   },
@@ -414,12 +409,7 @@ app.openapi(
 
     const data = params.map((item) => ({ ...item, teamId }));
     const result = await createTransactions(db, data);
-    if (result.length)
-      await triggerJob(
-        "enrich-transactions",
-        { teamId, transactionIds: result.map((row) => row.id) },
-        "transactions",
-      );
+    await enqueueTransactionEnrichment(teamId, result);
 
     return c.json(validateResponse(result, createTransactionsResponseSchema));
   },

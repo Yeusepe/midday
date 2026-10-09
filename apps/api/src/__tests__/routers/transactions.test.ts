@@ -229,6 +229,8 @@ describe("REST: POST /transactions", () => {
   const app = createApp();
 
   beforeEach(() => {
+    mocks.triggerJob.mockReset();
+    mocks.triggerJob.mockImplementation(() => ({ id: "job-123" }));
     mocks.createTransaction.mockReset();
     mocks.createTransaction.mockImplementation(() =>
       createValidTransactionResponse(),
@@ -245,6 +247,22 @@ describe("REST: POST /transactions", () => {
     expect(res.status).toBe(200);
     const json = (await res.json()) as TransactionResponse;
     expect(json.id).toBeDefined();
+    expect(mocks.triggerJob).toHaveBeenCalledWith(
+      "enrich-transactions",
+      { teamId: expect.any(String), transactionIds: [json.id] },
+      "transactions",
+    );
+  });
+
+  test("returns the saved transaction when the enrichment queue is unavailable", async () => {
+    mocks.triggerJob.mockRejectedValueOnce(new Error("Queue unavailable"));
+    const res = await app.request("/transactions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(createTransactionInput()),
+    });
+    expect(res.status).toBe(200);
+    expect(mocks.createTransaction).toHaveBeenCalledTimes(1);
   });
 
   test("returns 400 for missing required fields", async () => {
@@ -381,6 +399,8 @@ describe("REST: POST /transactions/bulk", () => {
   const app = createApp();
 
   beforeEach(() => {
+    mocks.triggerJob.mockReset();
+    mocks.triggerJob.mockImplementation(() => ({ id: "job-123" }));
     mocks.createTransactions.mockReset();
     mocks.createTransactions.mockImplementation(() => [
       createValidTransactionResponse(),
@@ -388,6 +408,13 @@ describe("REST: POST /transactions/bulk", () => {
   });
 
   test("creates multiple transactions", async () => {
+    const created = [
+      createValidTransactionResponse(),
+      createValidTransactionResponse({
+        id: "c4c8d9e3-2f3b-4d4e-9f5a-6b7c8d9e0f1a",
+      }),
+    ];
+    mocks.createTransactions.mockImplementation(() => created);
     const res = await app.request("/transactions/bulk", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -398,6 +425,11 @@ describe("REST: POST /transactions/bulk", () => {
     });
 
     expect(res.status).toBe(200);
+    expect(mocks.triggerJob).toHaveBeenCalledWith(
+      "enrich-transactions",
+      { teamId: expect.any(String), transactionIds: created.map((t) => t.id) },
+      "transactions",
+    );
   });
 
   test("returns 400 for empty array", async () => {

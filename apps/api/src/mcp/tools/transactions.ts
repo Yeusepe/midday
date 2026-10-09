@@ -6,6 +6,7 @@ import {
   updateTransactionSchema,
   updateTransactionsSchema,
 } from "@api/schemas/transactions";
+import { enqueueTransactionEnrichment } from "@api/utils/enqueue-transaction-enrichment";
 import type { AccountingProviderConfig } from "@midday/accounting";
 import { getOrgName } from "@midday/accounting";
 import {
@@ -228,11 +229,8 @@ export const registerTransactionTools: RegisterTools = (server, ctx) => {
             };
           }
 
-          await triggerJob(
-            "enrich-transactions",
-            { teamId, transactionIds: [result.id] },
-            "transactions",
-          );
+          await enqueueTransactionEnrichment(teamId, [result]);
+
           const clean = sanitize(mcpTransactionSchema, result);
 
           return {
@@ -274,12 +272,7 @@ export const registerTransactionTools: RegisterTools = (server, ctx) => {
             items.map((item) => ({ ...item, teamId })),
           );
 
-          if (result.length)
-            await triggerJob(
-              "enrich-transactions",
-              { teamId, transactionIds: result.map((row) => row.id) },
-              "transactions",
-            );
+          await enqueueTransactionEnrichment(teamId, result ?? []);
 
           const clean = sanitizeArray(mcpTransactionSchema, result ?? []);
 

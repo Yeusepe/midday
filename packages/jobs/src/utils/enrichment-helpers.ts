@@ -40,7 +40,7 @@ export function generateEnrichmentPrompt(
       "Legal entity name: Apply the transformation rules above\n";
   }
 
-  return `You are a legal entity identification system for business expense transactions.
+  return `You are a legal entity identification system for incoming and outgoing business transactions.
 
 TASK: For EVERY transaction, identify the formal legal business entity name with proper entity suffixes (Inc, LLC, Corp, Ltd, Co, etc.).
 
@@ -89,7 +89,19 @@ CONFIDENCE EXAMPLES:
 • "ConEd Electric" → utilities (0.90)
 • "ABC Corp payment" → null (0.4) (too uncertain)
 
-COMMON CATEGORIES (only use if confident):
+POSITIVE AMOUNTS (money received):
+• income: Clearly identified customer payments or earned business revenue
+• interest-income: Interest credited by a bank
+• other-income: Clearly identified other business income
+• transfer / internal-transfer: Movement between accounts, not earned revenue
+• loan-proceeds: Borrowed funds, not earned revenue
+• capital-investment: Owner contributions, not earned revenue
+• Refunds/reversals: Use the original expense category when identifiable; otherwise return null
+• A positive amount or payment processor/bank name alone does not prove revenue. Return null when the purpose is uncertain.
+
+NEGATIVE AMOUNTS (money spent): Never use income, interest-income, or other-income.
+
+COMMON EXPENSE CATEGORIES (only use if confident):
 • software: SaaS tools (Slack, Google Workspace, GitHub, AWS)
 • travel: Business trips (airlines, hotels, Uber to meetings)
 • meals: Business dining (restaurants, client meals, catering)
@@ -196,11 +208,15 @@ export function prepareUpdateData(
   }
 
   // Category assignment logic
-  if (!transaction.categorySlug && transaction.amount <= 0) {
+  if (!transaction.categorySlug) {
     if (
       shouldUseCategoryResult(result) &&
       result.category &&
-      isValidCategory(result.category)
+      isValidCategory(result.category) &&
+      (transaction.amount > 0 ||
+        !["income", "interest-income", "other-income"].includes(
+          result.category,
+        ))
     ) {
       // High confidence: use the suggested category
       updateData.categorySlug = result.category;

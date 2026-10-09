@@ -11,6 +11,9 @@ export type InsightTransaction = {
   convertedAmount: number | null;
   date: string;
   recurring: boolean | null;
+  detected?: boolean;
+  recordedRecurring?: boolean;
+  recurrencePatternId?: string;
   frequency: string | null;
 };
 
@@ -61,20 +64,24 @@ export function buildTransactionInsights(
     (a, b) => b.date.localeCompare(a.date) || a.id.localeCompare(b.id),
   )) {
     if (row.date > asOf) continue;
+    const markedRecurring = row.recordedRecurring ?? row.recurring;
     if (row.date >= from && row.date <= to) {
       actuals.count++;
       if (row.convertedAmount === null) actuals.missingConversions++;
       else if (row.convertedAmount < 0) {
-        actuals[row.recurring ? "recurringExpenses" : "otherExpenses"] +=
+        actuals[markedRecurring ? "recurringExpenses" : "otherExpenses"] +=
           Math.abs(row.convertedAmount);
       } else {
-        actuals[row.recurring ? "recurringIncome" : "otherIncome"] +=
+        actuals[markedRecurring ? "recurringIncome" : "otherIncome"] +=
           row.convertedAmount;
       }
     }
     if (!row.recurring || row.amount === 0) continue;
     const group = groups.find((candidate) => {
       const latest = candidate[0];
+      if (latest?.recurrencePatternId && row.recurrencePatternId) {
+        return latest.recurrencePatternId === row.recurrencePatternId;
+      }
       return (
         latest &&
         !candidate.some((payment) => payment.date === row.date) &&
@@ -167,6 +174,7 @@ export function buildTransactionInsights(
         nextDate,
         status,
         observations: group.length,
+        detected: group.some((row) => row.detected),
         monthlyEquivalent:
           amount !== null && factor !== undefined && status === "expected"
             ? round(amount * factor)
@@ -212,6 +220,7 @@ export function buildTransactionInsights(
       missingConversions: series.filter((item) => item.amount === null).length,
     },
     series,
+    detectedCount: rows.filter((row) => row.detected).length,
     upcoming: upcoming.sort((a, b) => a.date.localeCompare(b.date)),
   };
 }

@@ -1001,7 +1001,7 @@ type GetSimilarTransactionsParams = {
   name: string;
   teamId: string;
   categorySlug?: string;
-  frequency?: "weekly" | "monthly" | "annually" | "irregular";
+  frequency?: "weekly" | "biweekly" | "monthly" | "annually" | "irregular";
   transactionId?: string;
 };
 
@@ -1571,7 +1571,13 @@ type UpdateTransactionData = {
   note?: string | null;
   assignedId?: string | null;
   recurring?: boolean;
-  frequency?: "weekly" | "monthly" | "annually" | "irregular" | null;
+  frequency?:
+    | "weekly"
+    | "biweekly"
+    | "monthly"
+    | "annually"
+    | "irregular"
+    | null;
   taxRate?: number | null;
   taxAmount?: number | null;
   taxType?: string | null;
@@ -1769,7 +1775,13 @@ type UpdateTransactionsData = {
   assignedId?: string | null;
   tagId?: string | null;
   recurring?: boolean;
-  frequency?: "weekly" | "monthly" | "annually" | "irregular" | null;
+  frequency?:
+    | "weekly"
+    | "biweekly"
+    | "monthly"
+    | "annually"
+    | "irregular"
+    | null;
   taxRate?: number | null;
   taxAmount?: number | null;
   taxType?: string | null;

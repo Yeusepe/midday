@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@midday/ui/select";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, parseISO } from "date-fns";
 import Link from "next/link";
 import { useState } from "react";
@@ -37,6 +37,19 @@ export function TransactionInsights({
   currency?: string;
 }) {
   const trpc = useTRPC();
+  const queryClient = useQueryClient();
+  const analyze = useMutation(
+    trpc.transactions.detectRecurring.mutationOptions({
+      onSuccess: async () => {
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: trpc.reports.pathKey() }),
+          queryClient.invalidateQueries({
+            queryKey: trpc.transactions.pathKey(),
+          }),
+        ]);
+      },
+    }),
+  );
   const { data, isPending, isError, refetch } = useQuery(
     trpc.reports.transactionInsights.queryOptions({ from, to, currency }),
   );
@@ -91,12 +104,46 @@ export function TransactionInsights({
             Know what repeats, what to review, and what may come next.
           </p>
         </div>
-        <Button asChild variant="outline">
-          <Link href="/transactions?recurring=all">
-            Review recurring transactions
-          </Link>
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="outline"
+            disabled={analyze.isPending}
+            onClick={() => analyze.mutate()}
+          >
+            {analyze.isPending
+              ? "Analyzing history…"
+              : data.detectedCount > 0
+                ? "Save detected recurrence"
+                : "Recheck history"}
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/transactions?recurring=all">
+              Review recurring transactions
+            </Link>
+          </Button>
+        </div>
       </div>
+
+      {data.detectedCount > 0 && (
+        <div className="border bg-muted/30 p-4 text-sm" role="status">
+          Found {data.series.filter((item) => item.detected).length} recurring
+          patterns across {data.detectedCount} transactions needing
+          classification. They are shown below as “Detected” and included in
+          upcoming estimates. Save detected recurrence to update transaction
+          filters and all report charts.
+        </div>
+      )}
+      {analyze.isError && (
+        <p className="text-sm text-destructive" role="alert">
+          Could not complete recurrence analysis. Try again.
+        </p>
+      )}
+      {analyze.isSuccess && data.detectedCount === 0 && (
+        <p className="text-sm text-muted-foreground" role="status">
+          History analyzed. Recurring classifications and reports are up to
+          date.
+        </p>
+      )}
 
       {(actual.missingConversions > 0 ||
         data.forecast.missingConversions > 0) && (
@@ -224,9 +271,10 @@ export function TransactionInsights({
             . Annual and weekly payments are normalized for comparison.
           </p>
           <p className="text-xs text-muted-foreground">
-            Estimates repeat the latest known amount and cadence. They exclude
-            one-offs, invoices, overdue patterns, and schedules that need
-            clarification. This is not a total cash-balance forecast.
+            Estimates use marked and automatically detected patterns, repeating
+            the latest amount and cadence. They exclude one-offs, invoices,
+            overdue patterns, and schedules that need clarification. This is not
+            a total cash-balance forecast.
           </p>
           {data.forecast.needsReview > 0 && (
             <Button
@@ -300,10 +348,10 @@ export function TransactionInsights({
               </span>
             </h3>
             <p className="text-xs text-muted-foreground mt-1">
-              All recorded recurring history through {dateLabel(data.asOf)},
-              including payments outside the selected period. Patterns are
-              grouped by account, merchant, currency, similar amount and
-              cadence.
+              Marked and automatically detected patterns through{" "}
+              {dateLabel(data.asOf)}, including payments outside the selected
+              period. Patterns are grouped by account, merchant, currency,
+              similar amount and cadence.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -365,6 +413,11 @@ export function TransactionInsights({
                       {item.type === "income" ? "Income" : "Expense"} ·{" "}
                       {item.observations} recorded
                     </p>
+                    {item.detected && (
+                      <span className="inline-block text-xs border px-2 py-0.5 mt-1">
+                        Detected · review or save
+                      </span>
+                    )}
                   </td>
                   <td className="px-5 py-4 whitespace-nowrap tabular-nums">
                     {item.amount === null ? (
@@ -431,7 +484,9 @@ export function TransactionInsights({
                 "No recurring payments match these filters."
               ) : (
                 <>
-                  No transactions are marked recurring yet.{" "}
+                  No recurring patterns found yet. Detection needs at least
+                  three similarly sized payments on a weekly, biweekly, or
+                  monthly schedule, or two annual payments.{" "}
                   <Link className="underline" href="/transactions">
                     Open Transactions
                   </Link>

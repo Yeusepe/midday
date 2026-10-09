@@ -23,6 +23,7 @@ export const transactionFilterParamsSchema = {
       "all",
       "none",
       "weekly",
+      "biweekly",
       "monthly",
       "annually",
     ] as const),

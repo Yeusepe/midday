@@ -1,6 +1,7 @@
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import {
   applyTransactionRecurrenceRules,
+  detectAndSaveTransactionRecurrence,
   getTransactionsForEnrichment,
   markTransactionsAsEnriched,
   type UpdateTransactionEnrichmentParams,
@@ -51,6 +52,7 @@ export class EnrichTransactionProcessor extends BaseProcessor<EnrichTransactions
 
     if (transactionsToEnrich.length === 0) {
       await applyTransactionRecurrenceRules(db, { teamId, transactionIds });
+      await detectAndSaveTransactionRecurrence(db, { teamId });
       this.logger.info("No transactions need enrichment", { teamId });
       return { enrichedCount: 0, teamId };
     }
@@ -259,6 +261,9 @@ export class EnrichTransactionProcessor extends BaseProcessor<EnrichTransactions
     );
 
     await applyTransactionRecurrenceRules(db, { teamId, transactionIds });
+
+    // Merchant normalization can reveal repetitions that raw bank names hid.
+    await detectAndSaveTransactionRecurrence(db, { teamId });
 
     this.logger.info("Transaction enrichment completed", {
       totalEnriched,

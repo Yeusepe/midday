@@ -1,4 +1,5 @@
 import {
+  detectAndSaveTransactionRecurrence,
   getPendingImportedTransactionIds,
   upsertTransactions,
 } from "@midday/db/queries";
@@ -236,6 +237,10 @@ export class ImportTransactionsProcessor extends BaseProcessor<ImportTransaction
     });
 
     await this.updateProgress(job, 80, undefined, "finalizing");
+
+    // CSV rows default to recurring=false. Analyze history even on an import
+    // retry that inserts no rows, so classification recovers after a failure.
+    await detectAndSaveTransactionRecurrence(db, { teamId });
 
     if (pendingEnrichmentIds.size > 0) {
       await triggerJob(

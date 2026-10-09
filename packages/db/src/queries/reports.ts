@@ -15,6 +15,7 @@ import {
 } from "date-fns";
 import {
   and,
+  desc,
   eq,
   gt,
   gte,
@@ -43,10 +44,12 @@ import {
   reports,
   teams,
   transactionCategories,
+  transactionRecurrenceRules,
   transactions,
 } from "../schema";
 import { dedupeByDb } from "../utils/dedupe";
 import { buildTransactionInsights } from "../utils/transaction-insights";
+import { detectTransactionRecurrence } from "../utils/detect-transaction-recurrence";
 import { getCashBalance } from "./bank-accounts";
 import { getExchangeRatesBatch } from "./exhange-rates";
 import { getRecurringInvoiceProjection } from "./invoice-recurring";
@@ -1929,6 +1932,7 @@ export async function getTransactionInsights(
       convertedAmount: sql<number | null>`${resolvedAmount(currency)}`,
       date: transactions.date,
       recurring: transactions.recurring,
+      recurrenceOverride: transactions.recurrenceOverride,
       frequency: transactions.frequency,
     })
     .from(transactions)
@@ -1944,20 +1948,37 @@ export async function getTransactionInsights(
         eq(transactions.teamId, teamId),
         eq(transactions.internal, false),
         ne(transactions.status, "excluded"),
+        ne(transactions.status, "pending"),
         lte(transactions.date, asOf),
-        or(
-          eq(transactions.recurring, true),
-          and(gte(transactions.date, from), lte(transactions.date, to)),
-        ),
         or(
           isNull(transactionCategories.excluded),
           eq(transactionCategories.excluded, false),
         ),
       ),
     );
+  const savedRules = await db
+    .select()
+    .from(transactionRecurrenceRules)
+    .where(eq(transactionRecurrenceRules.teamId, teamId))
+    .orderBy(
+      desc(transactionRecurrenceRules.updatedAt),
+      desc(transactionRecurrenceRules.id),
+    );
+  const detected = detectTransactionRecurrence(rows, savedRules, {
+    includeClassified: true,
+  });
   return buildTransactionInsights(
     rows.map((row) => ({
       ...row,
+      ...(detected.has(row.id)
+        ? {
+            recurring: true,
+            recordedRecurring: row.recurring === true,
+            frequency: detected.get(row.id)!.frequency,
+            detected: detected.get(row.id)!.needsUpdate,
+            recurrencePatternId: detected.get(row.id)!.patternId,
+          }
+        : {}),
       amount: Number(row.amount),
       convertedAmount:
         row.convertedAmount === null ? null : Number(row.convertedAmount),

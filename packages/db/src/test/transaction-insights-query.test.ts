@@ -31,7 +31,7 @@ describe("transaction insight queries", () => {
       to: "2026-03-31",
       currency: "COP",
     });
-    expect(queries).toHaveLength(1);
+    expect(queries).toHaveLength(2);
     const query = queries[0]!;
     const where = query.text.slice(query.text.lastIndexOf(" where "));
     expect(where).toContain('"transactions"."team_id" =');
@@ -39,7 +39,13 @@ describe("transaction insight queries", () => {
     expect(where).toContain('"transactions"."internal" =');
     expect(where).toContain('"transactions"."status" <>');
     expect(where).toContain('"transaction_categories"."excluded"');
-    expect(where).toMatch(/"recurring" = .* or .*"date" >=/);
+    // Unmarked history outside the selected period is required for detection.
+    expect(where).not.toContain('"recurring" =');
+    expect(where).not.toContain('"date" >=');
+    expect(queries[1]!.text).toContain(
+      '"transaction_recurrence_rules"."team_id" =',
+    );
+    expect(queries[1]!.values).toContain("team-a");
     expect(where).not.toContain('"transactions"."currency" =');
     expect(query.text).toContain('"exchange_rates"');
     expect(query.values).toContain("team-a");

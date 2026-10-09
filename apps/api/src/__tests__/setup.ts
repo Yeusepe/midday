@@ -89,6 +89,9 @@ export function asMock(fn: (...args: any[]) => any): MockFn {
 export const mocks = {
   // Transaction queries
   getTransactionsForEnrichment: mock(() => Promise.resolve([])),
+  detectAndSaveTransactionRecurrence: mock(() =>
+    Promise.resolve({ detected: 0, ruleMatches: 0 }),
+  ),
   getTransactions: mock(() => ({
     data: [],
     meta: { hasNextPage: false, hasPreviousPage: false },
@@ -811,6 +814,8 @@ const dbQueriesMock = new Proxy(
     // Transaction functions
     getTransactions: mocks.getTransactions,
     getTransactionsForEnrichment: mocks.getTransactionsForEnrichment,
+    detectAndSaveTransactionRecurrence:
+      mocks.detectAndSaveTransactionRecurrence,
     getTransactionById: mocks.getTransactionById,
     createTransaction: mocks.createTransaction,
     createTransactions: mocks.createTransactions,

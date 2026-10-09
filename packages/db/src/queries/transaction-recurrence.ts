@@ -1,11 +1,96 @@
-import { and, desc, eq, inArray, sql } from "drizzle-orm";
-import type { DatabaseOrTransaction } from "../client";
+import { and, desc, eq, inArray, isNull, lte, ne, or, sql } from "drizzle-orm";
+import type { Database, DatabaseOrTransaction } from "../client";
 import {
   transactionRecurrenceRules as rules,
   transactionCategories,
   transactions,
 } from "../schema";
 import { matchesRecurrenceRule } from "../utils/transaction-recurrence";
+import { detectTransactionRecurrence } from "../utils/detect-transaction-recurrence";
+
+/** Analyze all available history, including imports whose recurring default is false.
+ * Run after import/enrichment commits, never while holding a partial set of row locks.
+ */
+export async function detectAndSaveTransactionRecurrence(
+  db: Database,
+  params: { teamId: string; dryRun?: boolean },
+) {
+  return db.transaction(async (tx) => {
+    const history = await tx
+      .select({
+        id: transactions.id,
+        teamId: transactions.teamId,
+        name: transactions.name,
+        merchantName: transactions.merchantName,
+        amount: transactions.amount,
+        currency: transactions.currency,
+        date: transactions.date,
+        bankAccountId: transactions.bankAccountId,
+        recurring: transactions.recurring,
+        recurrenceOverride: transactions.recurrenceOverride,
+        frequency: transactions.frequency,
+      })
+      .from(transactions)
+      .leftJoin(
+        transactionCategories,
+        and(
+          eq(transactionCategories.teamId, params.teamId),
+          eq(transactionCategories.slug, transactions.categorySlug),
+        ),
+      )
+      .where(
+        and(
+          eq(transactions.teamId, params.teamId),
+          eq(transactions.internal, false),
+          ne(transactions.status, "excluded"),
+          ne(transactions.status, "pending"),
+          lte(transactions.date, new Date().toISOString().slice(0, 10)),
+          or(
+            isNull(transactionCategories.excluded),
+            eq(transactionCategories.excluded, false),
+          ),
+        ),
+      )
+      .orderBy(transactions.id)
+      .for("update", { of: transactions });
+    const savedRules = await tx
+      .select()
+      .from(rules)
+      .where(eq(rules.teamId, params.teamId))
+      .orderBy(desc(rules.updatedAt), desc(rules.id));
+    const detected = detectTransactionRecurrence(history, savedRules);
+    const ruleMatches = await applyTransactionRecurrenceRules(tx, {
+      teamId: params.teamId,
+      transactionIds: history.map((row) => row.id),
+      dryRun: params.dryRun,
+    });
+    if (!params.dryRun) {
+      for (const frequency of [
+        "weekly",
+        "biweekly",
+        "monthly",
+        "annually",
+      ] as const) {
+        const ids = [...detected]
+          .filter(([, value]) => value.frequency === frequency)
+          .map(([id]) => id);
+        for (let i = 0; i < ids.length; i += 500) {
+          await tx
+            .update(transactions)
+            .set({ recurring: true, frequency })
+            .where(
+              and(
+                eq(transactions.teamId, params.teamId),
+                eq(transactions.recurrenceOverride, false),
+                inArray(transactions.id, ids.slice(i, i + 500)),
+              ),
+            );
+        }
+      }
+    }
+    return { detected: detected.size, ruleMatches };
+  });
+}
 
 /** Call inside the same transaction as a user's explicit recurrence correction. */
 export async function saveTransactionRecurrenceRules(

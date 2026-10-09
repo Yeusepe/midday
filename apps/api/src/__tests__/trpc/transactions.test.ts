@@ -15,6 +15,25 @@ import { mocks } from "../setup";
 // Create a test caller
 const createCaller = createCallerFactory(transactionsRouter);
 
+describe("tRPC: transactions.detectRecurring", () => {
+  test("analyzes history using the authenticated team only", async () => {
+    mocks.detectAndSaveTransactionRecurrence.mockClear();
+    const result = await createCaller(createTestContext()).detectRecurring();
+    expect(result).toEqual({ detected: 0, ruleMatches: 0 });
+    expect(mocks.detectAndSaveTransactionRecurrence).toHaveBeenCalledWith(
+      expect.anything(),
+      { teamId: "test-team-id" },
+    );
+  });
+  test("rejects unauthenticated analysis", async () => {
+    mocks.detectAndSaveTransactionRecurrence.mockClear();
+    await expect(
+      createCaller({ ...createTestContext(), session: null }).detectRecurring(),
+    ).rejects.toThrow();
+    expect(mocks.detectAndSaveTransactionRecurrence).not.toHaveBeenCalled();
+  });
+});
+
 describe("tRPC: transactions.get", () => {
   beforeEach(() => {
     mocks.getTransactions.mockReset();

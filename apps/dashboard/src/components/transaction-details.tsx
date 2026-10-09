@@ -533,6 +533,7 @@ export function TransactionDetails() {
                     id: data?.id,
                     frequency: value as
                       | "weekly"
+                      | "biweekly"
                       | "monthly"
                       | "annually"
                       | "irregular",
@@ -544,6 +545,7 @@ export function TransactionDetails() {
                       name: data.name,
                       frequency: value as
                         | "weekly"
+                        | "biweekly"
                         | "monthly"
                         | "annually"
                         | "irregular",
@@ -572,6 +574,7 @@ export function TransactionDetails() {
                                 recurring: true,
                                 frequency: value as
                                   | "weekly"
+                                  | "biweekly"
                                   | "monthly"
                                   | "annually"
                                   | "irregular",
@@ -594,6 +597,7 @@ export function TransactionDetails() {
                   <SelectGroup>
                     {[
                       { id: "weekly", name: "Weekly" },
+                      { id: "biweekly", name: "Every 2 weeks" },
                       { id: "monthly", name: "Monthly" },
                       { id: "annually", name: "Annually" },
                     ].map(({ id, name }) => (

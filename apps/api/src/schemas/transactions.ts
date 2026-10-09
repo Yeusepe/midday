@@ -662,7 +662,7 @@ export const updateTransactionSchema = z.object({
       description: "Whether the transaction is recurring.",
     }),
   frequency: z
-    .enum(["weekly", "monthly", "annually", "irregular"])
+    .enum(["weekly", "biweekly", "monthly", "annually", "irregular"])
     .nullable()
     .optional()
     .describe("Recurring frequency if recurring is true")
@@ -738,7 +738,7 @@ export const updateTransactionsSchema = z.object({
       description: "Status to set for the transactions.",
     }),
   frequency: z
-    .enum(["weekly", "monthly", "annually", "irregular"])
+    .enum(["weekly", "biweekly", "monthly", "annually", "irregular"])
     .nullable()
     .optional()
     .openapi({
@@ -778,7 +778,7 @@ export const getSimilarTransactionsSchema = z.object({
       },
     }),
   frequency: z
-    .enum(["weekly", "monthly", "annually", "irregular"])
+    .enum(["weekly", "biweekly", "monthly", "annually", "irregular"])
     .optional()
     .openapi({
       description: "Recurring frequency to filter similar transactions.",

@@ -23,6 +23,15 @@ function captureQueries() {
 }
 
 describe("transaction insight queries", () => {
+  test("expense drill-down keeps uncategorized payments while excluding transfers", async () => {
+    const { db, queries } = captureQueries();
+    await getTransactions(db, { teamId: "team-a", type: "expense" });
+    const query = queries.find((item) => item.values.includes("transfer"))!;
+    expect(query.text).toMatch(
+      /\("transactions"\."category_slug" is null or "transactions"\."category_slug" <> \$\d+\)/,
+    );
+    expect(query.text).toMatch(/"transactions"\."amount" < \$\d+/);
+  });
   test("direct callers cannot pass unsupported recurring filters to PostgreSQL", async () => {
     const { db, queries } = captureQueries();
     for (const recurring of [["daily"], ["all", "daily"], ["none", "daily"]]) {

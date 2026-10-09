@@ -401,7 +401,12 @@ export async function getTransactions(
   // Type filter (expense/income)
   if (type === "expense") {
     whereConditions.push(lt(transactions.amount, 0));
-    whereConditions.push(ne(transactions.categorySlug, "transfer"));
+    whereConditions.push(
+      or(
+        isNull(transactions.categorySlug),
+        ne(transactions.categorySlug, "transfer"),
+      )!,
+    );
   } else if (type === "income") {
     whereConditions.push(
       inArray(transactions.categorySlug, REVENUE_CATEGORIES),

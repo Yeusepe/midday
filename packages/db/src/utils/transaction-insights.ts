@@ -18,8 +18,10 @@ export type InsightTransaction = {
 };
 
 const DAY = 86_400_000;
+/** Round reported monetary totals to cents after accumulation. */
 const round = (value: number) =>
   Math.round((value + Number.EPSILON) * 100) / 100;
+/** Keep forecast boundaries in UTC, matching stored transaction dates. */
 const iso = (date: Date) => date.toISOString().slice(0, 10);
 
 /** Advance from the original anchor to avoid drifting after February/month end. */

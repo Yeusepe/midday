@@ -20,6 +20,7 @@ export type DetectedRecurrence = {
 };
 
 const DAY = 86_400_000;
+/** Normalize bank punctuation and trailing location codes when grouping history. */
 const normalize = (value: string) =>
   value
     .toLowerCase()
@@ -28,6 +29,7 @@ const normalize = (value: string) =>
     .replace(/\s+\d{5}$/, "")
     .replace(/\s+/g, " ");
 
+/** Honor opt-outs across the same spelling and FX variations accepted by detection. */
 function matchesDetectionRule(row: RecurrenceCandidate, rule: RecurrenceRule) {
   if (matchesRecurrenceRule(row, rule)) return true;
   // Opt-outs also suppress statement spelling and FX variations accepted here.
@@ -43,6 +45,7 @@ function matchesDetectionRule(row: RecurrenceCandidate, rule: RecurrenceRule) {
   );
 }
 
+/** Validate a dated series against calendar anchors, posting delays, and bounded gaps. */
 function cadence(rows: RecurrenceCandidate[], frequency: DetectedFrequency) {
   if (rows.length < (frequency === "annually" ? 2 : 3)) return false;
   const anchor = new Date(`${rows[0]!.date}T00:00:00Z`);

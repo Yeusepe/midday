@@ -1,5 +1,4 @@
 import {
-  detectAndSaveTransactionRecurrence,
   getPendingImportedTransactionIds,
   upsertTransactions,
 } from "@midday/db/queries";
@@ -16,6 +15,7 @@ import type { Job } from "bullmq";
 import Papa from "papaparse";
 import type { ImportTransactionsPayload } from "../../schemas/transactions";
 import { getDb } from "../../utils/db";
+import { enqueueRecurrenceDetection } from "../../utils/recurrence-detection";
 import { processBatch } from "../../utils/process-batch";
 import { TIMEOUTS, withTimeout } from "../../utils/timeout";
 import { BaseProcessor } from "../base";
@@ -238,10 +238,6 @@ export class ImportTransactionsProcessor extends BaseProcessor<ImportTransaction
 
     await this.updateProgress(job, 80, undefined, "finalizing");
 
-    // CSV rows default to recurring=false. Analyze history even on an import
-    // retry that inserts no rows, so classification recovers after a failure.
-    await detectAndSaveTransactionRecurrence(db, { teamId });
-
     if (pendingEnrichmentIds.size > 0) {
       await triggerJob(
         "enrich-transactions",
@@ -251,6 +247,11 @@ export class ImportTransactionsProcessor extends BaseProcessor<ImportTransaction
         },
         "transactions",
       );
+    }
+
+    // Retry-only imports may have no remaining enrichment work.
+    if (pendingEnrichmentIds.size === 0) {
+      await enqueueRecurrenceDetection(teamId);
     }
 
     if (allTransactionIds.length > 0) {

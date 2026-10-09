@@ -25,8 +25,10 @@ const frequencies: Record<string, string> = {
   irregular: "Irregular",
   unknown: "Unknown",
 };
+/** Format a date-only payment value without converting it through a UTC timestamp. */
 const dateLabel = (date: string) => format(parseISO(date), "MMM d, yyyy");
 
+/** Present period actuals alongside current recurring patterns and review actions. */
 export function TransactionInsights({
   from,
   to,
@@ -73,6 +75,7 @@ export function TransactionInsights({
       </div>
     );
 
+  /** Use the report's resolved currency, including the team's default. */
   const money = (amount: number) => (
     <FormatAmount amount={amount} currency={data.currency} />
   );
@@ -87,6 +90,7 @@ export function TransactionInsights({
       (!reviewOnly || item.status !== "expected" || item.amount === null) &&
       item.name.toLowerCase().includes(search.toLowerCase()),
   );
+  /** Preserve the actuals period and classification in the transaction drill-down. */
   const transactionLink = (
     recurring: "all" | "none",
     type: "income" | "expense",

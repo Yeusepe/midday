@@ -8,7 +8,7 @@ import {
 } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import type { Database } from "../client";
@@ -284,10 +284,103 @@ suite("recurrence persistence and enrichment recovery", () => {
     });
     await ready;
     const scan = detectAndSaveTransactionRecurrence(db, { teamId });
-    release();
+    // Ensure detection read the old history/rules and is waiting on our edit.
+    try {
+      await waitForCandidateLock();
+    } finally {
+      release();
+    }
     const [, result] = await Promise.all([edit, scan]);
     expect(result.detected).toBe(0);
     for (const id of ids) expect((await read(id)).recurring).toBe(false);
+  });
+
+  /** Wait for a real lock conflict so the concurrent-correction test is deterministic. */
+  async function waitForCandidateLock() {
+    for (let attempt = 0; attempt < 200; attempt++) {
+      const { rows } = await pool.query(
+        "SELECT 1 FROM pg_stat_activity WHERE datname = current_database() AND wait_event_type = 'Lock' AND query LIKE '%for update%'",
+      );
+      if (rows.length) return;
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    }
+    throw new Error("Detection did not reach the candidate row lock");
+  }
+
+  test("detection does not wait for edits to unrelated or already classified history", async () => {
+    const ids = [];
+    for (const date of ["2026-01-05", "2026-02-05", "2026-03-05"]) {
+      ids.push(
+        await insert({
+          name: "Netflix",
+          merchantName: "Netflix",
+          date,
+          recurring: false,
+        }),
+      );
+    }
+    const unrelated = await insert({
+      name: "One off",
+      merchantName: "One off",
+    });
+    await db.transaction(async (edit) => {
+      await edit
+        .update(schema.transactions)
+        .set({ note: "Editing" })
+        .where(eq(schema.transactions.id, unrelated));
+      const result = await db.transaction(async (scan) => {
+        await scan.execute(sql`SET LOCAL lock_timeout = '500ms'`);
+        return detectAndSaveTransactionRecurrence(scan as unknown as Database, {
+          teamId,
+        });
+      });
+      expect(result.detected).toBe(3);
+    });
+    await db.transaction(async (edit) => {
+      await edit
+        .update(schema.transactions)
+        .set({ note: "Editing" })
+        .where(eq(schema.transactions.id, ids[0]!));
+      const result = await db.transaction(async (scan) => {
+        await scan.execute(sql`SET LOCAL lock_timeout = '500ms'`);
+        return detectAndSaveTransactionRecurrence(scan as unknown as Database, {
+          teamId,
+        });
+      });
+      expect(result).toEqual({ detected: 0, ruleMatches: 0 });
+    });
+  });
+
+  test("history scans update only changed rule matches and previews do not lock candidates", async () => {
+    const id = await insert();
+    await db.transaction(async (edit) => {
+      await edit
+        .update(schema.transactions)
+        .set({ note: "Editing" })
+        .where(eq(schema.transactions.id, id));
+      const result = await db.transaction(async (scan) => {
+        await scan.execute(sql`SET LOCAL lock_timeout = '500ms'`);
+        return detectAndSaveTransactionRecurrence(scan as unknown as Database, {
+          teamId,
+          dryRun: true,
+        });
+      });
+      expect(result).toEqual({ detected: 0, ruleMatches: 1 });
+    });
+    expect((await read(id)).recurring).toBeNull();
+    expect(await detectAndSaveTransactionRecurrence(db, { teamId })).toEqual({
+      detected: 0,
+      ruleMatches: 1,
+    });
+    expect(await read(id)).toMatchObject({
+      recurring: true,
+      frequency: "monthly",
+      categorySlug: "software",
+    });
+    expect(await detectAndSaveTransactionRecurrence(db, { teamId })).toEqual({
+      detected: 0,
+      ruleMatches: 0,
+    });
   });
 
   test("history detection respects opt-outs and excludes transfers, pending rows, categories and other teams", async () => {

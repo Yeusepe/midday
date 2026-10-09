@@ -22,6 +22,7 @@ import {
   getSimilarTransactions,
   getTransactionById,
   getTransactions,
+  getTransactionsForEnrichment,
   getTransactionsReadyForExportCount,
   moveTransactionToReview,
   searchTransactionMatch,
@@ -38,6 +39,7 @@ import {
 import { triggerJob } from "@midday/job-client";
 import { TRPCError } from "@trpc/server";
 import { generateObject } from "ai";
+import { z } from "zod";
 
 const csvMappingInFlight = new Map<
   string,
@@ -52,6 +54,27 @@ const csvMappingInFlight = new Map<
 >();
 
 export const transactionsRouter = createTRPCRouter({
+  retryEnrichment: protectedProcedure
+    .input(z.object({ id: z.uuid() }))
+    .mutation(async ({ input, ctx: { db, teamId } }) => {
+      const pending = await getTransactionsForEnrichment(db, {
+        teamId: teamId!,
+        transactionIds: [input.id],
+      });
+      if (!pending.length) return { queued: false };
+      await triggerJob(
+        "enrich-transactions",
+        {
+          teamId: teamId!,
+          transactionIds: [input.id],
+        },
+        "transactions",
+        {
+          jobId: `enrichment-retry-${input.id}-${Math.floor(Date.now() / 60_000)}`,
+        },
+      );
+      return { queued: true };
+    }),
   get: protectedProcedure
     .input(getTransactionsSchema)
     .query(async ({ input, ctx: { db, teamId } }) => {

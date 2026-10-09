@@ -21,11 +21,11 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback } from "react";
 import { FormatAmount } from "@/components/format-amount";
 import { InlineAssignUser } from "@/components/inline-assign-user";
-import { InlineSelectCategory } from "@/components/inline-select-category";
 import { InlineSelectTags } from "@/components/inline-select-tags";
 import { TransactionBankAccount } from "@/components/transaction-bank-account";
 import { TransactionMethod } from "@/components/transaction-method";
 import { TransactionStatus } from "@/components/transaction-status";
+import { TransactionCategoryCell } from "./category-cell";
 
 type Transaction = RouterOutputs["transactions"]["get"]["data"][number];
 
@@ -522,31 +522,13 @@ export const columns: ColumnDef<Transaction>[] = [
       className: "w-[250px] min-w-[150px]",
     },
     cell: ({ row, table }) => {
-      // Show analyzing state when enrichment is not completed
-      if (!row.original.enrichmentCompleted) {
-        return (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="flex items-center space-x-2 cursor-help">
-                <Spinner size={14} className="stroke-primary" />
-                <span className="text-[#878787] text-sm">Analyzing</span>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent
-              className="px-3 py-1.5 text-xs max-w-[280px]"
-              side="top"
-              sideOffset={5}
-            >
-              Analyzing transaction details to determine the best category.
-            </TooltipContent>
-          </Tooltip>
-        );
-      }
-
       const meta = table.options.meta;
 
       return (
-        <InlineSelectCategory
+        <TransactionCategoryCell
+          id={row.original.id}
+          createdAt={row.original.createdAt}
+          enrichmentCompleted={row.original.enrichmentCompleted}
           selected={
             row.original.category
               ? {

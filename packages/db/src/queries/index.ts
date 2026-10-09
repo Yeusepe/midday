@@ -41,6 +41,7 @@ export * from "./transaction-categories";
 export * from "./transaction-category-embeddings";
 export * from "./transaction-enrichment";
 export * from "./transaction-matching";
+export * from "./transaction-recurrence";
 export * from "./transaction-tags";
 export * from "./transactions";
 export * from "./user-invites";

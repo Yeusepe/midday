@@ -8,6 +8,7 @@ import {
 import { enrichmentSchema } from "@jobs/utils/enrichment-schema";
 import { processBatch } from "@jobs/utils/process-batch";
 import {
+  applyTransactionRecurrenceRules,
   getTransactionsForEnrichment,
   markTransactionsAsEnriched,
   type UpdateTransactionEnrichmentParams,
@@ -42,6 +43,10 @@ export const enrichTransactions = schemaTask({
     });
 
     if (transactionsToEnrich.length === 0) {
+      await applyTransactionRecurrenceRules(getDb(), {
+        teamId,
+        transactionIds,
+      });
       logger.info("No transactions need enrichment", { teamId });
       return { enrichedCount: 0, teamId };
     }
@@ -71,6 +76,7 @@ export const enrichTransactions = schemaTask({
             prompt,
             output: "array",
             schema: enrichmentSchema,
+            abortSignal: AbortSignal.timeout(90_000),
             temperature: 0.1, // Low temperature for consistency
           });
 
@@ -247,6 +253,8 @@ export const enrichTransactions = schemaTask({
         }
       },
     );
+
+    await applyTransactionRecurrenceRules(getDb(), { teamId, transactionIds });
 
     logger.info("Transaction enrichment completed", {
       totalEnriched,

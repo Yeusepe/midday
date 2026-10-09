@@ -1,5 +1,6 @@
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import {
+  applyTransactionRecurrenceRules,
   getTransactionsForEnrichment,
   markTransactionsAsEnriched,
   type UpdateTransactionEnrichmentParams,
@@ -49,6 +50,7 @@ export class EnrichTransactionProcessor extends BaseProcessor<EnrichTransactions
     });
 
     if (transactionsToEnrich.length === 0) {
+      await applyTransactionRecurrenceRules(db, { teamId, transactionIds });
       this.logger.info("No transactions need enrichment", { teamId });
       return { enrichedCount: 0, teamId };
     }
@@ -78,6 +80,7 @@ export class EnrichTransactionProcessor extends BaseProcessor<EnrichTransactions
             prompt,
             output: "array",
             schema: enrichmentSchema,
+            abortSignal: AbortSignal.timeout(90_000),
             temperature: 0.1, // Low temperature for consistency
           });
 
@@ -254,6 +257,8 @@ export class EnrichTransactionProcessor extends BaseProcessor<EnrichTransactions
         }
       },
     );
+
+    await applyTransactionRecurrenceRules(db, { teamId, transactionIds });
 
     this.logger.info("Transaction enrichment completed", {
       totalEnriched,

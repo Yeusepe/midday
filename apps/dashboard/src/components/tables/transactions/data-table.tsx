@@ -146,6 +146,13 @@ export function DataTable({ initialSettings, initialTab }: Props) {
     queryFilter,
     {
       getNextPageParam: ({ meta }) => meta?.cursor,
+      // Realtime events can be missed during reconnects or absent from a deployment's publication.
+      refetchInterval: (query) =>
+        query.state.data?.pages.some((page) =>
+          page.data.some((transaction) => !transaction.enrichmentCompleted),
+        )
+          ? 10_000
+          : false,
     },
   );
 

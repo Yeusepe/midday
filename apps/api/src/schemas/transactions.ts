@@ -181,7 +181,19 @@ export const getTransactionsSchema = z.object({
       },
     }),
   recurring: z
-    .array(z.string())
+    .array(
+      z.enum([
+        "all",
+        "none",
+        "weekly",
+        "biweekly",
+        "monthly",
+        "semi_monthly",
+        "annually",
+        "irregular",
+        "unknown",
+      ]),
+    )
     .nullable()
     .optional()
     .describe(
@@ -189,7 +201,7 @@ export const getTransactionsSchema = z.object({
     )
     .openapi({
       description:
-        "Array of recurring frequency values to filter by. Available values: 'all', 'none', 'weekly', 'monthly', 'annually', 'irregular'",
+        "Array of recurring filters: 'all', 'none', 'weekly', 'biweekly', 'monthly', 'semi_monthly', 'annually', 'irregular', 'unknown'",
       example: ["monthly", "annually"],
       param: {
         in: "query",

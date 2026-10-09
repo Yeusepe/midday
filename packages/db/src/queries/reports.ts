@@ -1912,6 +1912,7 @@ export type GetRecurringExpensesParams = {
   to?: string; // ISO date string (YYYY-MM-DD)
 };
 
+/** Read eligible expense/revenue history, infer recurrence, and build report insights. */
 export async function getTransactionInsights(
   db: Database,
   params: { teamId: string; from: string; to: string; currency?: string },
@@ -1950,6 +1951,19 @@ export async function getTransactionInsights(
         ne(transactions.status, "excluded"),
         ne(transactions.status, "pending"),
         lte(transactions.date, asOf),
+        or(
+          isNull(transactions.categorySlug),
+          ne(transactions.categorySlug, "transfer"),
+        ),
+        // Match the income drill-down's revenue categories; financing and
+        // uncategorized deposits are not operating income or projected revenue.
+        or(
+          lt(transactions.amount, 0),
+          and(
+            inArray(transactions.categorySlug, REVENUE_CATEGORIES),
+            not(inArray(transactions.categorySlug, CONTRA_REVENUE_CATEGORIES)),
+          ),
+        ),
         or(
           isNull(transactionCategories.excluded),
           eq(transactionCategories.excluded, false),

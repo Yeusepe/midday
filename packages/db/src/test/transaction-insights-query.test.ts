@@ -23,6 +23,15 @@ function captureQueries() {
 }
 
 describe("transaction insight queries", () => {
+  test("direct callers cannot pass unsupported recurring filters to PostgreSQL", async () => {
+    const { db, queries } = captureQueries();
+    for (const recurring of [["daily"], ["all", "daily"], ["none", "daily"]]) {
+      await expect(
+        getTransactions(db, { teamId: "team-a", recurring }),
+      ).rejects.toThrow("Unsupported recurring filter");
+    }
+    expect(queries).toHaveLength(0);
+  });
   test("scopes history and category exclusions to the team and preserves cross-currency rows", async () => {
     const { db, queries } = captureQueries();
     await getTransactionInsights(db, {
@@ -50,6 +59,8 @@ describe("transaction insight queries", () => {
     expect(query.text).toContain('"exchange_rates"');
     expect(query.values).toContain("team-a");
     expect(query.values).toContain("excluded");
+    expect(query.values).toContain("transfer");
+    expect(query.values).toContain("income");
     expect(query.values).toContain("COP");
   });
 

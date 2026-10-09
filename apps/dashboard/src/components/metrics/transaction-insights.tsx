@@ -229,8 +229,8 @@ export function TransactionInsights({
         </div>
         <p className="text-xs text-muted-foreground">
           Based on transaction markings. Unmarked payments may still recur.
-          Transfers and excluded transactions/categories are omitted from these
-          totals.
+          Income includes revenue categories only. Transfers and excluded
+          transactions/categories are omitted from these totals.
         </p>
       </div>
 

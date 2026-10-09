@@ -31,7 +31,7 @@ import {
   tags,
   transactionAttachments,
   transactionCategories,
-  type transactionFrequencyEnum,
+  transactionFrequencyEnum,
   transactionMatchSuggestions,
   transactions,
   transactionTags,
@@ -124,6 +124,19 @@ export async function getTransactions(
     exported,
     fulfilled,
   } = params;
+
+  if (
+    filterRecurring?.some(
+      (value) =>
+        value !== "all" &&
+        value !== "none" &&
+        !transactionFrequencyEnum.enumValues.some(
+          (frequency) => frequency === value,
+        ),
+    )
+  ) {
+    throw new Error("Unsupported recurring filter");
+  }
 
   // Always start with teamId filter
   const whereConditions: (SQL | undefined)[] = [

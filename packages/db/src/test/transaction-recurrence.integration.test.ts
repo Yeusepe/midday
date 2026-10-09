@@ -154,6 +154,55 @@ suite("recurrence persistence and enrichment recovery", () => {
     )[0]!;
   }
 
+  test("insights exclude transfer-category payments and non-revenue deposits", async () => {
+    const today = new Date().toISOString().slice(0, 10);
+    await pool.query(
+      "INSERT INTO transaction_categories (team_id, slug, excluded) VALUES ($1, 'transfer', false), ($1, 'income', false), ($1, 'loan-proceeds', false), ($1, 'capital-contribution', false), ($1, 'customer-refunds', false)",
+      [teamId],
+    );
+    for (const [name, categorySlug, amount, recurring] of [
+      ["Outgoing transfer", "transfer", -900, true],
+      ["Incoming transfer", "transfer", 900, true],
+      ["Loan", "loan-proceeds", 5000, true],
+      ["Capital", "capital-contribution", 1000, true],
+      ["Contra revenue", "customer-refunds", 200, true],
+      ["Uncategorized deposit", null, 300, true],
+      ["Recurring revenue", "income", 100, true],
+      ["One-off revenue", "income", 25, false],
+      ["Uncategorized expense", null, -20, false],
+    ] as const) {
+      await insert({
+        name,
+        merchantName: name,
+        categorySlug,
+        amount,
+        recurring,
+        frequency: "weekly",
+        date: today,
+        internal: false,
+      });
+    }
+    const report = await getTransactionInsights(db, {
+      teamId,
+      from: today,
+      to: today,
+      currency: "USD",
+    });
+    expect(report.actuals).toMatchObject({
+      recurringExpenses: 0,
+      otherExpenses: 20,
+      recurringIncome: 100,
+      otherIncome: 25,
+      count: 3,
+    });
+    expect(report.forecast).toMatchObject({ expenses: 0, income: 400 });
+    expect(
+      report.series
+        .filter((row) => row.lastDate === today)
+        .map((row) => row.name),
+    ).toEqual(["Recurring revenue"]);
+  });
+
   test("detects and persists previously unmarked history without a seed rule", async () => {
     const ids = [];
     for (const date of ["2026-01-05", "2026-02-05", "2026-03-05"]) {
@@ -257,6 +306,13 @@ suite("recurrence persistence and enrichment recovery", () => {
         merchantName: "Transfer",
         date,
         internal: true,
+      });
+      await insert({
+        name: "External transfer",
+        merchantName: "External transfer",
+        date,
+        categorySlug: "transfer",
+        internal: false,
       });
       await insert({
         name: "Pending",

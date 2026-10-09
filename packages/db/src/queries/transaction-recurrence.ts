@@ -44,6 +44,10 @@ export async function detectAndSaveTransactionRecurrence(
           eq(transactions.internal, false),
           ne(transactions.status, "excluded"),
           ne(transactions.status, "pending"),
+          or(
+            isNull(transactions.categorySlug),
+            ne(transactions.categorySlug, "transfer"),
+          ),
           lte(transactions.date, new Date().toISOString().slice(0, 10)),
           or(
             isNull(transactionCategories.excluded),

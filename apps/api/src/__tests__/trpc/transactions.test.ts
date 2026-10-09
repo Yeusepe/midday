@@ -42,6 +42,33 @@ describe("tRPC: transactions.get", () => {
     );
   });
 
+  test("rejects unsupported recurrence values before invoking the query", async () => {
+    const caller = createCaller(createTestContext());
+    await expect(
+      caller.get({ recurring: ["daily" as "weekly"] }),
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+    expect(mocks.getTransactions).not.toHaveBeenCalled();
+  });
+
+  test("accepts all/none alongside every supported database cadence", async () => {
+    const recurring = [
+      "all",
+      "none",
+      "weekly",
+      "biweekly",
+      "monthly",
+      "semi_monthly",
+      "annually",
+      "irregular",
+      "unknown",
+    ] as const;
+    await createCaller(createTestContext()).get({ recurring: [...recurring] });
+    expect(mocks.getTransactions).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ recurring: [...recurring] }),
+    );
+  });
+
   test("returns transactions list", async () => {
     mocks.getTransactions.mockImplementation(() =>
       createTransactionsListResponse([createValidTransactionResponse()]),

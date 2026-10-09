@@ -78,6 +78,7 @@ function getEffectiveValue<T extends string>(
   return storeValue;
 }
 
+/** Resolve report filters from the URL and team preferences, and keep updates in sync. */
 export function useMetricsFilter() {
   const { data: team } = useTeamQuery();
   const fiscalYearStartMonth = team?.fiscalYearStartMonth;

@@ -17,6 +17,7 @@ interface CashBalanceCardProps {
   isCustomizing?: boolean;
 }
 
+/** Show converted cash balances and distinguish empty accounts from unavailable balances. */
 export function CashBalanceCard({
   currency,
   locale,

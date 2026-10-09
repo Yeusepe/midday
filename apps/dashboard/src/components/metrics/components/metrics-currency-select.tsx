@@ -11,6 +11,7 @@ const currencyOptions = [...uniqueCurrencies].sort().map((currency) => ({
   label: `${currency} — ${currencyNames.of(currency) ?? currency}`,
 }));
 
+/** Select a reporting currency from the shared catalog, or follow the team base currency. */
 export function MetricsCurrencySelect() {
   const { data: team } = useTeamQuery();
   const { currency, effectiveCurrency, updateCurrency } = useMetricsFilter();

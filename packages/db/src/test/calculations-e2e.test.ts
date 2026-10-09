@@ -9,6 +9,7 @@ import {
 import { eq } from "drizzle-orm";
 import type { Database } from "../client";
 import { getCashBalance } from "../queries/bank-accounts";
+import { getRecurringInvoiceProjection } from "../queries/invoice-recurring";
 import {
   createReport,
   getBalanceSheet,
@@ -31,9 +32,15 @@ import {
   getSpendingForPeriod,
   getTaxSummary,
 } from "../queries/reports";
-import { bankAccounts, exchangeRates } from "../schema";
+import {
+  bankAccounts,
+  exchangeRates,
+  invoiceRecurring,
+  transactions,
+} from "../schema";
 import {
   BANK_EUR_ACCOUNT_ID,
+  REC_INV_MONTHLY,
   SEED_REFERENCE_DATE,
   seedAll,
   TEAM_EUR_ID,
@@ -152,13 +159,83 @@ describe.skipIf(SKIP)("E2E Calculation Tests", () => {
       }
     });
 
+    test("recurring projections convert to EUR and exclude schedules without a rate", async () => {
+      const params = {
+        teamId: TEAM_USD_ID,
+        forecastMonths: 2,
+        referenceDate: new Date("2024-06-30T00:00:00Z"),
+      };
+      const eur = await getRecurringInvoiceProjection(db, {
+        ...params,
+        currency: "EUR",
+      });
+      expect(eur.get("2024-07")).toEqual({ amount: 3000 * 0.91, count: 1 });
+      expect(eur.get("2024-08")).toEqual({ amount: 3000 * 0.91, count: 1 });
+      const gbp = await getRecurringInvoiceProjection(db, {
+        ...params,
+        currency: "GBP",
+      });
+      expect(gbp.size).toBe(0);
+      const otherTeam = await getRecurringInvoiceProjection(db, {
+        ...params,
+        teamId: TEAM_EUR_ID,
+        currency: "EUR",
+      });
+      expect(otherTeam.size).toBe(0);
+    });
+
+    test.each([
+      0, 1400000,
+    ])("recurring projections preserve a stored conversion of %d", async (convertedAmount) => {
+      await db
+        .update(invoiceRecurring)
+        .set({ convertedCurrency: "CRC", convertedAmount })
+        .where(eq(invoiceRecurring.id, REC_INV_MONTHLY));
+      try {
+        const projection = await getRecurringInvoiceProjection(db, {
+          teamId: TEAM_USD_ID,
+          forecastMonths: 2,
+          referenceDate: new Date("2024-06-30T00:00:00Z"),
+          currency: "CRC",
+        });
+        expect(projection.get("2024-07")).toEqual({
+          amount: convertedAmount,
+          count: 1,
+        });
+      } finally {
+        await db
+          .update(invoiceRecurring)
+          .set({ convertedCurrency: null, convertedAmount: null })
+          .where(eq(invoiceRecurring.id, REC_INV_MONTHLY));
+      }
+    });
+
     test("forecast converts collections, recurring income, and billable hours", async () => {
       setSystemTime(SEED_REFERENCE_DATE);
+      const transactionId = "a0000000-0000-0000-0000-00000000fc01";
       try {
+        await db.insert(transactions).values({
+          id: transactionId,
+          teamId: TEAM_USD_ID,
+          internalId: "forecast-currency-test",
+          name: "Recurring forecast income",
+          method: "transfer",
+          date: "2024-06-15",
+          amount: 100,
+          currency: "USD",
+          baseAmount: 100,
+          baseCurrency: "USD",
+          categorySlug: "revenue",
+          status: "posted",
+          internal: false,
+          recurring: true,
+          frequency: "monthly",
+        });
         const params = {
           teamId: TEAM_USD_ID,
           from: "2024-01-01",
-          to: SEED_REFERENCE_DATE.toISOString().slice(0, 10),
+          // Include the seeded recurring schedule starting July 2024.
+          to: "2024-06-30",
           forecastMonths: 2,
         };
         const usd = await getRevenueForecast(db, {
@@ -169,6 +246,15 @@ describe.skipIf(SKIP)("E2E Calculation Tests", () => {
           ...params,
           currency: "CRC",
         });
+        expect(usd.forecast[0]!.breakdown!.recurringInvoices).toBe(3000);
+        expect(usd.forecast[0]!.breakdown!.recurringTransactions).toBe(100);
+        expect(usd.forecast[0]!.breakdown!.billableHours).toBeGreaterThan(0);
+        expect(usd.forecast[0]!.breakdown!.collections).toBeGreaterThan(0);
+        expect(crc.meta.recurringInvoicesCount).toBe(1);
+        expect(crc.summary.billableHours.currency).toBe("CRC");
+        expect(crc.summary.billableHours.totalAmount).toBe(
+          usd.summary.billableHours.totalAmount * 500,
+        );
         for (let i = 0; i < 2; i++) {
           for (const source of [
             "collections",
@@ -185,6 +271,7 @@ describe.skipIf(SKIP)("E2E Calculation Tests", () => {
         expect(crc.forecast[0]!.currency).toBe("CRC");
       } finally {
         setSystemTime();
+        await db.delete(transactions).where(eq(transactions.id, transactionId));
       }
     });
   });

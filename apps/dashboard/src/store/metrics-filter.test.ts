@@ -65,6 +65,40 @@ describe("report currency preferences", () => {
     });
   });
 
+  test("falls back from obsolete stored period and revenue values", () => {
+    storage.set(
+      "metrics-filter-preferences-team-a",
+      JSON.stringify({
+        period: "obsolete-period",
+        revenueType: "obsolete-revenue",
+        currency: "EUR",
+      }),
+    );
+    useMetricsFilterStore.getState().initialize("team-a");
+    expect(useMetricsFilterStore.getState()).toMatchObject({
+      period: "1-year",
+      revenueType: "net",
+      currency: "EUR",
+    });
+  });
+
+  test("restores the supported this-year period", () => {
+    storage.set(
+      "metrics-filter-preferences-team-a",
+      JSON.stringify({
+        period: "this-year",
+        revenueType: "gross",
+        currency: "CRC",
+      }),
+    );
+    useMetricsFilterStore.getState().initialize("team-a");
+    expect(useMetricsFilterStore.getState()).toMatchObject({
+      period: "this-year",
+      revenueType: "gross",
+      currency: "CRC",
+    });
+  });
+
   test("keeps currency choices isolated between teams", () => {
     const store = useMetricsFilterStore.getState();
     store.initialize("team-a");

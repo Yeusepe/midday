@@ -42,6 +42,7 @@ const REVENUE_TYPE_OPTIONS: Array<{ value: "gross" | "net"; label: string }> = [
   { value: "net", label: "Net Revenue (ex tax)" },
 ];
 
+/** Edit the report period and revenue basis while retaining the reporting currency. */
 export function MetricsFilter() {
   const { data: user } = useUserQuery();
   const {

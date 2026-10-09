@@ -165,6 +165,7 @@ function resolvedAmount(targetCurrency: string) {
   END`;
 }
 
+/** Resolve an invoice into the reporting currency, or NULL when no rate exists. */
 function resolvedInvoiceAmount(targetCurrency: string) {
   return sql<number>`CASE
     WHEN ${invoices.currency} = ${targetCurrency} THEN ${invoices.amount}
@@ -201,6 +202,7 @@ export const getProfit = dedupeByDb<GetReportsParams, ReportsResultItem[]>(
   getProfitImpl,
 );
 
+/** Calculate monthly profit from revenue and expenses resolved into the reporting currency. */
 async function getProfitImpl(db: Database, params: GetReportsParams) {
   const {
     teamId,
@@ -374,6 +376,7 @@ export const getRevenue = dedupeByDb<GetReportsParams, ReportsResultItem[]>(
   getRevenueImpl,
 );
 
+/** Aggregate monthly revenue using stored conversions or available exchange rates. */
 async function getRevenueImpl(db: Database, params: GetReportsParams) {
   const {
     teamId,
@@ -587,6 +590,7 @@ interface BurnRateResultItem {
   currency: string;
 }
 
+/** Return monthly expense totals in the reporting currency, excluding unavailable conversions. */
 export async function getBurnRate(db: Database, params: GetBurnRateParams) {
   const { teamId, from, to, currency: inputCurrency } = params;
 
@@ -684,6 +688,7 @@ interface ExpensesResultItem {
   recurring_value?: number;
 }
 
+/** Build monthly expense totals and summaries for the requested reporting currency. */
 export async function getExpenses(db: Database, params: GetExpensesParams) {
   const {
     teamId,
@@ -849,6 +854,7 @@ interface SpendingResultItem {
   percentage: number;
 }
 
+/** Group converted expenses by category and calculate each category's share of spending. */
 export async function getSpending(
   db: Database,
   params: GetSpendingParams,
@@ -1791,16 +1797,7 @@ export async function getOverdueInvoicesAlert(
   const effectiveCurrency = targetCurrency || "USD";
 
   // Convert invoice amounts to target currency
-  const resolvedInvoiceAmount = sql`CASE
-    WHEN ${invoices.currency} = ${effectiveCurrency} THEN ${invoices.amount}
-    ELSE ${invoices.amount} * (
-      SELECT ${exchangeRates.rate} FROM ${exchangeRates}
-      WHERE ${exchangeRates.base} = ${invoices.currency}
-        AND ${exchangeRates.target} = ${effectiveCurrency}
-      ORDER BY ${exchangeRates.updatedAt} DESC NULLS LAST
-      LIMIT 1
-    )
-  END`;
+  const amountExpr = resolvedInvoiceAmount(effectiveCurrency);
 
   // Build query conditions for overdue invoices only
   const conditions = [
@@ -1811,13 +1808,13 @@ export async function getOverdueInvoicesAlert(
   if (inputCurrency && targetCurrency) {
     conditions.push(eq(invoices.currency, targetCurrency));
   } else {
-    conditions.push(sql`(${resolvedInvoiceAmount} IS NOT NULL)`);
+    conditions.push(sql`(${amountExpr} IS NOT NULL)`);
   }
 
   const result = await db
     .select({
       count: sql<number>`COUNT(*)`,
-      totalAmount: sql<number>`COALESCE(SUM(${resolvedInvoiceAmount}), 0)`,
+      totalAmount: sql<number>`COALESCE(SUM(${amountExpr}), 0)`,
       oldestDueDate: sql<string>`MIN(${invoices.dueDate})`,
     })
     .from(invoices)
@@ -1852,6 +1849,7 @@ export async function getOverdueInvoicesAlert(
   };
 }
 
+/** Count and total outstanding invoices with an available conversion to the reporting currency. */
 export async function getOutstandingInvoices(
   db: Database,
   params: GetOutstandingInvoicesParams,
@@ -1867,16 +1865,7 @@ export async function getOutstandingInvoices(
   const effectiveCurrency = targetCurrency || "USD";
 
   // Convert invoice amounts to target currency
-  const resolvedInvoiceAmount = sql`CASE
-    WHEN ${invoices.currency} = ${effectiveCurrency} THEN ${invoices.amount}
-    ELSE ${invoices.amount} * (
-      SELECT ${exchangeRates.rate} FROM ${exchangeRates}
-      WHERE ${exchangeRates.base} = ${invoices.currency}
-        AND ${exchangeRates.target} = ${effectiveCurrency}
-      ORDER BY ${exchangeRates.updatedAt} DESC NULLS LAST
-      LIMIT 1
-    )
-  END`;
+  const amountExpr = resolvedInvoiceAmount(effectiveCurrency);
 
   // Build query conditions
   const conditions = [
@@ -1884,12 +1873,12 @@ export async function getOutstandingInvoices(
     inArray(invoices.status, status),
   ];
 
-  conditions.push(sql`(${resolvedInvoiceAmount} IS NOT NULL)`);
+  conditions.push(sql`(${amountExpr} IS NOT NULL)`);
 
   const result = await db
     .select({
       count: sql<number>`COUNT(*)`,
-      totalAmount: sql<number>`COALESCE(SUM(${resolvedInvoiceAmount}), 0)`,
+      totalAmount: sql<number>`COALESCE(SUM(${amountExpr}), 0)`,
     })
     .from(invoices)
     .where(and(...conditions));
@@ -2100,6 +2089,7 @@ type RecurringTransactionProjection = Map<
   { amount: number; count: number }
 >;
 
+/** Project recurring income after converting each transaction into the reporting currency. */
 async function getRecurringTransactionProjection(
   db: Database,
   params: {
@@ -2338,6 +2328,7 @@ interface ExpectedCollections {
   invoiceCount: number;
 }
 
+/** Estimate collections from convertible outstanding invoices using team payment history. */
 async function calculateExpectedCollections(
   db: Database,
   teamId: string,
@@ -2349,6 +2340,10 @@ async function calculateExpectedCollections(
     eq(invoices.teamId, teamId),
     inArray(invoices.status, ["unpaid", "overdue"]),
   ];
+
+  if (currency) {
+    conditions.push(sql`(${resolvedInvoiceAmount(currency)} IS NOT NULL)`);
+  }
 
   const outstandingInvoices = await db
     .select({
@@ -2729,16 +2724,7 @@ export async function getRevenueForecast(
   );
 
   // Convert scheduled invoice amounts to target currency
-  const resolvedScheduledAmount = sql`CASE
-    WHEN ${invoices.currency} = ${effectiveCurrency} THEN ${invoices.amount}
-    ELSE ${invoices.amount} * (
-      SELECT ${exchangeRates.rate} FROM ${exchangeRates}
-      WHERE ${exchangeRates.base} = ${invoices.currency}
-        AND ${exchangeRates.target} = ${effectiveCurrency}
-      ORDER BY ${exchangeRates.updatedAt} DESC NULLS LAST
-      LIMIT 1
-    )
-  END`;
+  const resolvedScheduledAmount = resolvedInvoiceAmount(effectiveCurrency);
 
   // Fetch ALL data sources in parallel for the bottom-up forecast
   const [
@@ -3023,7 +3009,7 @@ export async function getRevenueForecast(
       billableHours: {
         totalHours: billableHoursTotal,
         totalAmount: Number(billableHoursValue.toFixed(2)),
-        currency: billableHoursData.currency,
+        currency: effectiveCurrency,
       },
     },
     historical: historical.map((item) => ({

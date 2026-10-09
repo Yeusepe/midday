@@ -11,6 +11,7 @@ interface WidgetsHeaderProps {
   onToggleEditing: () => void;
 }
 
+/** Provide shared currency, layout, and period controls for widgets and reports. */
 export function WidgetsHeader({
   isEditing,
   onToggleEditing,

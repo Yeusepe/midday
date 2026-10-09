@@ -208,8 +208,10 @@ export const useMetricsFilterStore = create<MetricsFilterState>()(
       const stored = getStoredPreferences(teamId);
       if (stored) {
         set({
-          period: stored.period,
-          revenueType: stored.revenueType,
+          period: isPeriodOption(stored.period) ? stored.period : "1-year",
+          revenueType: isRevenueType(stored.revenueType)
+            ? stored.revenueType
+            : "net",
           currency: stored.currency,
           customFrom: stored.customFrom,
           customTo: stored.customTo,

@@ -548,10 +548,7 @@ export function TransactionDetails() {
                     }),
                   );
 
-                  if (
-                    similarTransactions?.length &&
-                    similarTransactions.length > 1
-                  ) {
+                  if (similarTransactions.length > 0) {
                     toast({
                       duration: 6000,
                       variant: "ai",

@@ -44,8 +44,17 @@ import {
   calculateNameScore,
   scoreMatch,
 } from "../utils/transaction-matching";
+import {
+  matchesRecurrenceRule,
+  type RecurrencePayment,
+} from "../utils/transaction-recurrence";
 import { createActivity } from "./activities";
 import { type Attachment, createAttachments } from "./transaction-attachments";
+import {
+  applyTransactionRecurrenceRules,
+  refreshTransactionRecurrenceRules,
+  saveTransactionRecurrenceRules,
+} from "./transaction-recurrence";
 
 const logger = createLoggerWithContext("transactions");
 
@@ -996,9 +1005,17 @@ export async function getSimilarTransactions(
 
   // Resolve the source transaction's merchant_name when we have a transactionId
   let sourceMerchantName: string | null = null;
+  let recurrenceSource: RecurrencePayment | undefined;
   if (transactionId) {
     const source = await db
-      .select({ merchantName: transactions.merchantName })
+      .select({
+        merchantName: transactions.merchantName,
+        name: transactions.name,
+        teamId: transactions.teamId,
+        date: transactions.date,
+        amount: transactions.amount,
+        currency: transactions.currency,
+      })
       .from(transactions)
       .where(
         and(
@@ -1009,6 +1026,7 @@ export async function getSimilarTransactions(
       .limit(1);
 
     sourceMerchantName = source[0]?.merchantName ?? null;
+    recurrenceSource = source[0];
   }
 
   // Build OR conditions for candidate retrieval:
@@ -1051,6 +1069,7 @@ export async function getSimilarTransactions(
       .select({
         id: transactions.id,
         amount: transactions.amount,
+        currency: transactions.currency,
         teamId: transactions.teamId,
         name: transactions.name,
         date: transactions.date,
@@ -1071,6 +1090,16 @@ export async function getSimilarTransactions(
 
   // Score each candidate using a cross-field comparison matrix
   const scored = candidates
+    .filter(
+      (candidate) =>
+        !params.frequency ||
+        !recurrenceSource ||
+        matchesRecurrenceRule(candidate, {
+          ...recurrenceSource,
+          recurring: true,
+          frequency: params.frequency,
+        }),
+    )
     .map((candidate) => {
       // Exact merchant_name match is the strongest signal
       if (
@@ -1548,13 +1577,25 @@ export async function updateTransaction(
     dataToUpdate.taxType = null;
   }
 
-  const [result] = await db
-    .update(transactions)
-    .set(dataToUpdate)
-    .where(and(eq(transactions.id, id), eq(transactions.teamId, teamId)))
-    .returning({
-      id: transactions.id,
-    });
+  const recurrenceChanged =
+    dataToUpdate.recurring !== undefined ||
+    dataToUpdate.frequency !== undefined;
+  if (dataToUpdate.recurring === false) dataToUpdate.frequency = null;
+  const [result] = await db.transaction(async (tx) => {
+    const updated = await tx
+      .update(transactions)
+      .set({
+        ...dataToUpdate,
+        ...(recurrenceChanged ? { recurrenceOverride: true } : {}),
+      })
+      .where(and(eq(transactions.id, id), eq(transactions.teamId, teamId)))
+      .returning({ id: transactions.id });
+    if (recurrenceChanged && updated.length)
+      await saveTransactionRecurrenceRules(tx, teamId, [id]);
+    else if (dataToUpdate.categorySlug !== undefined && updated.length)
+      await refreshTransactionRecurrenceRules(tx, teamId, [id]);
+    return updated;
+  });
 
   if (!result) {
     return null;
@@ -1751,15 +1792,34 @@ export async function updateTransactions(
 
   // Only update transactions if there are fields to update
   if (Object.keys(input).length > 0) {
-    results = await db
-      .update(transactions)
-      .set(input)
-      .where(
-        and(eq(transactions.teamId, teamId), inArray(transactions.id, ids)),
-      )
-      .returning({
-        id: transactions.id,
-      });
+    const recurrenceChanged =
+      input.recurring !== undefined || input.frequency !== undefined;
+    if (input.recurring === false) input.frequency = null;
+    results = await db.transaction(async (tx) => {
+      const updated = await tx
+        .update(transactions)
+        .set({
+          ...input,
+          ...(recurrenceChanged ? { recurrenceOverride: true } : {}),
+        })
+        .where(
+          and(eq(transactions.teamId, teamId), inArray(transactions.id, ids)),
+        )
+        .returning({ id: transactions.id });
+      if (recurrenceChanged)
+        await saveTransactionRecurrenceRules(
+          tx,
+          teamId,
+          updated.map((row) => row.id),
+        );
+      else if (input.categorySlug !== undefined)
+        await refreshTransactionRecurrenceRules(
+          tx,
+          teamId,
+          updated.map((row) => row.id),
+        );
+      return updated;
+    });
   } else {
     // If no fields to update, just return the transaction IDs
     results = ids.map((id) => ({ id }));
@@ -1849,23 +1909,31 @@ export async function createTransaction(
     ...rest
   } = params;
 
-  const [result] = await db
-    .insert(transactions)
-    .values({
-      ...rest,
-      teamId,
-      bankAccountId,
-      categorySlug,
-      assignedId,
-      method: "other",
-      manual: true,
-      notified: true,
-      status: "posted",
-      internalId: `${teamId}_${nanoid()}`,
-    })
-    .returning({
-      id: transactions.id,
-    });
+  const result = await db.transaction(async (tx) => {
+    const [created] = await tx
+      .insert(transactions)
+      .values({
+        ...rest,
+        teamId,
+        bankAccountId,
+        categorySlug,
+        assignedId,
+        method: "other",
+        manual: true,
+        notified: true,
+        status: "posted",
+        internalId: `${teamId}_${nanoid()}`,
+      })
+      .returning({
+        id: transactions.id,
+      });
+    if (created)
+      await applyTransactionRecurrenceRules(tx, {
+        teamId,
+        transactionIds: [created.id],
+      });
+    return created;
+  });
 
   if (!result) {
     return null;
@@ -1902,13 +1970,24 @@ export async function createTransactions(
     },
   );
 
-  const results = await db
-    .insert(transactions)
-    .values(transactionsToInsert)
-    .returning({
-      id: transactions.id,
-      teamId: transactions.teamId,
-    });
+  const results = await db.transaction(async (tx) => {
+    const created = await tx
+      .insert(transactions)
+      .values(transactionsToInsert)
+      .returning({
+        id: transactions.id,
+        teamId: transactions.teamId,
+      });
+    for (const teamId of new Set(created.map((row) => row.teamId))) {
+      await applyTransactionRecurrenceRules(tx, {
+        teamId,
+        transactionIds: created
+          .filter((row) => row.teamId === teamId)
+          .map((row) => row.id),
+      });
+    }
+    return created;
+  });
 
   // Get full transaction data for each created transaction
   const fullTransactions = await Promise.all(
@@ -1973,20 +2052,29 @@ export async function upsertTransactions(
   params: UpsertTransactionsParams,
 ): Promise<Array<{ id: string }>> {
   // Exclude teamId from the params
-  const { transactions: transactionsData, teamId: _teamId } = params;
+  const { transactions: transactionsData, teamId } = params;
+  if (transactionsData.some((row) => row.teamId !== teamId))
+    throw new Error("Transaction team does not match import team");
   if (transactionsData.length === 0) {
     return [];
   }
 
-  const upserted = await db
-    .insert(transactions)
-    .values(transactionsData)
-    .onConflictDoNothing({
-      target: [transactions.internalId],
-    })
-    .returning({
-      id: transactions.id,
+  const upserted = await db.transaction(async (tx) => {
+    const inserted = await tx
+      .insert(transactions)
+      .values(transactionsData)
+      .onConflictDoNothing({
+        target: [transactions.internalId],
+      })
+      .returning({
+        id: transactions.id,
+      });
+    await applyTransactionRecurrenceRules(tx, {
+      teamId,
+      transactionIds: inserted.map((row) => row.id),
     });
+    return inserted;
+  });
 
   return upserted;
 }

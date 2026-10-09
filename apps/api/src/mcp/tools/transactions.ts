@@ -228,6 +228,11 @@ export const registerTransactionTools: RegisterTools = (server, ctx) => {
             };
           }
 
+          await triggerJob(
+            "enrich-transactions",
+            { teamId, transactionIds: [result.id] },
+            "transactions",
+          );
           const clean = sanitize(mcpTransactionSchema, result);
 
           return {
@@ -268,6 +273,13 @@ export const registerTransactionTools: RegisterTools = (server, ctx) => {
             db,
             items.map((item) => ({ ...item, teamId })),
           );
+
+          if (result.length)
+            await triggerJob(
+              "enrich-transactions",
+              { teamId, transactionIds: result.map((row) => row.id) },
+              "transactions",
+            );
 
           const clean = sanitizeArray(mcpTransactionSchema, result ?? []);
 

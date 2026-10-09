@@ -1,4 +1,7 @@
-import { upsertTransactions } from "@midday/db/queries";
+import {
+  getPendingImportedTransactionIds,
+  upsertTransactions,
+} from "@midday/db/queries";
 import {
   decodeImportCsvContent,
   normalizeImportCsvContent,
@@ -67,6 +70,7 @@ export class ImportTransactionsProcessor extends BaseProcessor<ImportTransaction
     await this.updateProgress(job, 20, undefined, "analyzing");
 
     const allTransactionIds: string[] = [];
+    const pendingEnrichmentIds = new Set<string>();
     let totalAttempted = 0;
     let totalInvalid = 0;
 
@@ -192,6 +196,14 @@ export class ImportTransactionsProcessor extends BaseProcessor<ImportTransaction
                 transactions: transformedBatch,
                 teamId,
               });
+              const pending = await getPendingImportedTransactionIds(db, {
+                teamId,
+                internalIds: transformedBatch.map(
+                  (transaction) => transaction.internalId,
+                ),
+              });
+              for (const transaction of pending)
+                pendingEnrichmentIds.add(transaction.id);
 
               completedImportBatches += 1;
               const importingProgress =
@@ -225,16 +237,18 @@ export class ImportTransactionsProcessor extends BaseProcessor<ImportTransaction
 
     await this.updateProgress(job, 80, undefined, "finalizing");
 
-    if (allTransactionIds.length > 0) {
+    if (pendingEnrichmentIds.size > 0) {
       await triggerJob(
         "enrich-transactions",
         {
-          transactionIds: allTransactionIds,
+          transactionIds: [...pendingEnrichmentIds],
           teamId,
         },
         "transactions",
       );
+    }
 
+    if (allTransactionIds.length > 0) {
       await triggerJob(
         "match-transactions-bidirectional",
         {

@@ -1,11 +1,33 @@
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, isNull, or, sql } from "drizzle-orm";
 import type { Database } from "../client";
 import { transactions } from "../schema";
+import { applyTransactionRecurrenceRules } from "./transaction-recurrence";
 
 export type GetTransactionsForEnrichmentParams = {
   transactionIds: string[];
   teamId: string;
 };
+
+/** Recover pending rows when a CSV import is retried after its enqueue step failed. */
+export async function getPendingImportedTransactionIds(
+  db: Database,
+  params: { teamId: string; internalIds: string[] },
+) {
+  if (!params.internalIds.length) return [];
+  return db
+    .select({ id: transactions.id })
+    .from(transactions)
+    .where(
+      and(
+        eq(transactions.teamId, params.teamId),
+        inArray(transactions.internalId, params.internalIds),
+        or(
+          eq(transactions.enrichmentCompleted, false),
+          isNull(transactions.enrichmentCompleted),
+        ),
+      ),
+    );
+}
 
 export type TransactionForEnrichment = {
   id: string;
@@ -55,7 +77,10 @@ export async function getTransactionsForEnrichment(
       and(
         eq(transactions.teamId, params.teamId),
         inArray(transactions.id, params.transactionIds),
-        eq(transactions.enrichmentCompleted, false), // Only non-enriched transactions
+        or(
+          eq(transactions.enrichmentCompleted, false),
+          isNull(transactions.enrichmentCompleted),
+        ),
       ),
     );
 }
@@ -120,29 +145,45 @@ export async function updateTransactionEnrichments(
     for (let i = 0; i < uniqueUpdates.length; i += CHUNK_SIZE) {
       const chunk = uniqueUpdates.slice(i, i + CHUNK_SIZE);
 
-      await Promise.all(
-        chunk.map(([transactionId, data]) => {
-          const updateData: {
-            merchantName?: string;
-            categorySlug?: string;
-            enrichmentCompleted: boolean;
-          } = {
-            enrichmentCompleted: true,
-          };
-
-          if (data.merchantName) {
-            updateData.merchantName = data.merchantName;
-          }
-          if (data.categorySlug) {
-            updateData.categorySlug = data.categorySlug;
-          }
-
-          return db
-            .update(transactions)
-            .set(updateData)
-            .where(eq(transactions.id, transactionId));
-        }),
-      );
+      await db.transaction(async (tx) => {
+        const changed: { id: string; teamId: string }[] = [];
+        // Lock in a consistent order. Apply saved categories after normalizing the
+        // merchant and before filling empty categories with the model's result.
+        for (const [transactionId, data] of [...chunk].sort(([a], [b]) =>
+          a.localeCompare(b),
+        )) {
+          changed.push(
+            ...(await tx
+              .update(transactions)
+              .set({
+                enrichmentCompleted: true,
+                ...(data.merchantName
+                  ? { merchantName: data.merchantName }
+                  : {}),
+              })
+              .where(eq(transactions.id, transactionId))
+              .returning({ id: transactions.id, teamId: transactions.teamId })),
+          );
+        }
+        for (const teamId of new Set(changed.map((row) => row.teamId))) {
+          await applyTransactionRecurrenceRules(tx, {
+            teamId,
+            transactionIds: changed
+              .filter((row) => row.teamId === teamId)
+              .map((row) => row.id),
+          });
+        }
+        for (const [transactionId, data] of chunk) {
+          if (data.categorySlug)
+            await tx
+              .update(transactions)
+              .set({
+                // A manual choice made while the model was running wins too.
+                categorySlug: sql`COALESCE(${transactions.categorySlug}, ${data.categorySlug})`,
+              })
+              .where(eq(transactions.id, transactionId));
+        }
+      });
     }
   } catch (error) {
     throw new Error(

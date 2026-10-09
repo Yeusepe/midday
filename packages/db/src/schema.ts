@@ -397,6 +397,7 @@ export const transactions = pgTable(
     taxType: text("tax_type"),
     recurring: boolean(),
     frequency: transactionFrequencyEnum(),
+    recurrenceOverride: boolean("recurrence_override").default(false).notNull(),
     merchantName: text("merchant_name"),
     enrichmentCompleted: boolean("enrichment_completed").default(false),
     ftsVector: tsvector("fts_vector")
@@ -529,6 +530,39 @@ export const transactions = pgTable(
       as: "permissive",
       for: "update",
       to: ["public"],
+    }),
+  ],
+);
+
+export const transactionRecurrenceRules = pgTable(
+  "transaction_recurrence_rules",
+  {
+    id: uuid().defaultRandom().primaryKey().notNull(),
+    teamId: uuid("team_id")
+      .notNull()
+      .references(() => teams.id, { onDelete: "cascade" }),
+    sourceTransactionId: uuid("source_transaction_id")
+      .unique()
+      .references(() => transactions.id, { onDelete: "set null" }),
+    name: text().notNull(),
+    merchantName: text("merchant_name"),
+    amount: numericCasted({ precision: 10, scale: 2 }).notNull(),
+    currency: text().notNull(),
+    date: date().notNull(),
+    recurring: boolean().notNull(),
+    frequency: transactionFrequencyEnum(),
+    categorySlug: text("category_slug"),
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "string" })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("transaction_recurrence_rules_team_id_idx").on(table.teamId),
+    pgPolicy("Team members can manage recurrence rules", {
+      for: "all",
+      to: ["authenticated"],
+      using: sql`team_id IN (SELECT private.get_teams_for_authenticated_user())`,
+      withCheck: sql`team_id IN (SELECT private.get_teams_for_authenticated_user())`,
     }),
   ],
 );

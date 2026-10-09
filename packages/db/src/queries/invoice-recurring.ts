@@ -18,6 +18,7 @@ import {
   type RecurringInvoiceParams,
   shouldMarkCompleted,
 } from "../utils/invoice-recurring";
+import { getExchangeRatesBatch } from "./exhange-rates";
 
 export type CreateInvoiceRecurringParams = {
   teamId: string;
@@ -1160,6 +1161,10 @@ export type RecurringInvoiceProjectionResult = Map<
   { amount: number; count: number }
 >;
 
+/**
+ * Project active schedules using matching stored conversions or available rates.
+ * When a reporting currency is supplied, omit schedules with no conversion.
+ */
 export async function getRecurringInvoiceProjection(
   db: Database,
   params: GetRecurringInvoiceProjectionParams,
@@ -1172,11 +1177,6 @@ export async function getRecurringInvoiceProjection(
     eq(invoiceRecurring.teamId, teamId),
     eq(invoiceRecurring.status, "active"),
   ];
-
-  // Filter by currency when provided to avoid mixing currencies without conversion
-  if (currency) {
-    conditions.push(eq(invoiceRecurring.currency, currency));
-  }
 
   // Get all active recurring invoices
   const activeRecurring = await db
@@ -1203,6 +1203,24 @@ export async function getRecurringInvoiceProjection(
     .from(invoiceRecurring)
     .where(and(...conditions));
 
+  const exchangeRateMap = currency
+    ? await getExchangeRatesBatch(db, {
+        pairs: activeRecurring
+          .filter(
+            (recurring) =>
+              (recurring.currency ?? "USD") !== currency &&
+              !(
+                recurring.convertedCurrency === currency &&
+                recurring.convertedAmount !== null
+              ),
+          )
+          .map((recurring) => ({
+            base: recurring.currency ?? "USD",
+            target: currency,
+          })),
+      })
+    : new Map<string, number>();
+
   // Project each recurring invoice into forecast months
   const projection: RecurringInvoiceProjectionResult = new Map();
 
@@ -1216,6 +1234,22 @@ export async function getRecurringInvoiceProjection(
     // Skip if no next scheduled date or no amount
     if (!recurring.nextScheduledAt || !recurring.amount) {
       continue;
+    }
+
+    let amount = recurring.amount;
+    const sourceCurrency = recurring.currency ?? "USD";
+    if (currency && sourceCurrency !== currency) {
+      if (
+        recurring.convertedCurrency === currency &&
+        recurring.convertedAmount !== null
+      ) {
+        amount = recurring.convertedAmount;
+      } else {
+        const rate = exchangeRateMap.get(`${sourceCurrency}:${currency}`);
+        // Exclude both the amount and count when conversion is unavailable.
+        if (rate === undefined) continue;
+        amount *= rate;
+      }
     }
 
     const recurringParams: RecurringInvoiceParams = {
@@ -1239,8 +1273,8 @@ export async function getRecurringInvoiceProjection(
     const upcoming = calculateUpcomingDates(
       recurringParams,
       new Date(recurring.nextScheduledAt),
-      recurring.amount,
-      recurring.currency ?? "USD",
+      amount,
+      currency ?? sourceCurrency,
       recurring.endType,
       recurring.endDate ? new Date(recurring.endDate) : null,
       recurring.endCount,

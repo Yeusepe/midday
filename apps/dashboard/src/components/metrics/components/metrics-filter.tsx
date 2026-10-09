@@ -19,14 +19,11 @@ import {
 } from "@midday/ui/dropdown-menu";
 import { Icons } from "@midday/ui/icons";
 import { CheckIcon } from "@radix-ui/react-icons";
-import { useQuery } from "@tanstack/react-query";
 import { format, formatISO, parseISO } from "date-fns";
 import { useState } from "react";
 import type { DateRange } from "react-day-picker";
 import { useMetricsFilter } from "@/hooks/use-metrics-filter";
-import { useTeamQuery } from "@/hooks/use-team";
 import { useUserQuery } from "@/hooks/use-user";
-import { useTRPC } from "@/trpc/client";
 import type { PeriodOption } from "@/utils/metrics-date-utils";
 
 const PERIOD_OPTIONS: Array<{ value: PeriodOption; label: string }> = [
@@ -45,34 +42,19 @@ const REVENUE_TYPE_OPTIONS: Array<{ value: "gross" | "net"; label: string }> = [
   { value: "net", label: "Net Revenue (ex tax)" },
 ];
 
+/** Edit the report period and revenue basis while retaining the reporting currency. */
 export function MetricsFilter() {
-  const { data: team } = useTeamQuery();
   const { data: user } = useUserQuery();
-  const trpc = useTRPC();
   const {
     period,
     revenueType,
-    effectiveCurrency,
+    currency,
     from,
     to,
     updatePeriod,
     updateRevenueType,
-    updateCurrency,
     updateDateRange,
   } = useMetricsFilter();
-
-  const { data: currencies } = useQuery(
-    trpc.bankAccounts.currencies.queryOptions(),
-  );
-
-  const baseCurrency = team?.baseCurrency;
-
-  // Get unique currencies from bank accounts, excluding base currency
-  const uniqueCurrencies = currencies
-    ? [...new Set(currencies.map((c) => c.currency).filter(Boolean))]
-        .filter((curr) => curr !== baseCurrency)
-        .sort()
-    : [];
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -239,58 +221,15 @@ export function MetricsFilter() {
           </DropdownMenuRadioGroup>
         </DropdownMenuGroup>
 
-        {uniqueCurrencies.length > 0 && (
-          <>
-            <DropdownMenuSeparator />
-
-            {/* CURRENCY Section */}
-            <DropdownMenuGroup>
-              <DropdownMenuLabel className="text-[10px] text-muted-foreground font-normal px-2 py-1.5">
-                CURRENCY
-              </DropdownMenuLabel>
-              <DropdownMenuRadioGroup
-                value={effectiveCurrency ?? "base"}
-                onValueChange={(value) =>
-                  updateCurrency(value === "base" ? null : value)
-                }
-              >
-                <DropdownMenuRadioItem
-                  value="base"
-                  className={cn(
-                    "text-xs",
-                    !effectiveCurrency &&
-                      "dark:bg-[#131313] dark:data-[state=checked]:bg-[#131313]",
-                    "hover:dark:bg-[#131313]",
-                  )}
-                >
-                  Base currency{baseCurrency ? ` (${baseCurrency})` : ""}
-                </DropdownMenuRadioItem>
-                {uniqueCurrencies.map((curr) => (
-                  <DropdownMenuRadioItem
-                    key={curr}
-                    value={curr}
-                    className={cn(
-                      "text-xs",
-                      effectiveCurrency === curr &&
-                        "dark:bg-[#131313] dark:data-[state=checked]:bg-[#131313]",
-                      "hover:dark:bg-[#131313]",
-                    )}
-                  >
-                    {curr}
-                  </DropdownMenuRadioItem>
-                ))}
-              </DropdownMenuRadioGroup>
-            </DropdownMenuGroup>
-          </>
-        )}
-
         <DropdownMenuSeparator />
 
         {/* Info Text */}
         <div className="px-2 py-2">
           <p className="text-xs text-muted-foreground leading-relaxed">
-            All amounts are converted to your base currency. Metrics depend on
-            how your transactions are categorized.
+            Amounts are shown in {currency ?? "your base currency"} using stored
+            conversions or available exchange rates. Amounts without a
+            conversion are excluded. Metrics depend on how transactions are
+            categorized.
           </p>
         </div>
       </DropdownMenuContent>

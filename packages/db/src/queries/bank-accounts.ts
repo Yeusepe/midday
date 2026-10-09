@@ -6,6 +6,7 @@ import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import type { Database } from "../client";
 import { bankAccounts, teams } from "../schema";
+import { getExchangeRatesBatch } from "./exhange-rates";
 
 export type CreateBankAccountParams = {
   name: string;
@@ -228,6 +229,20 @@ export async function getCashBalance(
     },
   });
 
+  const exchangeRateMap = await getExchangeRatesBatch(db, {
+    pairs: accounts
+      .filter(
+        (account) =>
+          account.currency &&
+          account.currency !== baseCurrency &&
+          !(
+            account.baseCurrency === baseCurrency &&
+            account.baseBalance !== null
+          ),
+      )
+      .map((account) => ({ base: account.currency!, target: baseCurrency })),
+  });
+
   let totalBalance = 0;
   const accountBreakdown: Array<{
     id: string;
@@ -246,17 +261,18 @@ export async function getCashBalance(
 
     let convertedBalance = balance;
 
-    // Use baseBalance if available and currencies match, otherwise use original balance
+    // Preserve stored conversions, including a legitimate zero balance.
     if (
       accountCurrency !== baseCurrency &&
-      account.baseBalance &&
+      account.baseBalance !== null &&
       account.baseCurrency === baseCurrency
     ) {
       convertedBalance = Number(account.baseBalance);
     } else if (accountCurrency !== baseCurrency) {
-      // If no baseBalance available, use original balance as fallback
-      // In a real scenario, you'd want to fetch exchange rates here
-      convertedBalance = balance;
+      const rate = exchangeRateMap.get(`${accountCurrency}:${baseCurrency}`);
+      // Never label an unconverted foreign balance as the target currency.
+      if (rate === undefined) continue;
+      convertedBalance = balance * rate;
     }
 
     totalBalance += convertedBalance;

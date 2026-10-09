@@ -6,7 +6,10 @@ import {
   setSystemTime,
   test,
 } from "bun:test";
+import { eq } from "drizzle-orm";
 import type { Database } from "../client";
+import { getCashBalance } from "../queries/bank-accounts";
+import { getRecurringInvoiceProjection } from "../queries/invoice-recurring";
 import {
   createReport,
   getBalanceSheet,
@@ -30,6 +33,14 @@ import {
   getTaxSummary,
 } from "../queries/reports";
 import {
+  bankAccounts,
+  exchangeRates,
+  invoiceRecurring,
+  transactions,
+} from "../schema";
+import {
+  BANK_EUR_ACCOUNT_ID,
+  REC_INV_MONTHLY,
   SEED_REFERENCE_DATE,
   seedAll,
   TEAM_EUR_ID,
@@ -52,10 +63,217 @@ describe.skipIf(SKIP)("E2E Calculation Tests", () => {
     db = getTestDatabase();
     await cleanDatabase();
     await seedAll(db);
+    await db.insert(exchangeRates).values([
+      { base: "USD", target: "CRC", rate: 500 },
+      { base: "EUR", target: "CRC", rate: 550 },
+      { base: "GBP", target: "CRC", rate: 635 },
+    ]);
   });
 
   afterAll(async () => {
     await closeDatabase();
+  });
+
+  describe("Report currency selection", () => {
+    test("converts the complete report to a currency absent from all accounts", async () => {
+      const params = {
+        teamId: TEAM_USD_ID,
+        from: "2024-01-01",
+        to: "2024-01-31",
+        currency: "CRC",
+        revenueType: "gross" as const,
+      };
+      const [revenue, expenses, burn, spending, cash] = await Promise.all([
+        getRevenue(db, params),
+        getExpenses(db, params),
+        getBurnRate(db, params),
+        getSpending(db, params),
+        getCashBalance(db, params),
+      ]);
+      // Convert original amounts; FX1's stored USD rate differs from the latest GBP rate.
+      expect(Number(revenue[0]!.value)).toBe(
+        7000 * 500 + 5500 * 550 + 2000 * 635,
+      );
+      expect(expenses.result[0]!.total).toBe(5790 * 500);
+      expect(burn[0]!.value).toBe(5790 * 500);
+      expect(spending.reduce((sum, item) => sum + item.amount, 0)).toBe(
+        5790 * 500,
+      );
+      expect(cash.totalBalance).toBe(86000 * 500);
+      expect(cash.accountBreakdown).toHaveLength(3);
+      expect(cash.currency).toBe("CRC");
+    });
+
+    test("cash balances convert generically to EUR and exclude missing GBP rates", async () => {
+      const eur = await getCashBalance(db, {
+        teamId: TEAM_USD_ID,
+        currency: "EUR",
+      });
+      expect(eur.totalBalance).toBe(75000 * 0.91 + 10000);
+      const gbp = await getCashBalance(db, {
+        teamId: TEAM_USD_ID,
+        currency: "GBP",
+      });
+      expect(gbp.totalBalance).toBe(0);
+      expect(gbp.accountBreakdown).toHaveLength(0);
+    });
+
+    test("cash balances preserve stored zero conversions", async () => {
+      await db
+        .update(bankAccounts)
+        .set({ baseBalance: 0 })
+        .where(eq(bankAccounts.id, BANK_EUR_ACCOUNT_ID));
+      try {
+        const cash = await getCashBalance(db, {
+          teamId: TEAM_USD_ID,
+          currency: "USD",
+        });
+        expect(cash.totalBalance).toBe(75000);
+        expect(
+          cash.accountBreakdown.find((item) => item.id === BANK_EUR_ACCOUNT_ID)
+            ?.convertedBalance,
+        ).toBe(0);
+      } finally {
+        await db
+          .update(bankAccounts)
+          .set({ baseBalance: 11000 })
+          .where(eq(bankAccounts.id, BANK_EUR_ACCOUNT_ID));
+      }
+    });
+
+    test("runway uses the same currency conversion as cash and burn rate", async () => {
+      setSystemTime(SEED_REFERENCE_DATE);
+      try {
+        const usd = await getRunway(db, {
+          teamId: TEAM_USD_ID,
+          currency: "USD",
+        });
+        const crc = await getRunway(db, {
+          teamId: TEAM_USD_ID,
+          currency: "CRC",
+        });
+        expect(crc.medianBurn).toBe(usd.medianBurn * 500);
+        expect(crc.months).toBe(usd.months);
+      } finally {
+        setSystemTime();
+      }
+    });
+
+    test("recurring projections convert to EUR and exclude schedules without a rate", async () => {
+      const params = {
+        teamId: TEAM_USD_ID,
+        forecastMonths: 2,
+        referenceDate: new Date("2024-06-30T00:00:00Z"),
+      };
+      const eur = await getRecurringInvoiceProjection(db, {
+        ...params,
+        currency: "EUR",
+      });
+      expect(eur.get("2024-07")).toEqual({ amount: 3000 * 0.91, count: 1 });
+      expect(eur.get("2024-08")).toEqual({ amount: 3000 * 0.91, count: 1 });
+      const gbp = await getRecurringInvoiceProjection(db, {
+        ...params,
+        currency: "GBP",
+      });
+      expect(gbp.size).toBe(0);
+      const otherTeam = await getRecurringInvoiceProjection(db, {
+        ...params,
+        teamId: TEAM_EUR_ID,
+        currency: "EUR",
+      });
+      expect(otherTeam.size).toBe(0);
+    });
+
+    test.each([
+      0, 1400000,
+    ])("recurring projections preserve a stored conversion of %d", async (convertedAmount) => {
+      await db
+        .update(invoiceRecurring)
+        .set({ convertedCurrency: "CRC", convertedAmount })
+        .where(eq(invoiceRecurring.id, REC_INV_MONTHLY));
+      try {
+        const projection = await getRecurringInvoiceProjection(db, {
+          teamId: TEAM_USD_ID,
+          forecastMonths: 2,
+          referenceDate: new Date("2024-06-30T00:00:00Z"),
+          currency: "CRC",
+        });
+        expect(projection.get("2024-07")).toEqual({
+          amount: convertedAmount,
+          count: 1,
+        });
+      } finally {
+        await db
+          .update(invoiceRecurring)
+          .set({ convertedCurrency: null, convertedAmount: null })
+          .where(eq(invoiceRecurring.id, REC_INV_MONTHLY));
+      }
+    });
+
+    test("forecast converts collections, recurring income, and billable hours", async () => {
+      setSystemTime(SEED_REFERENCE_DATE);
+      const transactionId = "a0000000-0000-0000-0000-00000000fc01";
+      try {
+        await db.insert(transactions).values({
+          id: transactionId,
+          teamId: TEAM_USD_ID,
+          internalId: "forecast-currency-test",
+          name: "Recurring forecast income",
+          method: "transfer",
+          date: "2024-06-15",
+          amount: 100,
+          currency: "USD",
+          baseAmount: 100,
+          baseCurrency: "USD",
+          categorySlug: "revenue",
+          status: "posted",
+          internal: false,
+          recurring: true,
+          frequency: "monthly",
+        });
+        const params = {
+          teamId: TEAM_USD_ID,
+          from: "2024-01-01",
+          // Include the seeded recurring schedule starting July 2024.
+          to: "2024-06-30",
+          forecastMonths: 2,
+        };
+        const usd = await getRevenueForecast(db, {
+          ...params,
+          currency: "USD",
+        });
+        const crc = await getRevenueForecast(db, {
+          ...params,
+          currency: "CRC",
+        });
+        expect(usd.forecast[0]!.breakdown!.recurringInvoices).toBe(3000);
+        expect(usd.forecast[0]!.breakdown!.recurringTransactions).toBe(100);
+        expect(usd.forecast[0]!.breakdown!.billableHours).toBeGreaterThan(0);
+        expect(usd.forecast[0]!.breakdown!.collections).toBeGreaterThan(0);
+        expect(crc.meta.recurringInvoicesCount).toBe(1);
+        expect(crc.summary.billableHours.currency).toBe("CRC");
+        expect(crc.summary.billableHours.totalAmount).toBe(
+          usd.summary.billableHours.totalAmount * 500,
+        );
+        for (let i = 0; i < 2; i++) {
+          for (const source of [
+            "collections",
+            "recurringTransactions",
+            "recurringInvoices",
+            "billableHours",
+          ] as const) {
+            expect(crc.forecast[i]!.breakdown![source]).toBeCloseTo(
+              usd.forecast[i]!.breakdown![source] * 500,
+              1,
+            );
+          }
+        }
+        expect(crc.forecast[0]!.currency).toBe("CRC");
+      } finally {
+        setSystemTime();
+        await db.delete(transactions).where(eq(transactions.id, transactionId));
+      }
+    });
   });
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -98,7 +316,7 @@ describe.skipIf(SKIP)("E2E Calculation Tests", () => {
       expect(Number.parseFloat(feb!.value)).toBe(2800);
     });
 
-    test("March: R6(4000) + R8(1000) = 5000 (R7 excluded — neither currency nor baseCurrency is USD)", async () => {
+    test("March: includes GBP revenue converted at the available exchange rate", async () => {
       const result = await getRevenue(db, {
         teamId: TEAM_USD_ID,
         from: "2024-03-01",
@@ -109,7 +327,8 @@ describe.skipIf(SKIP)("E2E Calculation Tests", () => {
 
       const mar = result.find((r) => r.date.startsWith("2024-03"));
       expect(mar).toBeDefined();
-      expect(Number.parseFloat(mar!.value)).toBe(5000);
+      // R6(4000) + R8(1000) + R7(3000 GBP × 1.27)
+      expect(Number.parseFloat(mar!.value)).toBe(8810);
     });
 
     test("April gap month: 0", async () => {
@@ -176,7 +395,7 @@ describe.skipIf(SKIP)("E2E Calculation Tests", () => {
       expect(Number.parseFloat(jan!.value)).toBe(15550);
     });
 
-    test("March: R6(4000) + R8(1000) = 5000 (R7 excluded, NULL baseCurrency)", async () => {
+    test("March: includes converted GBP revenue in the base currency", async () => {
       const result = await getRevenue(db, {
         teamId: TEAM_USD_ID,
         from: "2024-03-01",
@@ -186,7 +405,8 @@ describe.skipIf(SKIP)("E2E Calculation Tests", () => {
 
       const mar = result.find((r) => r.date.startsWith("2024-03"));
       expect(mar).toBeDefined();
-      expect(Number.parseFloat(mar!.value)).toBe(5000);
+      // R6(4000) + R8(1000) + R7(3000 GBP × 1.27)
+      expect(Number.parseFloat(mar!.value)).toBe(8810);
     });
   });
 
@@ -226,8 +446,8 @@ describe.skipIf(SKIP)("E2E Calculation Tests", () => {
       expect(Number.parseFloat(feb!.value)).toBeCloseTo(2618.18, 1);
     });
 
-    // Mar net: R6:3478.26, R8:1000 = 4478.26
-    test("March: 4478.26", async () => {
+    // Mar net: R6:3478.26 + R8:1000 + converted R7:3810 = 8288.26
+    test("March: 8288.26", async () => {
       const result = await getRevenue(db, {
         teamId: TEAM_USD_ID,
         from: "2024-03-01",
@@ -238,7 +458,7 @@ describe.skipIf(SKIP)("E2E Calculation Tests", () => {
 
       const mar = result.find((r) => r.date.startsWith("2024-03"));
       expect(mar).toBeDefined();
-      expect(Number.parseFloat(mar!.value)).toBeCloseTo(4478.26, 1);
+      expect(Number.parseFloat(mar!.value)).toBeCloseTo(8288.26, 1);
     });
 
     // May net: R9: ROUND(0.01 - 0.01*20/120, 2)=0.01, R10: ROUND(99999.99 - 99999.99*25/125, 2)=79999.99
@@ -369,8 +589,8 @@ describe.skipIf(SKIP)("E2E Calculation Tests", () => {
       expect(Number.parseFloat(feb!.value)).toBeCloseTo(318.18, 0);
     });
 
-    // Mar: NetRev(4478.26) - COGS(0) - OpEx(800) = 3678.26
-    test("March: 3678.26", async () => {
+    // Mar: NetRev(8288.26) - COGS(0) - OpEx(800) = 7488.26
+    test("March: 7488.26", async () => {
       const result = await getProfit(db, {
         teamId: TEAM_USD_ID,
         from: "2024-03-01",
@@ -381,7 +601,7 @@ describe.skipIf(SKIP)("E2E Calculation Tests", () => {
 
       const mar = result.find((r) => r.date.startsWith("2024-03"));
       expect(mar).toBeDefined();
-      expect(Number.parseFloat(mar!.value)).toBeCloseTo(3678.26, 0);
+      expect(Number.parseFloat(mar!.value)).toBeCloseTo(7488.26, 0);
     });
   });
 
@@ -426,7 +646,7 @@ describe.skipIf(SKIP)("E2E Calculation Tests", () => {
       );
     });
 
-    // Mar gross (4478.26) > Mar net (3678.26) because OpEx=800 is subtracted only in net
+    // Mar gross (8288.26) > Mar net (7488.26) because OpEx=800 is subtracted only in net
     test("March: gross profit > net profit when OpEx exists", async () => {
       const resultGross = await getProfit(db, {
         teamId: TEAM_USD_ID,
@@ -450,8 +670,8 @@ describe.skipIf(SKIP)("E2E Calculation Tests", () => {
         resultNet.find((r) => r.date.startsWith("2024-03"))!.value,
       );
       expect(marGross).toBeGreaterThan(marNet);
-      expect(marGross).toBeCloseTo(4478.26, 0);
-      expect(marNet).toBeCloseTo(3678.26, 0);
+      expect(marGross).toBeCloseTo(8288.26, 0);
+      expect(marNet).toBeCloseTo(7488.26, 0);
     });
   });
 
@@ -804,8 +1024,8 @@ describe.skipIf(SKIP)("E2E Calculation Tests", () => {
       });
 
       expect(result.summary).toBeDefined();
-      // 2024 gross: Jan(15550) + Feb(2800) + Mar(5000) = 23350
-      expect(result.summary.currentTotal).toBeCloseTo(23350, 0);
+      // 2024 gross: Jan(15550) + Feb(2800) + Mar(8810) = 27160
+      expect(result.summary.currentTotal).toBeCloseTo(27160, 0);
       // 2023 gross: PY1(4000) + PY2(1500) + PY3(3000) = 8500
       expect(result.summary.prevTotal).toBeCloseTo(8500, 0);
     });
@@ -847,12 +1067,12 @@ describe.skipIf(SKIP)("E2E Calculation Tests", () => {
       });
 
       expect(result.summary).toBeDefined();
-      // Q1 2024: 15550 + 2800 + 5000 = 23350
-      expect(result.summary.currentTotal).toBeCloseTo(23350, 0);
+      // Q1 2024: 15550 + 2800 + 8810 = 27160
+      expect(result.summary.currentTotal).toBeCloseTo(27160, 0);
       // Q4 2023: PQ1(3500) + PQ2(2800) + PQ3(3200) = 9500
       expect(result.summary.previousTotal).toBeCloseTo(9500, 0);
-      // Growth: (23350-9500)/9500*100 = 145.79%
-      expect(result.summary.growthRate).toBeCloseTo(145.79, 0);
+      // Growth: (27160-9500)/9500*100 = 185.89%
+      expect(result.summary.growthRate).toBeCloseTo(185.89, 0);
       expect(result.summary.trend).toBe("positive");
     });
 
@@ -867,7 +1087,7 @@ describe.skipIf(SKIP)("E2E Calculation Tests", () => {
         period: "yearly",
       });
 
-      expect(result.summary.currentTotal).toBeCloseTo(23350, 0);
+      expect(result.summary.currentTotal).toBeCloseTo(27160, 0);
       expect(result.summary.previousTotal).toBeCloseTo(8500, 0);
       expect(result.summary.trend).toBe("positive");
     });
@@ -985,7 +1205,7 @@ describe.skipIf(SKIP)("E2E Calculation Tests", () => {
       expect(Number.parseFloat(mar!.value)).toBe(3000);
     });
 
-    test("inputCurrency=EUR includes R2 and FX2 with original amounts", async () => {
+    test("inputCurrency=EUR includes native EUR and converted USD revenue", async () => {
       // R2: amount=4000 EUR, baseCurrency=USD ≠ EUR → uses amount=4000
       // FX2: amount=1500 EUR, baseCurrency=USD ≠ EUR → uses amount=1500
       const result = await getRevenue(db, {
@@ -998,7 +1218,8 @@ describe.skipIf(SKIP)("E2E Calculation Tests", () => {
 
       const jan = result.find((r) => r.date.startsWith("2024-01"));
       expect(jan).toBeDefined();
-      expect(Number.parseFloat(jan!.value)).toBe(5500);
+      // Native EUR: 4000 + 1500; USD revenue: (5000 + 2000 + 2500) × 0.91
+      expect(Number.parseFloat(jan!.value)).toBe(14170);
     });
   });
 
@@ -1360,14 +1581,14 @@ describe.skipIf(SKIP)("E2E Calculation Tests", () => {
       expect(result.summary.count).toBeGreaterThanOrEqual(3);
     });
 
-    test("USD-filtered total: 5000 + 2000 + 1500 = 8500", async () => {
+    test("USD total includes the converted EUR invoice", async () => {
       const result = await getOutstandingInvoices(db, {
         teamId: TEAM_USD_ID,
         currency: "USD",
         status: ["unpaid", "overdue"],
       });
 
-      expect(result.summary.totalAmount).toBe(8500);
+      expect(result.summary.totalAmount).toBe(11800);
       expect(result.summary.currency).toBe("USD");
     });
 
@@ -1378,8 +1599,8 @@ describe.skipIf(SKIP)("E2E Calculation Tests", () => {
         status: ["unpaid", "overdue"],
       });
 
-      // If paid were included, total would be 18500
-      expect(result.summary.totalAmount).toBeLessThan(10000);
+      // Paid USD 10000 must not be added to the converted outstanding total.
+      expect(result.summary.totalAmount).toBe(11800);
     });
 
     test("without explicit currency: converts EUR invoice to USD via exchange rate", async () => {
@@ -1505,8 +1726,8 @@ describe.skipIf(SKIP)("E2E Calculation Tests", () => {
 
       const jan = result.find((r) => r.date.startsWith("2024-01"));
       expect(jan).toBeDefined();
-      // R2(4000 EUR) + FX2(1500 EUR) = 5500
-      expect(Number.parseFloat(jan!.value)).toBe(5500);
+      // Native EUR: 4000 + 1500; USD revenue: (5000 + 2000 + 2500) × 0.91
+      expect(Number.parseFloat(jan!.value)).toBe(14170);
     });
 
     test("spending: EFX1 (NULL baseAmount expense) converted via exchange rate", async () => {
@@ -1910,7 +2131,8 @@ describe.skipIf(SKIP)("E2E Calculation Tests", () => {
       expect(jan).toBeDefined();
       // E4: currency=EUR, amount=-500 → resolvedAmount("EUR"): currency=EUR matches → 500
       // EFX1: currency=EUR, amount=-400 → resolvedAmount("EUR"): currency=EUR matches → 400
-      expect(jan!.total).toBeCloseTo(900, 0);
+      // Also includes USD expenses: (4000 + 200 + 600) × 0.91.
+      expect(jan!.total).toBeCloseTo(5268, 0);
     });
 
     test("multi-currency spending query (EUR target)", async () => {
@@ -1922,8 +2144,8 @@ describe.skipIf(SKIP)("E2E Calculation Tests", () => {
       });
 
       const total = result.reduce((sum, r) => sum + r.amount, 0);
-      // Only EUR-currency expenses: E4(500) + EFX1(400) = 900
-      expect(total).toBeCloseTo(900, 0);
+      // EUR expenses: 900; converted USD expenses: 4800 × 0.91.
+      expect(total).toBeCloseTo(5268, 0);
     });
 
     test("getGrowthRate with zero previous period", async () => {
@@ -2245,9 +2467,9 @@ describe.skipIf(SKIP)("E2E Calculation Tests", () => {
         currency: "USD",
       });
 
-      // USD-only: unpaid(1) + overdue(2) + draft(1) + scheduled(1) = 5
-      // (INV_UNPAID_2 is EUR, filtered out; INV_PAID excluded by status)
-      expect(result.summary.count).toBe(5);
+      // unpaid(2) + overdue(2) + draft(1) + scheduled(1) = 6.
+      // INV_UNPAID_2 is converted from EUR; INV_PAID is excluded by status.
+      expect(result.summary.count).toBe(6);
     });
 
     test("draft invoice amount is included in total", async () => {
@@ -2279,8 +2501,8 @@ describe.skipIf(SKIP)("E2E Calculation Tests", () => {
         status: ["unpaid", "overdue"],
       });
 
-      // USD-only: unpaid(1) + overdue(2) = 3 (EUR invoice filtered out)
-      expect(result.summary.count).toBe(3);
+      // Both currencies: unpaid(2) + overdue(2).
+      expect(result.summary.count).toBe(4);
     });
   });
 

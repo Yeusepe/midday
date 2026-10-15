@@ -1,0 +1,2 @@
+# Shell scripts must keep Unix line endings in Windows checkouts and exports.
+*.sh text eol=lf

@@ -18,6 +18,28 @@ import { parseDateAsUTC } from "./date";
 
 export const NEW_EVENT_ID = "new-event";
 
+export function parseTimerStartTime(
+  time: string,
+  timezone?: string,
+  now = new Date(),
+): string {
+  const start = parse(time, "HH:mm", timezone ? tz(timezone)(now) : now);
+
+  if (
+    !/^\d{2}:\d{2}$/.test(time) ||
+    !isValid(start) ||
+    format(start, "HH:mm") !== time
+  ) {
+    throw new Error("Choose a valid start time.");
+  }
+
+  if (start > now) {
+    throw new Error("Start time cannot be in the future.");
+  }
+
+  return new Date(start.getTime()).toISOString();
+}
+
 // API Response type from the router
 type ApiTrackerRecord =
   RouterOutputs["trackerEntries"]["byDate"]["data"][number];

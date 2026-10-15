@@ -356,8 +356,11 @@ export const startTimerSchema = z.object({
   start: z
     .string()
     .datetime()
+    .refine((value) => Date.parse(value) <= Date.now(), {
+      message: "Start time cannot be in the future",
+    })
     .optional()
-    .describe("Start time (ISO 8601). Defaults to now.")
+    .describe("Start time (ISO 8601), at or before now. Defaults to now.")
     .openapi({
       description:
         "Start time in ISO 8601 format. If not provided, will use current time",

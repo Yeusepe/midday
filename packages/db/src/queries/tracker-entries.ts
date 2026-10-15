@@ -5,7 +5,17 @@ import {
   startOfMonth,
   startOfWeek,
 } from "date-fns";
-import { and, eq, gte, inArray, isNull, lte, sql } from "drizzle-orm";
+import {
+  and,
+  desc,
+  eq,
+  gte,
+  inArray,
+  isNotNull,
+  isNull,
+  lte,
+  sql,
+} from "drizzle-orm";
 import type { Database } from "../client";
 import { teams, trackerEntries, trackerProjects } from "../schema";
 import { createActivity } from "./activities";
@@ -641,18 +651,12 @@ export async function getCurrentTimer(
 ) {
   const { teamId, assignedId } = params;
 
-  // Only include timers that started between today (00:00) and tomorrow (00:00) to handle midnight running
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const tomorrow = new Date(today);
-  tomorrow.setDate(today.getDate() + 1);
-
   const whereConditions = [
     eq(trackerEntries.teamId, teamId),
-    // stop is null means it's running
+    // A backdated timer remains active across midnight until it is stopped.
     isNull(trackerEntries.stop),
-    gte(trackerEntries.start, today.toISOString()),
-    lte(trackerEntries.start, tomorrow.toISOString()),
+    isNull(trackerEntries.duration),
+    isNotNull(trackerEntries.start),
   ];
 
   if (assignedId) {
@@ -661,6 +665,7 @@ export async function getCurrentTimer(
 
   const result = await db.query.trackerEntries.findFirst({
     where: and(...whereConditions),
+    orderBy: [desc(trackerEntries.start)],
     with: {
       user: {
         columns: {
@@ -743,17 +748,11 @@ async function getCurrentRunningTimer(
 ) {
   const { teamId, assignedId } = params;
 
-  // Only include timers that started between today (00:00) and tomorrow (00:00) to handle midnight running
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const tomorrow = new Date(today);
-  tomorrow.setDate(today.getDate() + 1);
-
   const whereConditions = [
     eq(trackerEntries.teamId, teamId),
     isNull(trackerEntries.stop),
-    gte(trackerEntries.start, today.toISOString()),
-    lte(trackerEntries.start, tomorrow.toISOString()),
+    isNull(trackerEntries.duration),
+    isNotNull(trackerEntries.start),
   ];
 
   if (assignedId) {
@@ -762,6 +761,7 @@ async function getCurrentRunningTimer(
 
   return db.query.trackerEntries.findFirst({
     where: and(...whereConditions),
+    orderBy: [desc(trackerEntries.start)],
   });
 }
 

@@ -290,6 +290,28 @@ describe("tRPC: trackerEntries.startTimer", () => {
       }),
     );
   });
+
+  test("passes an earlier start time through to the timer", async () => {
+    const start = new Date(Date.now() - 90 * 60_000).toISOString();
+    const caller = createCaller(createTestContext());
+    await caller.startTimer({ projectId: PROJECT_ID, start });
+
+    expect(mocks.startTimer).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ start, projectId: PROJECT_ID }),
+    );
+  });
+
+  test("rejects a future start before writing a timer", async () => {
+    const caller = createCaller(createTestContext());
+    await expect(
+      caller.startTimer({
+        projectId: PROJECT_ID,
+        start: new Date(Date.now() + 60_000).toISOString(),
+      }),
+    ).rejects.toThrow("Start time cannot be in the future");
+    expect(mocks.startTimer).not.toHaveBeenCalled();
+  });
 });
 
 describe("tRPC: trackerEntries.stopTimer", () => {

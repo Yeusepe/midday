@@ -3,6 +3,15 @@
 import { LogEvents } from "@midday/events/events";
 import { Button } from "@midday/ui/button";
 import { Icons } from "@midday/ui/icons";
+import { Input } from "@midday/ui/input";
+import { Label } from "@midday/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@midday/ui/select";
 import { Textarea } from "@midday/ui/textarea";
 import { useToast } from "@midday/ui/use-toast";
 import NumberFlow from "@number-flow/react";
@@ -10,9 +19,11 @@ import { useOpenPanel } from "@openpanel/nextjs";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { useGlobalTimerStatus } from "@/hooks/use-global-timer-status";
+import { useUserQuery } from "@/hooks/use-user";
 import { useTimerStore } from "@/store/timer";
 import { useTRPC } from "@/trpc/client";
 import { secondsToHoursAndMinutes } from "@/utils/format";
+import { parseTimerStartTime } from "@/utils/tracker";
 import { TrackerSelectProject } from "./tracker-select-project";
 
 type ProjectOption = {
@@ -39,6 +50,7 @@ export function TrackerStopwatch() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { track } = useOpenPanel();
+  const { data: user } = useUserQuery();
   const setTimerStatus = useTimerStore((state) => state.setTimerStatus);
   const { isRunning, elapsedTime, currentProject, projectId } =
     useGlobalTimerStatus();
@@ -47,6 +59,9 @@ export function TrackerStopwatch() {
     ProjectOption | undefined
   >();
   const [notes, setNotes] = useState("");
+  const [startEarlier, setStartEarlier] = useState(false);
+  const [startTime, setStartTime] = useState("");
+  const [startTimeError, setStartTimeError] = useState<string | null>(null);
 
   const { data: timerStatus } = useQuery({
     ...trpc.trackerEntries.getTimerStatus.queryOptions(),
@@ -90,6 +105,13 @@ export function TrackerStopwatch() {
           queryKey: trpc.trackerEntries.getTimerStatus.queryKey(),
         });
 
+        const initialElapsedTime = variables.start
+          ? Math.max(
+              0,
+              Math.floor((Date.now() - Date.parse(variables.start)) / 1000),
+            )
+          : 0;
+
         queryClient.setQueryData(
           trpc.trackerEntries.getTimerStatus.queryKey(),
           (old: any) => ({
@@ -98,6 +120,7 @@ export function TrackerStopwatch() {
             currentEntry: {
               ...old?.currentEntry,
               projectId: variables.projectId,
+              start: variables.start ?? new Date().toISOString(),
               description: variables.description ?? null,
               trackerProject: {
                 ...old?.currentEntry?.trackerProject,
@@ -105,18 +128,21 @@ export function TrackerStopwatch() {
                 name: selectedProject?.name ?? "Project",
               },
             },
-            elapsedTime: 0,
+            elapsedTime: initialElapsedTime,
           }),
         );
 
         setTimerStatus({
           isRunning: true,
-          elapsedTime: 0,
+          elapsedTime: initialElapsedTime,
           projectName: selectedProject?.name ?? null,
           projectId: variables.projectId,
         });
       },
       onSuccess: (data) => {
+        setStartEarlier(false);
+        setStartTime("");
+        setStartTimeError(null);
         if (data?.id) {
           window.localStorage.setItem(getDraftKey(data.id), notes);
         }
@@ -235,10 +261,21 @@ export function TrackerStopwatch() {
       return;
     }
 
+    let start: string | undefined;
+    if (startEarlier) {
+      try {
+        start = parseTimerStartTime(startTime, user?.timezone ?? undefined);
+      } catch (error) {
+        setStartTimeError((error as Error).message);
+        return;
+      }
+    }
+
     track(LogEvents.TrackerStarted.name, { projectId: selectedProject.id });
     startTimerMutation.mutate({
       projectId: selectedProject.id,
       description: notes.trim() || null,
+      start,
     });
   };
 
@@ -314,6 +351,57 @@ export function TrackerStopwatch() {
           rows={5}
           onChange={(event) => setNotes(event.target.value)}
         />
+
+        {!isRunning && (
+          <div className="space-y-2">
+            <Label htmlFor="timer-start-mode">Start time</Label>
+            <div className="flex gap-3">
+              <Select
+                value={startEarlier ? "earlier" : "now"}
+                onValueChange={(value) => {
+                  setStartEarlier(value === "earlier");
+                  setStartTimeError(null);
+                }}
+              >
+                <SelectTrigger id="timer-start-mode" className="flex-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="now">Now</SelectItem>
+                  <SelectItem value="earlier">Earlier today</SelectItem>
+                </SelectContent>
+              </Select>
+              {startEarlier && (
+                <Input
+                  type="time"
+                  aria-label="Start time today"
+                  aria-describedby="timer-start-help"
+                  aria-invalid={!!startTimeError}
+                  value={startTime}
+                  onChange={(event) => {
+                    setStartTime(event.target.value);
+                    setStartTimeError(null);
+                  }}
+                  className="w-40"
+                />
+              )}
+            </div>
+            {startEarlier && (
+              <p
+                id="timer-start-help"
+                className="text-xs text-muted-foreground"
+              >
+                Includes time since your chosen start, then keeps counting.
+                {user?.timezone && ` Timezone: ${user.timezone}.`}
+              </p>
+            )}
+            {startTimeError && (
+              <p role="alert" className="text-sm text-destructive">
+                {startTimeError}
+              </p>
+            )}
+          </div>
+        )}
 
         <Button
           className="h-12 w-full gap-2"

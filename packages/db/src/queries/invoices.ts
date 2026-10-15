@@ -890,6 +890,39 @@ export async function draftInvoice(
   return result;
 }
 
+export async function draftInvoiceFromTracker(
+  db: Database,
+  params: DraftInvoiceParams & {
+    trackerEntryIds: string[];
+    uninvoicedOnly?: boolean;
+  },
+) {
+  const { trackerEntryIds, uninvoicedOnly, ...invoiceData } = params;
+
+  return db.transaction(async (tx) => {
+    const invoice = await draftInvoice(tx, invoiceData);
+    const linkedEntries = await tx
+      .update(trackerEntries)
+      .set({ invoiceId: invoiceData.id })
+      .where(
+        and(
+          eq(trackerEntries.teamId, invoiceData.teamId),
+          inArray(trackerEntries.id, trackerEntryIds),
+          sql`${trackerEntries.billed} is not true`,
+          isNull(trackerEntries.invoiceId),
+        ),
+      )
+      .returning({ id: trackerEntries.id });
+
+    // Roll back the draft if another invoice claimed any of these entries.
+    if (uninvoicedOnly && linkedEntries.length !== trackerEntryIds.length) {
+      throw new Error("TRACKER_ENTRIES_ALREADY_INVOICED");
+    }
+
+    return invoice;
+  });
+}
+
 export type GetInvoiceSummaryParams = {
   teamId: string;
   statuses?: (

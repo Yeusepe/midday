@@ -585,6 +585,7 @@ export const trackerEntries = pgTable(
     rate: numericCasted({ precision: 10, scale: 2 }),
     currency: text(),
     billed: boolean().default(false),
+    invoiceId: uuid("invoice_id"),
     date: date().defaultNow(),
   },
   (table) => [
@@ -594,6 +595,12 @@ export const trackerEntries = pgTable(
     ),
     // Composite index for insights activity date range queries
     index("tracker_entries_team_date_idx").on(table.teamId, table.date),
+    index("tracker_entries_invoice_id_idx").on(table.invoiceId),
+    foreignKey({
+      columns: [table.invoiceId],
+      foreignColumns: [invoices.id],
+      name: "tracker_entries_invoice_id_fkey",
+    }).onDelete("set null"),
     foreignKey({
       columns: [table.assignedId],
       foreignColumns: [users.id],

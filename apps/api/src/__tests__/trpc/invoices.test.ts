@@ -349,6 +349,7 @@ describe("tRPC: invoice.createFromTracker", () => {
       result: {
         "2026-05-01": [
           {
+            id: "entry-1",
             date: "2026-05-01",
             description: "Planning",
             duration: 3600,
@@ -359,6 +360,7 @@ describe("tRPC: invoice.createFromTracker", () => {
         ],
         "2026-05-02": [
           {
+            id: "entry-2",
             date: "2026-05-02",
             description: "Implementation",
             duration: 7200,
@@ -447,6 +449,78 @@ describe("tRPC: invoice.createFromTracker", () => {
         }),
       ],
     });
+  });
+
+  test.each([
+    "grouped",
+    "separate",
+  ] as const)("invoices all uninvoiced time without a date range (%s)", async (timeEntryMode) => {
+    const caller = createCaller(createTestContext());
+    await caller.createFromTracker({
+      projectId: "11111111-1111-4111-8111-111111111111",
+      allUninvoiced: true,
+      timeEntryMode,
+    });
+
+    expect(mocks.getTrackerRecordsByRange).toHaveBeenCalledWith(
+      expect.anything(),
+      {
+        teamId: "test-team-id",
+        projectId: "11111111-1111-4111-8111-111111111111",
+        from: undefined,
+        to: undefined,
+        uninvoicedOnly: true,
+      },
+    );
+    expect(mocks.draftInvoice).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        amount: 300,
+        trackerEntryIds: ["entry-1", "entry-2"],
+        uninvoicedOnly: true,
+        lineItems:
+          timeEntryMode === "grouped"
+            ? [
+                expect.objectContaining({
+                  name: "Client Work (2026-05-01 - 2026-05-02)",
+                  quantity: 3,
+                }),
+              ]
+            : [
+                expect.objectContaining({ name: "Planning", quantity: 1 }),
+                expect.objectContaining({
+                  name: "Implementation",
+                  quantity: 2,
+                }),
+              ],
+      }),
+    );
+  });
+
+  test("does not create an empty invoice when no uninvoiced time remains", async () => {
+    mocks.getTrackerRecordsByRange.mockImplementation(() => ({ result: {} }));
+    const caller = createCaller(createTestContext());
+
+    await expect(
+      caller.createFromTracker({
+        projectId: "11111111-1111-4111-8111-111111111111",
+        allUninvoiced: true,
+      }),
+    ).rejects.toThrow("NO_TRACKED_HOURS");
+    expect(mocks.draftInvoice).not.toHaveBeenCalled();
+  });
+
+  test("still requires a complete date range for dated invoices", async () => {
+    const caller = createCaller(createTestContext());
+
+    await expect(
+      caller.createFromTracker({
+        projectId: "11111111-1111-4111-8111-111111111111",
+        dateFrom: "2026-05-01",
+      }),
+    ).rejects.toThrow("Select a valid date range or all uninvoiced time");
+    expect(mocks.getTrackerRecordsByRange).not.toHaveBeenCalled();
+    expect(mocks.draftInvoice).not.toHaveBeenCalled();
   });
 });
 

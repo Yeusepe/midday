@@ -44,7 +44,7 @@ type Props = {
 type PresetOption = {
   label: string;
   value: string;
-  dateRange: DateRange;
+  dateRange?: DateRange;
 };
 
 type TimeEntryMode = "grouped" | "separate";
@@ -86,6 +86,10 @@ const getPresetOptions = (weekStartsOnMonday: boolean): PresetOption[] => {
         to: endOfMonth(subMonths(now, 1)),
       },
     },
+    {
+      label: "All uninvoiced time",
+      value: "all-uninvoiced",
+    },
   ];
 };
 
@@ -109,6 +113,7 @@ export function TrackerCreateInvoice({ projectId }: Props) {
     defaultPresetOption?.dateRange,
   );
   const [timeEntryMode, setTimeEntryMode] = useState<TimeEntryMode>("grouped");
+  const allUninvoiced = selectedPreset === "all-uninvoiced";
 
   const createInvoiceFromTrackerMutation = useMutation(
     trpc.invoice.createFromTracker.mutationOptions({
@@ -145,8 +150,14 @@ export function TrackerCreateInvoice({ projectId }: Props) {
             break;
           case "NO_TRACKED_HOURS":
             title = "No tracked time";
+            description = allUninvoiced
+              ? "No uninvoiced time found for this project."
+              : "No tracked hours found for this project in the selected date range. Please track some time first.";
+            break;
+          case "TRACKER_ENTRIES_ALREADY_INVOICED":
+            title = "Time already invoiced";
             description =
-              "No tracked hours found for this project in the selected date range. Please track some time first.";
+              "Some of this time was just added to another invoice. Please try again to invoice the remaining time.";
             break;
           case "PROJECT_NOT_FOUND":
             title = "Project not found";
@@ -174,6 +185,15 @@ export function TrackerCreateInvoice({ projectId }: Props) {
   };
 
   const handleCreateInvoice = () => {
+    if (allUninvoiced) {
+      createInvoiceFromTrackerMutation.mutate({
+        projectId,
+        allUninvoiced: true,
+        timeEntryMode,
+      });
+      return;
+    }
+
     if (!date?.from || !date?.to) {
       toast({
         title: "Please select a date range",
@@ -210,19 +230,21 @@ export function TrackerCreateInvoice({ projectId }: Props) {
                 </SelectContent>
               </Select>
 
-              <Calendar
-                key={selectedPreset}
-                className="!p-0 mt-0"
-                mode="range"
-                selected={date}
-                onSelect={(newDate) => {
-                  setDate(newDate);
-                  setSelectedPreset(""); // Clear preset selection when custom date is selected
-                }}
-                disabled={(date) => date > new Date()}
-                defaultMonth={date?.from}
-                weekStartsOn={weekStartsOnMonday ? 1 : 0}
-              />
+              {!allUninvoiced && (
+                <Calendar
+                  key={selectedPreset}
+                  className="!p-0 mt-0"
+                  mode="range"
+                  selected={date}
+                  onSelect={(newDate) => {
+                    setDate(newDate);
+                    setSelectedPreset(""); // Clear preset selection when custom date is selected
+                  }}
+                  disabled={(date) => date > new Date()}
+                  defaultMonth={date?.from}
+                  weekStartsOn={weekStartsOnMonday ? 1 : 0}
+                />
+              )}
 
               <Select
                 value={timeEntryMode}
@@ -244,7 +266,7 @@ export function TrackerCreateInvoice({ projectId }: Props) {
               <SubmitButton
                 onClick={handleCreateInvoice}
                 className="w-full"
-                disabled={!date?.from || !date?.to}
+                disabled={!allUninvoiced && (!date?.from || !date?.to)}
                 isSubmitting={createInvoiceFromTrackerMutation.isPending}
               >
                 Create Invoice

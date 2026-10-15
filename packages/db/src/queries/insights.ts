@@ -415,6 +415,7 @@ async function getTrackerActivityStats(
     .select({
       duration: trackerEntries.duration,
       billed: trackerEntries.billed,
+      invoiceId: trackerEntries.invoiceId,
       rate: trackerProjects.rate,
     })
     .from(trackerEntries)
@@ -435,7 +436,7 @@ async function getTrackerActivityStats(
     const duration = entry.duration ?? 0;
     totalSeconds += duration;
 
-    if (!entry.billed) {
+    if (!entry.billed && !entry.invoiceId) {
       unbilledSeconds += duration;
       // Calculate billable amount for unbilled work only (rate is hourly)
       const rate = Number(entry.rate ?? 0);
@@ -1173,6 +1174,7 @@ export async function getUnbilledHoursDetails(
       and(
         eq(trackerEntries.teamId, teamId),
         eq(trackerEntries.billed, false),
+        isNull(trackerEntries.invoiceId),
         currency ? eq(trackerProjects.currency, currency) : sql`true`,
       ),
     )

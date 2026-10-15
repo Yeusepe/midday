@@ -826,6 +826,7 @@ const dbQueriesMock = new Proxy(
     updateInvoice: mocks.updateInvoice,
     deleteInvoice: mocks.deleteInvoice,
     draftInvoice: mocks.draftInvoice,
+    draftInvoiceFromTracker: mocks.draftInvoice,
     duplicateInvoice: mocks.duplicateInvoice,
     getInvoiceNumber: mocks.getInvoiceNumber,
     getNextInvoiceNumber: mocks.getNextInvoiceNumber,

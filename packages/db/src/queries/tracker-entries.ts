@@ -5,7 +5,7 @@ import {
   startOfMonth,
   startOfWeek,
 } from "date-fns";
-import { and, eq, gte, inArray, isNull, lte } from "drizzle-orm";
+import { and, eq, gte, inArray, isNull, lte, sql } from "drizzle-orm";
 import type { Database } from "../client";
 import { teams, trackerEntries, trackerProjects } from "../schema";
 import { createActivity } from "./activities";
@@ -85,26 +85,38 @@ export async function getTrackerRecordsByDate(
 
 export type GetTrackerRecordsByRangeParams = {
   teamId: string;
-  from: string;
-  to: string;
+  from?: string;
+  to?: string;
   projectId?: string;
   userId?: string;
+  uninvoicedOnly?: boolean;
 };
 
 export async function getTrackerRecordsByRange(
   db: Database,
   params: GetTrackerRecordsByRangeParams,
 ) {
-  const { teamId, from, to, projectId, userId } = params;
+  const { teamId, from, to, projectId, userId, uninvoicedOnly } = params;
 
   const NIL_UUID = "00000000-0000-0000-0000-000000000000";
 
   // Build the where conditions array
-  const whereConditions = [
-    eq(trackerEntries.teamId, teamId),
-    gte(trackerEntries.date, from),
-    lte(trackerEntries.date, to),
-  ];
+  const whereConditions = [eq(trackerEntries.teamId, teamId)];
+
+  if (from) {
+    whereConditions.push(gte(trackerEntries.date, from));
+  }
+
+  if (to) {
+    whereConditions.push(lte(trackerEntries.date, to));
+  }
+
+  if (uninvoicedOnly) {
+    whereConditions.push(
+      sql`${trackerEntries.billed} is not true`,
+      isNull(trackerEntries.invoiceId),
+    );
+  }
 
   if (projectId && projectId !== NIL_UUID) {
     whereConditions.push(eq(trackerEntries.projectId, projectId));

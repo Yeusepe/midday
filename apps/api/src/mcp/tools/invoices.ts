@@ -9,6 +9,7 @@ import {
 import {
   deleteInvoice,
   draftInvoice,
+  draftInvoiceFromTracker,
   duplicateInvoice,
   getAverageDaysToPayment,
   getAverageInvoiceSize,
@@ -96,6 +97,7 @@ async function embedLogoAsDataUrl(
 }
 
 type TrackerInvoiceEntry = {
+  id: string;
   date?: string | null;
   description?: string | null;
   duration?: number | null;
@@ -2008,8 +2010,9 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
 
           const invoiceId = uuidv4();
 
-          const result = await draftInvoice(db, {
+          const result = await draftInvoiceFromTracker(db, {
             id: invoiceId,
+            trackerEntryIds: billableEntries.map((entry) => entry.id),
             teamId,
             userId,
             invoiceNumber,

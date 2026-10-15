@@ -24,6 +24,7 @@ import { UTCDate } from "@date-fns/utc";
 import {
   deleteInvoice,
   draftInvoice,
+  draftInvoiceFromTracker,
   duplicateInvoice,
   getAverageDaysToPayment,
   getAverageInvoiceSize,
@@ -63,6 +64,7 @@ const defaultTemplate = DEFAULT_TEMPLATE;
 const trackerLineItemModeSchema = z.enum(["grouped", "separate"]);
 
 type TrackerInvoiceEntry = {
+  id: string;
   date?: string | null;
   description?: string | null;
   duration?: number | null;
@@ -227,15 +229,23 @@ export const invoiceRouter = createTRPCRouter({
 
   createFromTracker: protectedProcedure
     .input(
-      z.object({
-        projectId: z.string().uuid(),
-        dateFrom: z.string(),
-        dateTo: z.string(),
-        timeEntryMode: trackerLineItemModeSchema.optional(),
-      }),
+      z
+        .object({
+          projectId: z.string().uuid(),
+          dateFrom: z.iso.date().optional(),
+          dateTo: z.iso.date().optional(),
+          allUninvoiced: z.boolean().optional(),
+          timeEntryMode: trackerLineItemModeSchema.optional(),
+        })
+        .refine(
+          (input) =>
+            input.allUninvoiced ||
+            (input.dateFrom && input.dateTo && input.dateFrom <= input.dateTo),
+          { message: "Select a valid date range or all uninvoiced time" },
+        ),
     )
     .mutation(async ({ ctx: { db, teamId, session }, input }) => {
-      const { projectId, dateFrom, dateTo } = input;
+      const { projectId, allUninvoiced } = input;
       const timeEntryMode = input.timeEntryMode ?? "grouped";
 
       // Get project data and tracker entries
@@ -244,8 +254,9 @@ export const invoiceRouter = createTRPCRouter({
         getTrackerRecordsByRange(db, {
           teamId: teamId!,
           projectId,
-          from: dateFrom,
-          to: dateTo,
+          from: allUninvoiced ? undefined : input.dateFrom,
+          to: allUninvoiced ? undefined : input.dateTo,
+          uninvoicedOnly: allUninvoiced,
         }),
       ]);
 
@@ -317,6 +328,9 @@ export const invoiceRouter = createTRPCRouter({
 
       // Format the date range for the line item description
       // Use parseISO to avoid timezone shifts when parsing date strings
+      const entryDates = Object.keys(trackerData.result).sort();
+      const dateFrom = allUninvoiced ? entryDates[0]! : input.dateFrom!;
+      const dateTo = allUninvoiced ? entryDates.at(-1)! : input.dateTo!;
       const formattedDateFrom = format(parseISO(dateFrom), userDateFormat);
       const formattedDateTo = format(parseISO(dateTo), userDateFormat);
       const dateRangeDescription = `${projectName} (${formattedDateFrom} - ${formattedDateTo})`;
@@ -402,7 +416,11 @@ export const invoiceRouter = createTRPCRouter({
         subtotal: null,
       };
 
-      return draftInvoice(db, invoiceData);
+      return draftInvoiceFromTracker(db, {
+        ...invoiceData,
+        trackerEntryIds: billableEntries.map((entry) => entry.id),
+        uninvoicedOnly: allUninvoiced,
+      });
     }),
 
   defaultSettings: protectedProcedure.query(

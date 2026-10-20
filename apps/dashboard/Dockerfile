@@ -108,5 +108,7 @@ USER nextjs
 
 EXPOSE 3000
 
+HEALTHCHECK --interval=10s --timeout=5s --start-period=30s CMD bun -e "fetch('http://127.0.0.1:'+process.env.PORT+'/login').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+
 ENTRYPOINT ["/app/entrypoint.sh"]
 CMD ["bun", "apps/dashboard/server.js"]

@@ -55,5 +55,7 @@ WORKDIR /app/apps/worker
 
 EXPOSE 8080
 
+HEALTHCHECK --interval=10s --timeout=5s --start-period=30s CMD bun -e "fetch('http://127.0.0.1:'+process.env.PORT+'/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+
 ENTRYPOINT ["/app/entrypoint.sh"]
 CMD ["bun", "src/index.ts"]

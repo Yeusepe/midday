@@ -16,11 +16,11 @@
     "@supabase/supabase-js": "^2.101.1",
     "date-fns": "catalog:",
     "react": "catalog:",
-    "server-only": "^0.0.1",
-    "supabase": "^2.84.6"
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "supabase": "^2.84.6"
   },
   "exports": {
     "./server": "./src/client/server.ts",

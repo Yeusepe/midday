@@ -29,11 +29,12 @@
     "heic-convert": "catalog:",
     "node-xlsx": "catalog:",
     "sharp": "catalog:",
-    "trigger.dev": "4.4.3",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "@trigger.dev/sdk": "4.7.6"
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "@types/heic-convert": "1.2.3"
+    "@types/heic-convert": "1.2.3",
+    "trigger.dev": "4.4.3"
   }
 }

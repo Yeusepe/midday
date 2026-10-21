@@ -25,6 +25,8 @@ COPY --from=builder /app/out/full/ .
 
 # Build the mcp-apps package (produces self-contained HTML files)
 RUN cd packages/mcp-apps && bun run build
+# The production install supplies its own workspace dependency directories.
+RUN find packages apps/api -type d -name node_modules -prune -exec rm -rf '{}' +
 
 # Production dependency stage - keep build-only packages out of runtime
 FROM base AS prod-deps
@@ -58,6 +60,8 @@ ENV PORT=8080
 COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=installer /app/apps/api ./apps/api
 COPY --from=installer /app/packages ./packages
+COPY --from=prod-deps /app/apps/api ./apps/api
+COPY --from=prod-deps /app/packages ./packages
 COPY --from=installer /app/package.json ./package.json
 
 # Carry the git SHA into the runtime container when the platform provides it.

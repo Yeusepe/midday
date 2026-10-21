@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+import { getDatabaseSslConfig } from "../ssl";
 /**
  * Matching Progress CLI
  *
@@ -1424,10 +1425,7 @@ Env:
 
   const pool = new Pool({
     connectionString: dbUrl,
-    ssl:
-      process.env.NODE_ENV === "development"
-        ? false
-        : { rejectUnauthorized: false },
+    ssl: getDatabaseSslConfig(process.env.NODE_ENV === "development"),
     max: 2,
   });
 

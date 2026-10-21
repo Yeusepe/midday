@@ -1,3 +1,4 @@
+import { getDatabaseSslConfig } from "../ssl";
 import { Pool } from "pg";
 import { calculateNameScore } from "../utils/transaction-matching";
 
@@ -372,10 +373,7 @@ async function main() {
 
   const pool = new Pool({
     connectionString: dbUrl,
-    ssl:
-      process.env.NODE_ENV === "development"
-        ? false
-        : { rejectUnauthorized: false },
+    ssl: getDatabaseSslConfig(process.env.NODE_ENV === "development"),
     max: 2,
   });
 

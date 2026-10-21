@@ -19,5 +19,5 @@ export function getDatabaseSslConfig(
     };
   }
 
-  return isDevelopment ? false : { rejectUnauthorized: false };
+  return isDevelopment ? false : { rejectUnauthorized: true };
 }

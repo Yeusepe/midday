@@ -133,6 +133,7 @@ jobs:
     name: Deploy API
     needs: [detect-changes, validate, eval-tool-selection]
     if: >-
+      vars.ENABLE_LEGACY_RAILWAY_DEPLOYS == 'true' &&
       always() &&
       (needs.validate.result == 'success' || needs.validate.result == 'skipped') &&
       needs.detect-changes.outputs.api == 'true' &&
@@ -195,6 +196,7 @@ jobs:
     name: Deploy Dashboard
     needs: [detect-changes, validate, deploy-api]
     if: >-
+      vars.ENABLE_LEGACY_RAILWAY_DEPLOYS == 'true' &&
       always() &&
       (needs.validate.result == 'success' || needs.validate.result == 'skipped') &&
       needs.detect-changes.outputs.dashboard == 'true' &&
@@ -220,6 +222,7 @@ jobs:
     name: Deploy Worker
     needs: [detect-changes, validate, deploy-api]
     if: >-
+      vars.ENABLE_LEGACY_RAILWAY_DEPLOYS == 'true' &&
       always() &&
       (needs.validate.result == 'success' || needs.validate.result == 'skipped') &&
       needs.detect-changes.outputs.worker == 'true' &&

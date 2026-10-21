@@ -37,6 +37,11 @@ function createValidInvoiceForRest() {
     invoiceNumber: "INV-001",
     amount: 1000,
     currency: "USD",
+    exchangeRate: null,
+    exchangeRateSource: null,
+    exchangeRateUpdatedAt: null,
+    convertedCurrency: null,
+    convertedAmount: null,
     customer: {
       id: "b2c3d4e5-6f7a-4b8c-9d0e-1f2a3b4c5d6e",
       name: "Acme Corp",

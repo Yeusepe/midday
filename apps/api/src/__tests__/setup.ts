@@ -806,6 +806,7 @@ const dbQueriesMock = new Proxy(
   {
     // Transaction functions
     getTransactions: mocks.getTransactions,
+    getTransactionsForEnrichment: mock(() => Promise.resolve([])),
     getTransactionById: mocks.getTransactionById,
     createTransaction: mocks.createTransaction,
     createTransactions: mocks.createTransactions,
@@ -1386,6 +1387,7 @@ mock.module("@midday/accounting", () => ({
 }));
 
 mock.module("@midday/banking", () => ({
+  getBankingProviderConfigurationStatuses: mock(() => ({})),
   getRates: mocks.getRates,
   getProviderErrorDetails: mock((error: unknown) => ({
     message: error instanceof Error ? error.message : String(error),

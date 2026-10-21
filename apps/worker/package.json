@@ -47,13 +47,13 @@
     "node-xlsx": "catalog:",
     "papaparse": "catalog:",
     "sharp": "catalog:",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "workbench": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "latest",
     "@types/heic-convert": "1.2.3",
     "@types/papaparse": "^5.5.2",
-    "@types/react": "^19.2.14",
-    "workbench": "workspace:*"
+    "@types/react": "^19.2.14"
   }
 }

@@ -9,7 +9,11 @@ registerMiddayBotRuntime();
 
 app.post("/", async (c) => {
   await bot.initialize();
-  return bot.webhooks.telegram(c.req.raw);
+  const webhook = bot.webhooks.telegram;
+  if (!webhook) {
+    return c.json({ error: "Telegram is not configured" }, 503);
+  }
+  return webhook(c.req.raw);
 });
 
 export const telegramWebhookRouter = app;

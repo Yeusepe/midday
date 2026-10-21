@@ -1,5 +1,5 @@
 # Base image with Bun
-FROM oven/bun:1.3.10 AS base
+FROM ghcr.io/yeusepe/coolify:bun-trust-20261020@sha256:fa93386b7f0992a4efca82795669b8f0c29b381c1371bfd12f827c7551999f65 AS base
 
 # Install turbo CLI globally
 FROM base AS turbo-cli
@@ -10,7 +10,7 @@ FROM turbo-cli AS builder
 WORKDIR /app
 COPY . .
 RUN test -f .git-commit-sha || printf 'unknown' > .git-commit-sha
-RUN turbo prune @midday/worker --docker --out-dir=out/worker
+RUN bun scripts/prune-docker.ts @midday/worker out/worker
 
 # Installer stage - install deps and build
 FROM base AS installer
@@ -28,13 +28,15 @@ COPY bunfig.toml .
 
 # Install production dependencies before copying full source to maximize cache hits.
 RUN rm -f bun.lock
-RUN bun install --production
+RUN bun install
 
 # Copy full source from worker pruned workspace
 COPY --from=builder /app/out/worker/full/ .
+RUN cd packages/workbench && bun run build:ui && bun run build:lib
+RUN bun prune --production
 
 # Runner stage - clean image
-FROM oven/bun:1.3.10 AS runner
+FROM ghcr.io/yeusepe/coolify:bun-trust-20261020@sha256:fa93386b7f0992a4efca82795669b8f0c29b381c1371bfd12f827c7551999f65 AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production

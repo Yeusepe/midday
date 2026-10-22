@@ -1,5 +1,5 @@
 # Base image with Bun
-FROM ghcr.io/yeusepe/coolify:bun-trust-20261020@sha256:fa93386b7f0992a4efca82795669b8f0c29b381c1371bfd12f827c7551999f65 AS base
+FROM ghcr.io/yeusepe/coolify@sha256:4544370d1cc8feb9f911c492e49004941067e028f296e48bff6e92d39451ee5e AS base
 
 # Install turbo CLI globally
 FROM base AS turbo-cli
@@ -36,7 +36,7 @@ RUN cd packages/workbench && bun run build:ui && bun run build:lib
 RUN bun prune --production
 
 # Runner stage - clean image
-FROM ghcr.io/yeusepe/coolify:bun-trust-20261020@sha256:fa93386b7f0992a4efca82795669b8f0c29b381c1371bfd12f827c7551999f65 AS runner
+FROM ghcr.io/yeusepe/coolify@sha256:4544370d1cc8feb9f911c492e49004941067e028f296e48bff6e92d39451ee5e AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production

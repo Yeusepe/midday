@@ -1,4 +1,4 @@
-import { existsSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync } from "node:fs";
 
 const [workspace, output = "out"] = process.argv.slice(2);
 if (!workspace) throw new Error("A workspace is required");
@@ -25,4 +25,12 @@ for (const path of [`${output}/bun.lock`, `${output}/json/bun.lock`, `${output}/
   pruned.lockfileVersion = lock.lockfileVersion;
   pruned.overrides = lock.overrides;
   await Bun.write(path, JSON.stringify(pruned, null, 2));
+}
+
+// Runtime security backports must survive workspace pruning.
+for (const tree of ["json", "full"]) {
+  if (existsSync("patches")) {
+    mkdirSync(`${output}/${tree}/patches`, { recursive: true });
+    cpSync("patches", `${output}/${tree}/patches`, { recursive: true });
+  }
 }

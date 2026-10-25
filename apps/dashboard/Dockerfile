@@ -1,5 +1,5 @@
 # Base image with Bun
-FROM ghcr.io/yeusepe/coolify@sha256:4544370d1cc8feb9f911c492e49004941067e028f296e48bff6e92d39451ee5e AS base
+FROM ghcr.io/yeusepe/coolify@sha256:fc0055a6177e7c46d79b1670be1992a8b1da9f477dda33e4f7be40807eafa2a2 AS base
 
 # Install turbo CLI globally using Bun
 FROM base AS turbo-cli
@@ -23,6 +23,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
 # Copy package.json files from pruned workspace
 COPY --from=builder /app/out/json/ .
 COPY bunfig.toml .
+COPY patches ./patches
 
 # Install dependencies
 RUN bun install
@@ -83,7 +84,7 @@ RUN GIT_COMMIT_SHA=$(cat /tmp/git-sha.txt 2>/dev/null || echo ""); \
     bunx turbo run build --filter=@midday/dashboard --only
 
 # Runner stage - clean bun image, no turbo
-FROM ghcr.io/yeusepe/coolify@sha256:4544370d1cc8feb9f911c492e49004941067e028f296e48bff6e92d39451ee5e AS runner
+FROM ghcr.io/yeusepe/coolify@sha256:fc0055a6177e7c46d79b1670be1992a8b1da9f477dda33e4f7be40807eafa2a2 AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production

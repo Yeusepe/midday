@@ -1,5 +1,5 @@
 # Base image with Bun
-FROM ghcr.io/yeusepe/coolify@sha256:4544370d1cc8feb9f911c492e49004941067e028f296e48bff6e92d39451ee5e AS base
+FROM ghcr.io/yeusepe/coolify@sha256:fc0055a6177e7c46d79b1670be1992a8b1da9f477dda33e4f7be40807eafa2a2 AS base
 
 # Install turbo CLI globally
 FROM base AS turbo-cli
@@ -25,6 +25,7 @@ RUN apt-get update && apt-get install -y \
 # Copy package.json files from worker pruned workspace
 COPY --from=builder /app/out/worker/json/ .
 COPY bunfig.toml .
+COPY patches ./patches
 
 # Install production dependencies before copying full source to maximize cache hits.
 RUN rm -f bun.lock
@@ -36,7 +37,7 @@ RUN cd packages/workbench && bun run build:ui && bun run build:lib
 RUN bun prune --production
 
 # Runner stage - clean image
-FROM ghcr.io/yeusepe/coolify@sha256:4544370d1cc8feb9f911c492e49004941067e028f296e48bff6e92d39451ee5e AS runner
+FROM ghcr.io/yeusepe/coolify@sha256:fc0055a6177e7c46d79b1670be1992a8b1da9f477dda33e4f7be40807eafa2a2 AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production

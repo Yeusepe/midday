@@ -1,5 +1,5 @@
 # Base image with Bun
-FROM ghcr.io/yeusepe/coolify@sha256:4544370d1cc8feb9f911c492e49004941067e028f296e48bff6e92d39451ee5e AS base
+FROM ghcr.io/yeusepe/coolify@sha256:fc0055a6177e7c46d79b1670be1992a8b1da9f477dda33e4f7be40807eafa2a2 AS base
 
 # Install turbo CLI globally
 FROM base AS turbo-cli
@@ -18,6 +18,7 @@ WORKDIR /app
 # Install dependencies
 COPY --from=builder /app/out/json/ .
 COPY bunfig.toml .
+COPY patches ./patches
 RUN bun install
 
 # Copy full source
@@ -34,6 +35,7 @@ WORKDIR /app
 
 COPY --from=builder /app/out/json/ .
 COPY bunfig.toml .
+COPY patches ./patches
 # Turbo may keep this workspace in the pruned install set even when the API
 # runtime does not import it. Make it dependency-free for production deps.
 RUN printf '%s\n' '{"name":"@midday/ui","private":true,"exports":{}}' > packages/ui/package.json
@@ -50,7 +52,7 @@ RUN printf '%s\n' '{"name":"@midday/mcp-apps","version":"1.0.0","private":true,"
 RUN rm -f bun.lock && bun install --production --no-save
 
 # Runner stage - clean image
-FROM ghcr.io/yeusepe/coolify@sha256:4544370d1cc8feb9f911c492e49004941067e028f296e48bff6e92d39451ee5e AS runner
+FROM ghcr.io/yeusepe/coolify@sha256:fc0055a6177e7c46d79b1670be1992a8b1da9f477dda33e4f7be40807eafa2a2 AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production

@@ -113,8 +113,8 @@
     "brace-expansion@^2": "2.1.7",
     "brace-expansion@>=3": "5.0.12",
     "minimatch@^5": "5.1.9",
-    "minimatch@^9": "9.0.7",
-    "minimatch@^10": "10.2.4",
+    "minimatch@^9": "11.0.5",
+    "minimatch@^10": "11.0.5",
     "picomatch@^2": "2.3.2",
     "picomatch@^4": "4.0.4",
     "nanoid@>=4": "5.1.16",
@@ -144,7 +144,7 @@
     "ajv": "8.20.0",
     "baseline-browser-mapping": "2.11.30",
     "body-parser": "2.4.0",
-    "decode-uri-component": "0.5.0",
+    "decode-uri-component": "0.5.1",
     "dompurify": "3.4.17",
     "esbuild": "0.28.2",
     "fast-copy": "4.2.0",
@@ -159,7 +159,8 @@
     "undici": "6.29.1",
     "@fastify/busboy": "3.2.3",
     "pdfjs-dist": "5.5.207",
-    "glob@^10": "10.5.0",
+    "glob@^10": "14.0.4",
+    "glob@^13": "14.0.4",
     "uuid@^9": "11.1.1",
     "@octokit/plugin-paginate-rest@^6": "9.2.2",
     "@octokit/request-error@^3": "5.1.1",
@@ -171,6 +172,7 @@
   "patchedDependencies": {
     "file-type@16.5.4": "patches/file-type@16.5.4.patch",
     "file-type@19.6.0": "patches/file-type@19.6.0.patch",
-    "deepmerge@4.3.1": "patches/deepmerge@4.3.1.patch"
+    "deepmerge@4.3.1": "patches/deepmerge@4.3.1.patch",
+    "braces@3.0.3": "patches/braces@3.0.3.patch"
   }
 }

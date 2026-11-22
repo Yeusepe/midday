@@ -66,9 +66,16 @@ export const trpc = createTRPCOptionsProxy<AppRouter>({
         },
       }),
       loggerLink({
-        enabled: (opts) =>
-          process.env.NODE_ENV === "development" ||
-          (opts.direction === "down" && opts.result instanceof Error),
+        enabled: (opts) => {
+          // tRPC includes path in both directions at runtime; its down type omits it.
+          const path = (opts as { path?: string }).path;
+          return (
+            typeof path === "string" &&
+            !path.startsWith("linear.") &&
+            (process.env.NODE_ENV === "development" ||
+              (opts.direction === "down" && opts.result instanceof Error))
+          );
+        },
       }),
     ],
   }),

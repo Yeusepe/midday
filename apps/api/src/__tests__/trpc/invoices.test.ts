@@ -301,6 +301,20 @@ describe("tRPC: invoice.draft", () => {
 });
 
 describe("tRPC: invoice.createFromTracker", () => {
+  const internalTickets = [
+    {
+      id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+      identifier: "FUR-10",
+      title: "Private Linear implementation",
+      url: "https://linear.app/fixture/issue/FUR-10",
+    },
+    {
+      id: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+      identifier: "ENG-99",
+      title: "Moved private ticket",
+    },
+  ];
+
   beforeEach(() => {
     mocks.draftInvoice.mockReset();
     mocks.getTrackerProjectById.mockReset();
@@ -352,6 +366,7 @@ describe("tRPC: invoice.createFromTracker", () => {
             id: "entry-1",
             date: "2026-05-01",
             description: "Planning",
+            linearIssues: internalTickets,
             duration: 3600,
             start: "2026-05-01T13:00:00.000Z",
             stop: "2026-05-01T14:00:00.000Z",
@@ -363,6 +378,7 @@ describe("tRPC: invoice.createFromTracker", () => {
             id: "entry-2",
             date: "2026-05-02",
             description: "Implementation",
+            linearIssues: [internalTickets[0]],
             duration: 7200,
             start: "2026-05-02T15:00:00.000Z",
             stop: "2026-05-02T17:00:00.000Z",
@@ -388,6 +404,9 @@ describe("tRPC: invoice.createFromTracker", () => {
 
     expect(draftArgs.amount).toBe(300);
     expect(draftArgs.lineItems).toHaveLength(1);
+    expect(JSON.stringify(draftArgs)).not.toMatch(
+      /FUR-10|ENG-99|Private Linear|Moved private|linearIssues|linear\.app/,
+    );
     expect(draftArgs.lineItems[0]).toMatchObject({
       name: "Client Work (2026-05-01 - 2026-05-31)",
       quantity: 3,
@@ -423,6 +442,9 @@ describe("tRPC: invoice.createFromTracker", () => {
     ];
 
     expect(draftArgs.lineItems).toHaveLength(2);
+    expect(JSON.stringify(draftArgs)).not.toMatch(
+      /FUR-10|ENG-99|Private Linear|Moved private|linearIssues|linear\.app/,
+    );
     expect(draftArgs.lineItems[0]).toMatchObject({
       name: "Planning",
       quantity: 1,

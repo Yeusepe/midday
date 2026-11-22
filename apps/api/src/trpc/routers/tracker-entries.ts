@@ -8,6 +8,7 @@ import {
   stopTimerSchema,
   upsertTrackerEntriesSchema,
 } from "@api/schemas/tracker-entries";
+import { verifyLinearIssueLinks } from "@api/services/linear";
 import { createTRPCRouter, protectedProcedure } from "@api/trpc/init";
 import {
   deleteTrackerEntry,
@@ -54,9 +55,16 @@ export const trackerEntriesRouter = createTRPCRouter({
 
   upsert: protectedProcedure
     .input(upsertTrackerEntriesSchema)
-    .mutation(async ({ ctx: { db, teamId }, input }) => {
+    .mutation(async ({ ctx: { db, teamId, session }, input }) => {
       return upsertTrackerEntries(db, {
         ...input,
+        verifiedLinearIssues: await verifyLinearIssueLinks(
+          db,
+          teamId!,
+          session.user.id,
+          input.linearIssueIds,
+          input.id,
+        ),
         teamId: teamId!,
       });
     }),
@@ -75,6 +83,12 @@ export const trackerEntriesRouter = createTRPCRouter({
     .input(startTimerSchema)
     .mutation(async ({ ctx: { db, teamId, session }, input }) => {
       return startTimer(db, {
+        verifiedLinearIssues: await verifyLinearIssueLinks(
+          db,
+          teamId!,
+          session.user.id,
+          input.linearIssueIds,
+        ),
         teamId: teamId!,
         assignedId: input.assignedId ?? session.user.id,
         ...input,

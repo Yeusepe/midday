@@ -1,3 +1,4 @@
+import { containsLinearTelemetry } from "@midday/utils/linear-telemetry";
 import * as Sentry from "@sentry/bun";
 
 if (process.env.NODE_ENV === "production" && process.env.SENTRY_DSN) {
@@ -19,9 +20,12 @@ if (process.env.NODE_ENV === "production" && process.env.SENTRY_DSN) {
 
     // Sample 10% of transactions for performance monitoring
     tracesSampleRate: 0.1,
+    beforeBreadcrumb: (breadcrumb) =>
+      containsLinearTelemetry(breadcrumb) ? null : breadcrumb,
 
     // Drop noisy transactions that don't provide value
     beforeSendTransaction(event) {
+      if (containsLinearTelemetry(event)) return null;
       const url = event.request?.url || event.transaction || "";
 
       if (
@@ -37,6 +41,7 @@ if (process.env.NODE_ENV === "production" && process.env.SENTRY_DSN) {
 
     // Filter out expected client errors from error reporting
     beforeSend(event) {
+      if (containsLinearTelemetry(event)) return null;
       // Don't send network/timeout errors from health checks
       const message = event.exception?.values?.[0]?.value || "";
       if (message.includes("ECONNREFUSED") || message.includes("ETIMEDOUT")) {

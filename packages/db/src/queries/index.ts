@@ -35,6 +35,7 @@ export * from "./short-links";
 export * from "./tags";
 export * from "./teams";
 export * from "./tracker-entries";
+export * from "./tracker-linear";
 export * from "./tracker-projects";
 export * from "./transaction-attachments";
 export * from "./transaction-categories";

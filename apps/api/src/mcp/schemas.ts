@@ -1,3 +1,7 @@
+import {
+  linearIssueRefSchema,
+  linearProjectRefSchema,
+} from "@api/schemas/linear";
 import { z } from "zod";
 
 // ============================================================
@@ -213,6 +217,7 @@ const mcpTrackerCustomerSchema = z.object({
 });
 
 export const mcpTrackerProjectSchema = z.object({
+  linearProject: linearProjectRefSchema.nullable().optional(),
   id: z.string(),
   name: z.string().nullable().optional(),
   description: z.string().nullable().optional(),
@@ -229,6 +234,7 @@ export const mcpTrackerProjectSchema = z.object({
 });
 
 export const mcpTrackerEntrySchema = z.object({
+  linearIssues: z.array(linearIssueRefSchema).optional(),
   id: z.string(),
   date: z.string().nullable().optional(),
   start: z.string().nullable().optional(),

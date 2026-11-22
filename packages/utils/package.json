@@ -17,6 +17,7 @@
     ".": "./src/index.ts",
     "./envs": "./src/envs.ts",
     "./format": "./src/format.ts",
+    "./linear-telemetry": "./src/linear-telemetry.ts",
     "./sanitize-redirect": "./src/sanitize-redirect.ts",
     "./tax": "./src/tax.ts"
   }

@@ -52,6 +52,9 @@ describe("MCP server", () => {
         ._registeredTools,
     );
 
+    expect(names).toContain("tracker_linear_issues_resolve");
+    expect(names).toContain("tracker_entry_linear_issues_set");
+    expect(names).toContain("tracker_linear_issues_refresh");
     expect(names).toContain("transactions_list");
     expect(names).toContain("transactions_create");
     expect(names).toContain("transactions_export");
@@ -206,6 +209,11 @@ describe("MCP server", () => {
         ._registeredTools,
     );
 
+    expect(readNames).toContain("tracker_linear_issues_resolve");
+    expect(readNames).toContain("tracker_entry_linear_issues_get");
+    expect(readNames).not.toContain("tracker_entry_linear_issues_set");
+    expect(readNames).not.toContain("tracker_linear_project_link");
+    expect(readNames).not.toContain("tracker_linear_issues_refresh");
     expect(readNames).toContain("transactions_list");
     expect(readNames).toContain("accounting_sync_status");
     expect(readNames).not.toContain("export_job_status");

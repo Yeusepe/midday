@@ -32,6 +32,7 @@ import { useEffect } from "react";
 import { z } from "zod/v3";
 import { SearchCustomers } from "@/components/search-customers";
 import { SelectTags } from "@/components/select-tags";
+import { TrackerLinearProject } from "@/components/tracker-linear-project";
 import { useCustomerParams } from "@/hooks/use-customer-params";
 import { useLatestProjectId } from "@/hooks/use-latest-project-id";
 import { useTrackerParams } from "@/hooks/use-tracker-params";
@@ -408,6 +409,14 @@ export function TrackerProjectForm({ data, defaultCurrency }: Props) {
             </div>
           </CollapsibleContent>
         </Collapsible>
+
+        {data?.id ? (
+          <TrackerLinearProject projectId={data.id} />
+        ) : (
+          <p className="text-xs text-muted-foreground">
+            Save this project to connect it to Linear.
+          </p>
+        )}
 
         <div className="fixed bottom-8 w-full sm:max-w-[455px] right-8">
           <SubmitButton

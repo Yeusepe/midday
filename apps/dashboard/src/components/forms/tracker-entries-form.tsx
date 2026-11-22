@@ -2,14 +2,19 @@
 
 import { TZDate } from "@date-fns/tz";
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { LinearIssueDetails } from "@midday/db/schema";
 import { Form, FormControl, FormField, FormItem } from "@midday/ui/form";
 import { SubmitButton } from "@midday/ui/submit-button";
 import { Textarea } from "@midday/ui/textarea";
 import { TimeRangeInput } from "@midday/ui/time-range-input";
 import { startOfDay } from "date-fns";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod/v3";
+import {
+  TrackerEntryLinearIssues,
+  TrackerLinearIssues,
+} from "@/components/tracker-linear-issues";
 import { useLatestProjectId } from "@/hooks/use-latest-project-id";
 import { useTrackerParams } from "@/hooks/use-tracker-params";
 import { useUserQuery } from "@/hooks/use-user";
@@ -18,6 +23,7 @@ import { AssignUser } from "../assign-user";
 import { TrackerSelectProject } from "../tracker-select-project";
 
 const formSchema = z.object({
+  linearIssueIds: z.array(z.string().uuid()).optional(),
   id: z.string().optional(),
   duration: z.number().min(1),
   projectId: z.string().uuid(),
@@ -60,6 +66,7 @@ export function TrackerEntriesForm({
   // Helper to get user timezone with fallback
   const getUserTimezone = () => user?.timezone || "UTC";
 
+  const [linearIssues, setLinearIssues] = useState<LinearIssueDetails[]>([]);
   const isUpdate = eventId && eventId !== NEW_EVENT_ID;
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -130,7 +137,14 @@ export function TrackerEntriesForm({
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onCreate)}
+        onSubmit={form.handleSubmit((values) =>
+          onCreate({
+            ...values,
+            linearIssueIds: isUpdate
+              ? undefined
+              : linearIssues.map((issue) => issue.id),
+          }),
+        )}
         className="mb-4 mt-6 space-y-4"
       >
         <TimeRangeInput
@@ -155,6 +169,7 @@ export function TrackerEntriesForm({
                 <TrackerSelectProject
                   onCreate={(project) => {
                     if (project) {
+                      setLinearIssues([]);
                       field.onChange(project.id);
                       onSelectProject(project);
                     }
@@ -162,6 +177,7 @@ export function TrackerEntriesForm({
                   selectedId={field.value}
                   onSelect={(selected) => {
                     if (selected) {
+                      setLinearIssues([]);
                       field.onChange(selected.id);
                       onSelectProject(selected);
                     }
@@ -208,6 +224,22 @@ export function TrackerEntriesForm({
             </FormItem>
           )}
         />
+
+        {isUpdate ? (
+          <TrackerEntryLinearIssues
+            key={eventId}
+            entryId={eventId}
+            projectId={projectId}
+          />
+        ) : (
+          <TrackerLinearIssues
+            key={form.watch("projectId")}
+            projectId={form.watch("projectId")}
+            value={linearIssues}
+            onChange={setLinearIssues}
+            disabled={isSaving}
+          />
+        )}
 
         <div className="flex mt-6 justify-between">
           <SubmitButton

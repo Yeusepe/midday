@@ -6,6 +6,7 @@ import { Input } from "@midday/ui/input";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { useTRPC } from "@/trpc/client";
+import { TrackerLinearProject } from "./tracker-linear-project";
 
 export function TrackerLinearIssues({
   projectId,
@@ -29,7 +30,16 @@ export function TrackerLinearIssues({
       { enabled: !!projectId },
     ),
   );
+  const connection = useQuery(
+    trpc.linear.connection.queryOptions(undefined, {
+      enabled: !!projectId,
+      retry: false,
+      staleTime: 0,
+      gcTime: 0,
+    }),
+  );
   const linked = project.data?.linearProject;
+  const canSearch = !!linked && !!connection.data?.connected;
   useEffect(() => {
     const timer = setTimeout(() => {
       setSearch(query);
@@ -40,7 +50,12 @@ export function TrackerLinearIssues({
   const results = useQuery(
     trpc.linear.issues.queryOptions(
       { projectId: projectId!, query: search, after },
-      { enabled: !!linked && !disabled, retry: false, staleTime: 0, gcTime: 0 },
+      {
+        enabled: canSearch && !disabled,
+        retry: false,
+        staleTime: 0,
+        gcTime: 0,
+      },
     ),
   );
   const refresh = useMutation(
@@ -49,6 +64,7 @@ export function TrackerLinearIssues({
   useEffect(() => {
     const key = `${projectId}:${search}`;
     if (
+      canSearch &&
       !disabled &&
       !refresh.isPending &&
       search &&
@@ -77,6 +93,7 @@ export function TrackerLinearIssues({
     onChange,
     disabled,
     refresh.isPending,
+    canSearch,
   ]);
   const add = (issue: LinearIssueDetails) => {
     if (value.length < 50 && !value.some((item) => item.id === issue.id))
@@ -117,7 +134,9 @@ export function TrackerLinearIssues({
               className="min-w-0 truncate"
               title={issue.title ?? undefined}
             >
-              {issue.identifier} · {issue.title}
+              {issue.unavailable
+                ? "Ticket unavailable with your Linear access"
+                : `${issue.identifier} · ${issue.title}`}
               {issue.archivedAt ? " (archived)" : ""}
             </a>
             <Button
@@ -135,7 +154,7 @@ export function TrackerLinearIssues({
           </li>
         ))}
       </ul>
-      {linked ? (
+      {linked && canSearch ? (
         <>
           <Input
             aria-label="Find or paste Linear tickets"
@@ -197,10 +216,20 @@ export function TrackerLinearIssues({
             <p className="text-xs">Maximum 50 tickets per entry.</p>
           )}
         </>
-      ) : (
+      ) : !projectId ? (
         <p className="text-xs text-muted-foreground">
-          Select a project linked to Linear. You can connect Linear in the
-          project's edit form.
+          Select a time-tracking project to add Linear tickets.
+        </p>
+      ) : project.isPending || connection.isPending ? (
+        <p className="text-xs text-muted-foreground">Loading Linear setup…</p>
+      ) : !project.isError && !connection.isError ? (
+        <fieldset disabled={disabled} className="min-w-0">
+          <TrackerLinearProject projectId={projectId} />
+        </fieldset>
+      ) : null}
+      {(project.error || connection.error) && (
+        <p role="alert" className="text-sm text-destructive">
+          {(project.error ?? connection.error)?.message}
         </p>
       )}
       {(results.error || refresh.error) && (

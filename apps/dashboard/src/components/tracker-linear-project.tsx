@@ -82,11 +82,11 @@ export function TrackerLinearProject({ projectId }: { projectId: string }) {
 
   return (
     <section className="space-y-3 border-t pt-4">
-      <h3 className="text-sm font-medium">Linear tickets</h3>
+      <h3 className="text-sm font-medium">Linear project</h3>
       <p className="text-xs text-muted-foreground">
-        Connect a Linear project to find tickets while tracking time. Ticket
-        links are shared with your Payments team; names and titles are shown
-        only through each viewer's own Linear access.
+        Choose a Linear project to enable ticket search for this project's time
+        entries. This selection saves immediately and is shared with your
+        Payments team. Ticket details use each viewer's own Linear access.
       </p>
       {linked && (
         <div className="flex items-center justify-between gap-2 text-sm">

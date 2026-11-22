@@ -28,7 +28,10 @@ export function TrackerScheduleSheet() {
         })
       }
     >
-      <SheetContent>
+      <SheetContent
+        title="Time entry"
+        className="overflow-y-auto overscroll-y-contain"
+      >
         <TrackerSchedule />
       </SheetContent>
     </Sheet>

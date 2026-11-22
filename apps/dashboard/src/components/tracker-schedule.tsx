@@ -1468,7 +1468,7 @@ export function TrackerSchedule() {
 
       <TrackerDaySelect />
 
-      <ScrollArea ref={scrollRef} className="h-[calc(100vh-530px)] mt-8">
+      <ScrollArea ref={scrollRef} className="h-[clamp(12rem,35vh,24rem)] mt-8">
         <div className="flex text-[#878787] text-xs">
           <div className="w-20 flex-shrink-0 select-none">
             {hours.map((hour) => (

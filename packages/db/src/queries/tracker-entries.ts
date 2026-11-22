@@ -16,9 +16,19 @@ import {
   lte,
   sql,
 } from "drizzle-orm";
-import type { Database } from "../client";
-import { teams, trackerEntries, trackerProjects } from "../schema";
+import type { DatabaseOrTransaction as Database } from "../client";
+import {
+  type LinearIssueRef,
+  teams,
+  trackerEntries,
+  trackerProjects,
+} from "../schema";
 import { createActivity } from "./activities";
+import {
+  linearIssueRelations,
+  setTrackerLinearIssues,
+  withLinearIssues,
+} from "./tracker-linear";
 
 type GetTrackerRecordsByDateParams = {
   teamId: string;
@@ -59,6 +69,7 @@ export async function getTrackerRecordsByDate(
       description: true,
     },
     with: {
+      ...linearIssueRelations,
       user: true,
       trackerProject: {
         columns: {
@@ -89,7 +100,7 @@ export async function getTrackerRecordsByDate(
     meta: {
       totalDuration,
     },
-    data,
+    data: data.map(withLinearIssues),
   };
 }
 
@@ -139,6 +150,7 @@ export async function getTrackerRecordsByRange(
   const data = await db.query.trackerEntries.findMany({
     where: and(...whereConditions),
     with: {
+      ...linearIssueRelations,
       user: {
         columns: {
           id: true,
@@ -161,7 +173,7 @@ export async function getTrackerRecordsByRange(
   });
 
   const dataWithProject = data.map((item) => ({
-    ...item,
+    ...withLinearIssues(item),
     project: item.trackerProject,
   }));
 
@@ -215,13 +227,41 @@ export type UpsertTrackerEntriesParams = {
   projectId: string;
   description?: string | null;
   duration: number;
+  linearIssueIds?: string[];
+  verifiedLinearIssues?: LinearIssueRef[];
 };
 
 export async function upsertTrackerEntries(
   db: Database,
   params: UpsertTrackerEntriesParams,
 ) {
+  if (params.linearIssueIds === undefined)
+    return upsertTrackerEntriesBase(db, params);
+  return db.transaction(async (tx) => {
+    const entries = await upsertTrackerEntriesBase(tx, params);
+    return Promise.all(
+      entries.map(async (entry) => ({
+        ...entry,
+        linearIssues: await setTrackerLinearIssues(
+          tx,
+          params.teamId,
+          entry.id,
+          params.linearIssueIds!,
+          params.verifiedLinearIssues,
+        ),
+      })),
+    );
+  });
+}
+
+async function upsertTrackerEntriesBase(
+  db: Database,
+  params: UpsertTrackerEntriesParams,
+) {
   const { dates, id, teamId, ...rest } = params;
+
+  if (id && dates.length !== 1)
+    throw new Error("Update one entry date at a time");
 
   // Create entries for each date
   const entries = dates.map((date) => ({
@@ -250,15 +290,18 @@ export async function upsertTrackerEntries(
         description: rest.description,
         duration: rest.duration,
       },
+      setWhere: eq(trackerEntries.teamId, teamId),
     })
     .returning({ id: trackerEntries.id });
+
+  if (!upsertResult.length) throw new Error("Time entry not found");
 
   // Create activity for new tracker entries (not updates)
   // If no id was provided in params, this is a new entry
   if (!id && upsertResult.length > 0) {
     // Create activity for each new entry
     for (const entry of upsertResult) {
-      createActivity(db, {
+      await createActivity(db, {
         teamId,
         userId: rest.assignedId || undefined,
         type: "tracker_entry_created",
@@ -276,7 +319,13 @@ export async function upsertTrackerEntries(
   }
 
   // Build where conditions
-  const whereConditions = [eq(trackerEntries.teamId, teamId)];
+  const whereConditions = [
+    eq(trackerEntries.teamId, teamId),
+    inArray(
+      trackerEntries.id,
+      upsertResult.map((entry) => entry.id),
+    ),
+  ];
 
   if (id) {
     whereConditions.push(eq(trackerEntries.id, id));
@@ -291,6 +340,7 @@ export async function upsertTrackerEntries(
   const result = await db.query.trackerEntries.findMany({
     where: and(...whereConditions),
     with: {
+      ...linearIssueRelations,
       user: {
         columns: {
           id: true,
@@ -312,7 +362,7 @@ export async function upsertTrackerEntries(
     },
   });
 
-  return result;
+  return result.map(withLinearIssues);
 }
 
 export type BulkCreateTrackerEntriesParams = {
@@ -325,6 +375,8 @@ export type BulkCreateTrackerEntriesParams = {
     projectId: string;
     description?: string | null;
     duration: number;
+    linearIssueIds?: string[];
+    verifiedLinearIssues?: LinearIssueRef[];
   }>;
 };
 
@@ -333,6 +385,14 @@ export async function bulkCreateTrackerEntries(
   params: BulkCreateTrackerEntriesParams,
 ) {
   const { teamId, entries } = params;
+  if (entries.some((entry) => entry.linearIssueIds !== undefined)) {
+    return db.transaction(async (tx) => {
+      const results = [];
+      for (const entry of entries)
+        results.push(...(await upsertTrackerEntries(tx, { ...entry, teamId })));
+      return results;
+    });
+  }
 
   // Flatten all entries and their dates into a single array for bulk insert
   const flatEntries = entries.flatMap((entry) =>
@@ -370,6 +430,7 @@ export async function bulkCreateTrackerEntries(
       inArray(trackerEntries.id, insertedIds),
     ),
     with: {
+      ...linearIssueRelations,
       user: {
         columns: {
           id: true,
@@ -391,7 +452,7 @@ export async function bulkCreateTrackerEntries(
     },
   });
 
-  return result;
+  return result.map(withLinearIssues);
 }
 
 export type DeleteTrackerEntryParams = {
@@ -422,6 +483,8 @@ export type StartTimerParams = {
   assignedId?: string | null;
   description?: string | null;
   start?: string;
+  linearIssueIds?: string[];
+  verifiedLinearIssues?: LinearIssueRef[];
 };
 
 export type StopTimerParams = {
@@ -446,6 +509,23 @@ export type GetTimerStatusParams = {
  * Start a new timer
  */
 export async function startTimer(db: Database, params: StartTimerParams) {
+  if (params.linearIssueIds === undefined) return startTimerBase(db, params);
+  return db.transaction(async (tx) => {
+    const entry = await startTimerBase(tx, params);
+    return {
+      ...entry,
+      linearIssues: await setTrackerLinearIssues(
+        tx,
+        params.teamId,
+        entry.id,
+        params.linearIssueIds!,
+        params.verifiedLinearIssues,
+      ),
+    };
+  });
+}
+
+async function startTimerBase(db: Database, params: StartTimerParams) {
   const { teamId, projectId, assignedId, description, start } = params;
 
   const startTime = start || new Date().toISOString();
@@ -481,6 +561,7 @@ export async function startTimer(db: Database, params: StartTimerParams) {
   const result = await db.query.trackerEntries.findFirst({
     where: eq(trackerEntries.id, entryId),
     with: {
+      ...linearIssueRelations,
       user: {
         columns: {
           id: true,
@@ -507,7 +588,7 @@ export async function startTimer(db: Database, params: StartTimerParams) {
   }
 
   return {
-    ...result,
+    ...withLinearIssues(result),
     project: result.trackerProject,
   };
 }
@@ -610,6 +691,7 @@ export async function stopTimer(db: Database, params: StopTimerParams) {
   const result = await db.query.trackerEntries.findFirst({
     where: eq(trackerEntries.id, targetEntryId),
     with: {
+      ...linearIssueRelations,
       user: {
         columns: {
           id: true,
@@ -636,7 +718,7 @@ export async function stopTimer(db: Database, params: StopTimerParams) {
   }
 
   return {
-    ...result,
+    ...withLinearIssues(result),
     discarded: false,
     project: result.trackerProject,
   };
@@ -667,6 +749,7 @@ export async function getCurrentTimer(
     where: and(...whereConditions),
     orderBy: [desc(trackerEntries.start)],
     with: {
+      ...linearIssueRelations,
       user: {
         columns: {
           id: true,
@@ -693,7 +776,7 @@ export async function getCurrentTimer(
   }
 
   return {
-    ...result,
+    ...withLinearIssues(result),
     project: result.trackerProject,
   };
 }
@@ -729,6 +812,7 @@ export async function getTimerStatus(
       id: currentTimer.id,
       start: currentTimer.start,
       description: currentTimer.description,
+      linearIssues: currentTimer.linearIssues,
       projectId: currentTimer.projectId ?? null,
       trackerProject: {
         id: currentTimer.trackerProject?.id ?? null,
@@ -998,7 +1082,8 @@ export async function getTrackerEntryById(
 
   const entry = await db.query.trackerEntries.findFirst({
     where: and(eq(trackerEntries.id, id), eq(trackerEntries.teamId, teamId)),
+    with: linearIssueRelations,
   });
 
-  return entry ?? null;
+  return entry ? withLinearIssues(entry) : null;
 }

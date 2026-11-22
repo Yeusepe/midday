@@ -7,6 +7,7 @@ import {
   createTRPCClient,
   httpBatchStreamLink,
   loggerLink,
+  splitLink,
 } from "@trpc/client";
 import { createTRPCContext } from "@trpc/tanstack-react-query";
 import { useState } from "react";
@@ -37,6 +38,31 @@ function getQueryClient() {
   return browserQueryClient;
 }
 
+// Keep private ticket searches out of request URLs and ordinary GET batches.
+function createHttpLink(methodOverride?: "POST") {
+  return httpBatchStreamLink<AppRouter>({
+    methodOverride,
+    url: `${process.env.NEXT_PUBLIC_API_URL}/trpc`,
+    transformer: superjson,
+    async headers() {
+      const accessToken = await getAccessToken();
+
+      const headers: Record<string, string> = {};
+
+      if (accessToken) {
+        headers.Authorization = `Bearer ${accessToken}`;
+      }
+
+      const forcePrimary = getCookie(Cookies.ForcePrimary);
+      if (forcePrimary === "true") {
+        headers["x-force-primary"] = "true";
+      }
+
+      return headers;
+    },
+  });
+}
+
 export function TRPCReactProvider(
   props: Readonly<{
     children: React.ReactNode;
@@ -47,30 +73,22 @@ export function TRPCReactProvider(
   const [trpcClient] = useState(() =>
     createTRPCClient<AppRouter>({
       links: [
-        httpBatchStreamLink({
-          url: `${process.env.NEXT_PUBLIC_API_URL}/trpc`,
-          transformer: superjson,
-          async headers() {
-            const accessToken = await getAccessToken();
-
-            const headers: Record<string, string> = {};
-
-            if (accessToken) {
-              headers.Authorization = `Bearer ${accessToken}`;
-            }
-
-            const forcePrimary = getCookie(Cookies.ForcePrimary);
-            if (forcePrimary === "true") {
-              headers["x-force-primary"] = "true";
-            }
-
-            return headers;
-          },
+        splitLink({
+          condition: (op) => op.path.startsWith("linear."),
+          true: createHttpLink("POST"),
+          false: createHttpLink(),
         }),
         loggerLink({
-          enabled: (opts) =>
-            process.env.NODE_ENV === "development" ||
-            (opts.direction === "down" && opts.result instanceof Error),
+          enabled: (opts) => {
+            // tRPC includes path in both directions at runtime; its down type omits it.
+            const path = (opts as { path?: string }).path;
+            return (
+              typeof path === "string" &&
+              !path.startsWith("linear.") &&
+              (process.env.NODE_ENV === "development" ||
+                (opts.direction === "down" && opts.result instanceof Error))
+            );
+          },
         }),
       ],
     }),

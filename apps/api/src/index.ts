@@ -78,6 +78,8 @@ app.use("/trpc/*", async (c, next) => {
   await next();
   const elapsed = performance.now() - start;
   const procedures = c.req.path.replace("/trpc/", "").split(",");
+  if (procedures.some((path) => path.startsWith("linear.")))
+    c.header("Cache-Control", "private, no-store");
 
   c.header(
     "Server-Timing",
@@ -102,24 +104,34 @@ app.use(
   "/trpc/*",
   trpcServer({
     router: appRouter,
+    allowMethodOverride: true,
     createContext: createTRPCContext,
     onError: ({ error, path, input }) => {
+      const privateLinear = path?.startsWith("linear.") ?? false;
       logger.error(`[tRPC] ${path}`, {
-        message: error.message,
+        message: privateLinear ? "Linear request failed" : error.message,
         code: error.code,
-        cause: error.cause instanceof Error ? error.cause.message : undefined,
-        stack: error.stack,
+        cause:
+          !privateLinear && error.cause instanceof Error
+            ? error.cause.message
+            : undefined,
+        stack: privateLinear ? undefined : error.stack,
       });
 
       // Send to Sentry (skip client errors like NOT_FOUND, UNAUTHORIZED)
       if (error.code === "INTERNAL_SERVER_ERROR") {
-        Sentry.captureException(error, {
-          tags: { source: "trpc", path: path ?? "unknown" },
-          extra: {
-            input:
-              typeof input === "object" ? JSON.stringify(input) : undefined,
+        Sentry.captureException(
+          privateLinear ? new Error("Linear request failed") : error,
+          {
+            tags: { source: "trpc", path: path ?? "unknown" },
+            extra: {
+              input:
+                !privateLinear && typeof input === "object"
+                  ? JSON.stringify(input)
+                  : undefined,
+            },
           },
-        });
+        );
       }
     },
   }),
@@ -326,7 +338,11 @@ app.openAPIRegistry.registerComponent("securitySchemes", "oauth2", {
 
 app.get(
   "/",
-  Scalar({ url: "/openapi", pageTitle: "Creator Payments API", theme: "saturn" }),
+  Scalar({
+    url: "/openapi",
+    pageTitle: "Creator Payments API",
+    theme: "saturn",
+  }),
 );
 
 app.route("/", routers);

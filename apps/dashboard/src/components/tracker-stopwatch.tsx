@@ -1,5 +1,6 @@
 "use client";
 
+import type { LinearIssueDetails } from "@midday/db/schema";
 import { LogEvents } from "@midday/events/events";
 import { Button } from "@midday/ui/button";
 import { Icons } from "@midday/ui/icons";
@@ -24,6 +25,10 @@ import { useTimerStore } from "@/store/timer";
 import { useTRPC } from "@/trpc/client";
 import { secondsToHoursAndMinutes } from "@/utils/format";
 import { parseTimerStartTime } from "@/utils/tracker";
+import {
+  TrackerEntryLinearIssues,
+  TrackerLinearIssues,
+} from "./tracker-linear-issues";
 import { TrackerSelectProject } from "./tracker-select-project";
 
 type ProjectOption = {
@@ -58,6 +63,7 @@ export function TrackerStopwatch() {
   const [selectedProject, setSelectedProject] = useState<
     ProjectOption | undefined
   >();
+  const [linearIssues, setLinearIssues] = useState<LinearIssueDetails[]>([]);
   const [notes, setNotes] = useState("");
   const [startEarlier, setStartEarlier] = useState(false);
   const [startTime, setStartTime] = useState("");
@@ -140,6 +146,7 @@ export function TrackerStopwatch() {
         });
       },
       onSuccess: (data) => {
+        setLinearIssues([]);
         setStartEarlier(false);
         setStartTime("");
         setStartTimeError(null);
@@ -275,6 +282,9 @@ export function TrackerStopwatch() {
     startTimerMutation.mutate({
       projectId: selectedProject.id,
       description: notes.trim() || null,
+      linearIssueIds: linearIssues.length
+        ? linearIssues.map((issue) => issue.id)
+        : undefined,
       start,
     });
   };
@@ -338,10 +348,14 @@ export function TrackerStopwatch() {
             selectedId={selectedProject?.id}
             onSelect={(project) => {
               if (project) {
+                setLinearIssues([]);
                 setSelectedProject(project);
               }
             }}
-            onCreate={(project) => setSelectedProject(project)}
+            onCreate={(project) => {
+              setLinearIssues([]);
+              setSelectedProject(project);
+            }}
           />
         )}
 
@@ -351,6 +365,24 @@ export function TrackerStopwatch() {
           rows={5}
           onChange={(event) => setNotes(event.target.value)}
         />
+
+        {isRunning ? (
+          runningEntryId && (
+            <TrackerEntryLinearIssues
+              key={runningEntryId}
+              entryId={runningEntryId}
+              projectId={activeProjectId}
+            />
+          )
+        ) : (
+          <TrackerLinearIssues
+            key={selectedProject?.id}
+            projectId={selectedProject?.id}
+            value={linearIssues}
+            onChange={setLinearIssues}
+            disabled={startTimerMutation.isPending}
+          />
+        )}
 
         {!isRunning && (
           <div className="space-y-2">

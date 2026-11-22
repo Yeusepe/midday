@@ -19,6 +19,7 @@ import {
   registerTrackerTools,
   registerTransactionTools,
 } from "./tools";
+import { registerTrackerLinearTools } from "./tools/tracker-linear";
 import type { McpContext } from "./types";
 import { getDateContext } from "./utils";
 
@@ -122,6 +123,7 @@ export function createMcpServer(ctx: McpContext): McpServer {
   registerBankAccountTools(server, ctx);
   registerDocumentTools(server, ctx);
   registerTrackerTools(server, ctx);
+  registerTrackerLinearTools(server, ctx);
   registerReportTools(server, ctx);
   registerSearchTools(server, ctx);
   registerInboxTools(server, ctx);

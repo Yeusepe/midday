@@ -443,6 +443,7 @@ const createNewEvent = (
 
   return {
     id: NEW_EVENT_ID,
+    linearIssues: [],
     date: dateStr,
     description: null,
     duration: 15 * 60,
@@ -751,6 +752,7 @@ export function TrackerSchedule() {
       stop: string;
       assignedId?: string;
       description?: string;
+      linearIssueIds?: string[];
     }) => {
       const baseDate = getBaseDate();
       const timezone = getUserTimezone(user);
@@ -807,6 +809,7 @@ export function TrackerSchedule() {
         dates,
         projectId: formValues.projectId,
         description: formValues.description || null,
+        linearIssueIds: formValues.linearIssueIds,
         duration: formValues.duration,
         assignedId: user?.id || null,
       };

@@ -2,6 +2,7 @@ import {
   deleteTrackerEntrySchema,
   startTimerSchema,
   stopTimerSchema,
+  timerStatusSchema,
   upsertTrackerEntriesSchema,
 } from "@api/schemas/tracker-entries";
 import {
@@ -10,6 +11,7 @@ import {
   getTrackerProjectsSchema,
   upsertTrackerProjectSchema,
 } from "@api/schemas/tracker-projects";
+import { verifyLinearIssueLinks } from "@api/services/linear";
 import {
   deleteTrackerEntry,
   deleteTrackerProject,
@@ -473,7 +475,7 @@ export const registerTrackerTools: RegisterTools = (server, ctx) => {
           assignedId: params.assignedId,
         });
 
-        const clean = sanitize(mcpTrackerEntrySchema, result);
+        const clean = sanitize(timerStatusSchema, result);
 
         return {
           content: [{ type: "text" as const, text: JSON.stringify(clean) }],
@@ -499,6 +501,7 @@ export const registerTrackerTools: RegisterTools = (server, ctx) => {
           stop: lenientDateTimeSchema.describe("Stop time (ISO 8601 datetime)"),
           duration: upsertTrackerEntriesSchema.shape.duration,
           description: upsertTrackerEntriesSchema.shape.description,
+          linearIssueIds: upsertTrackerEntriesSchema.shape.linearIssueIds,
           assignedId: upsertTrackerEntriesSchema.shape.assignedId,
         },
         annotations: WRITE_ANNOTATIONS,
@@ -513,6 +516,16 @@ export const registerTrackerTools: RegisterTools = (server, ctx) => {
             stop: normalizeDateTime(params.stop),
             duration: params.duration,
             description: params.description,
+            linearIssueIds: params.linearIssueIds,
+            verifiedLinearIssues: await verifyLinearIssueLinks(
+              db,
+              teamId,
+              userId,
+              params.linearIssueIds,
+              "id" in params && typeof params.id === "string"
+                ? params.id
+                : undefined,
+            ),
             assignedId: params.assignedId ?? userId,
           });
 
@@ -556,6 +569,7 @@ export const registerTrackerTools: RegisterTools = (server, ctx) => {
             .describe("Stop time (ISO 8601 datetime)"),
           duration: upsertTrackerEntriesSchema.shape.duration.optional(),
           description: upsertTrackerEntriesSchema.shape.description,
+          linearIssueIds: upsertTrackerEntriesSchema.shape.linearIssueIds,
           assignedId: upsertTrackerEntriesSchema.shape.assignedId,
         },
         annotations: WRITE_ANNOTATIONS,
@@ -603,6 +617,16 @@ export const registerTrackerTools: RegisterTools = (server, ctx) => {
             stop,
             duration: params.duration ?? existing.duration ?? 0,
             description: params.description ?? existing.description,
+            linearIssueIds: params.linearIssueIds,
+            verifiedLinearIssues: await verifyLinearIssueLinks(
+              db,
+              teamId,
+              userId,
+              params.linearIssueIds,
+              "id" in params && typeof params.id === "string"
+                ? params.id
+                : undefined,
+            ),
             assignedId: params.assignedId ?? existing.assignedId,
           });
 
@@ -691,6 +715,7 @@ export const registerTrackerTools: RegisterTools = (server, ctx) => {
         inputSchema: {
           projectId: startTimerSchema.shape.projectId,
           description: startTimerSchema.shape.description,
+          linearIssueIds: startTimerSchema.shape.linearIssueIds,
           assignedId: startTimerSchema.shape.assignedId,
           start: lenientDateTimeSchema
             .optional()
@@ -704,6 +729,16 @@ export const registerTrackerTools: RegisterTools = (server, ctx) => {
             teamId,
             projectId: params.projectId,
             description: params.description,
+            linearIssueIds: params.linearIssueIds,
+            verifiedLinearIssues: await verifyLinearIssueLinks(
+              db,
+              teamId,
+              userId,
+              params.linearIssueIds,
+              "id" in params && typeof params.id === "string"
+                ? params.id
+                : undefined,
+            ),
             assignedId: params.assignedId ?? userId,
             start: params.start ? normalizeDateTime(params.start) : undefined,
           });

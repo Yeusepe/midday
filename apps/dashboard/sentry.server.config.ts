@@ -2,6 +2,7 @@
 // The config you add here will be used whenever the server handles a request.
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 
+import { containsLinearTelemetry } from "@midday/utils/linear-telemetry";
 import * as Sentry from "@sentry/nextjs";
 
 Sentry.init({
@@ -11,6 +12,11 @@ Sentry.init({
 
   // Lower trace sampling in production to save quota
   tracesSampleRate: 0.1,
+  beforeBreadcrumb: (breadcrumb) =>
+    containsLinearTelemetry(breadcrumb) ? null : breadcrumb,
+  beforeSend: (event) => (containsLinearTelemetry(event) ? null : event),
+  beforeSendTransaction: (event) =>
+    containsLinearTelemetry(event) ? null : event,
 
   // Enable logs to be sent to Sentry
   enableLogs: true,

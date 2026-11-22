@@ -14,6 +14,7 @@ import {
   trackerEntriesResponseSchema,
   upsertTrackerEntriesSchema,
 } from "@api/schemas/tracker-entries";
+import { verifyLinearIssueLinks } from "@api/services/linear";
 import { validateResponse } from "@api/utils/validate-response";
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
 import {
@@ -105,6 +106,12 @@ app.openapi(
     const { assignedId, ...rest } = c.req.valid("json");
 
     const result = await upsertTrackerEntries(db, {
+      verifiedLinearIssues: await verifyLinearIssueLinks(
+        db,
+        teamId,
+        session.user.id,
+        rest.linearIssueIds,
+      ),
       teamId,
       assignedId: assignedId ?? session.user.id,
       ...rest,
@@ -162,12 +169,22 @@ app.openapi(
     const session = c.get("session");
     const { entries } = c.req.valid("json");
 
+    const verifiedEntries = [];
+    for (const { assignedId, ...rest } of entries) {
+      verifiedEntries.push({
+        ...rest,
+        assignedId: assignedId ?? session.user.id,
+        verifiedLinearIssues: await verifyLinearIssueLinks(
+          db,
+          teamId,
+          session.user.id,
+          rest.linearIssueIds,
+        ),
+      });
+    }
     const result = await bulkCreateTrackerEntries(db, {
       teamId,
-      entries: entries.map(({ assignedId, ...rest }) => ({
-        assignedId: assignedId ?? session.user.id,
-        ...rest,
-      })),
+      entries: verifiedEntries,
     });
 
     const dataWithProject = result.map((item) => ({
@@ -222,6 +239,13 @@ app.openapi(
     const { assignedId, ...rest } = c.req.valid("json");
 
     const result = await upsertTrackerEntries(db, {
+      verifiedLinearIssues: await verifyLinearIssueLinks(
+        db,
+        teamId,
+        c.get("session").user.id,
+        rest.linearIssueIds,
+        id,
+      ),
       id,
       teamId,
       ...rest,
@@ -320,6 +344,12 @@ app.openapi(
     const { assignedId, ...rest } = c.req.valid("json");
 
     const result = await startTimer(db, {
+      verifiedLinearIssues: await verifyLinearIssueLinks(
+        db,
+        teamId,
+        session.user.id,
+        rest.linearIssueIds,
+      ),
       teamId,
       assignedId: assignedId ?? session.user.id,
       ...rest,

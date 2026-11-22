@@ -20,6 +20,7 @@ import { searchRouter } from "./search";
 import { tagsRouter } from "./tags";
 import { teamsRouter } from "./teams";
 import { trackerEntriesRouter } from "./tracker-entries";
+import { trackerLinearRouter } from "./tracker-linear";
 import { trackerProjectsRouter } from "./tracker-projects";
 import { transactionsRouter } from "./transactions";
 
@@ -57,6 +58,7 @@ routers.route("/search", searchRouter);
 routers.route("/reports", reportsRouter);
 routers.route("/tracker-projects", trackerProjectsRouter);
 routers.route("/tracker-entries", trackerEntriesRouter);
+routers.route("/tracker-linear", trackerLinearRouter);
 routers.route("/chat", chatRouter);
 
 export { routers };

@@ -89,6 +89,7 @@ export async function getTrackerProjects(
     .select({
       id: trackerProjects.id,
       name: trackerProjects.name,
+      linearProject: trackerProjects.linearProject,
       description: trackerProjects.description,
       status: trackerProjects.status,
       customerId: trackerProjects.customerId,
@@ -409,6 +410,7 @@ export async function getTrackerProjectById(
     .select({
       id: trackerProjects.id,
       name: trackerProjects.name,
+      linearProject: trackerProjects.linearProject,
       description: trackerProjects.description,
       status: trackerProjects.status,
       customerId: trackerProjects.customerId,

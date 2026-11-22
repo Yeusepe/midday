@@ -23,6 +23,14 @@ import {
   vector,
 } from "drizzle-orm/pg-core";
 import type { AnyAppConfig } from "./app-config";
+import type { LinearProjectRef } from "./linear-types";
+
+export type {
+  LinearIssueDetails,
+  LinearIssueRef,
+  LinearProjectDetails,
+  LinearProjectRef,
+} from "./linear-types";
 
 export const tsvector = customType<{
   data: string;
@@ -596,6 +604,7 @@ export const trackerEntries = pgTable(
     // Composite index for insights activity date range queries
     index("tracker_entries_team_date_idx").on(table.teamId, table.date),
     index("tracker_entries_invoice_id_idx").on(table.invoiceId),
+    unique("tracker_entries_id_team_unique").on(table.id, table.teamId),
     foreignKey({
       columns: [table.invoiceId],
       foreignColumns: [invoices.id],
@@ -2462,6 +2471,7 @@ export const trackerProjects = pgTable(
     status: trackerStatusEnum().default("in_progress").notNull(),
     description: text(),
     name: text().notNull(),
+    linearProject: jsonb("linear_project").$type<LinearProjectRef>(),
     billable: boolean().default(false),
     // You can use { mode: "bigint" } if numbers are exceeding js number limitations
     estimate: bigint({ mode: "number" }),
@@ -3467,20 +3477,92 @@ export const transactionCategoriesRelations = relations(
   }),
 );
 
-export const trackerEntriesRelations = relations(trackerEntries, ({ one }) => ({
-  user: one(users, {
-    fields: [trackerEntries.assignedId],
-    references: [users.id],
+// Credentials never use the generic apps table, whose settings are team-visible.
+export const linearConnections = pgTable(
+  "linear_connections",
+  {
+    teamId: uuid("team_id")
+      .notNull()
+      .references(() => teams.id, { onDelete: "cascade" }),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    encryptedConfig: text("encrypted_config").notNull(),
+    revocationPending: boolean("revocation_pending").notNull().default(false),
+  },
+  (table) => [primaryKey({ columns: [table.teamId, table.userId] })],
+).enableRLS();
+
+export const linearIssues = pgTable(
+  "linear_issues",
+  {
+    teamId: uuid("team_id")
+      .notNull()
+      .references(() => teams.id, { onDelete: "cascade" }),
+    id: uuid().notNull(),
+    organizationId: uuid("organization_id").notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.teamId, table.id] })],
+).enableRLS();
+
+export const trackerEntryLinearIssues = pgTable(
+  "tracker_entry_linear_issues",
+  {
+    teamId: uuid("team_id").notNull(),
+    entryId: uuid("entry_id").notNull(),
+    issueId: uuid("issue_id").notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.teamId, table.entryId, table.issueId] }),
+    foreignKey({
+      columns: [table.entryId, table.teamId],
+      foreignColumns: [trackerEntries.id, trackerEntries.teamId],
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [table.teamId, table.issueId],
+      foreignColumns: [linearIssues.teamId, linearIssues.id],
+    }).onDelete("cascade"),
+  ],
+).enableRLS();
+
+export const trackerEntryLinearIssuesRelations = relations(
+  trackerEntryLinearIssues,
+  ({ one }) => ({
+    entry: one(trackerEntries, {
+      fields: [
+        trackerEntryLinearIssues.entryId,
+        trackerEntryLinearIssues.teamId,
+      ],
+      references: [trackerEntries.id, trackerEntries.teamId],
+    }),
+    issue: one(linearIssues, {
+      fields: [
+        trackerEntryLinearIssues.teamId,
+        trackerEntryLinearIssues.issueId,
+      ],
+      references: [linearIssues.teamId, linearIssues.id],
+    }),
   }),
-  trackerProject: one(trackerProjects, {
-    fields: [trackerEntries.projectId],
-    references: [trackerProjects.id],
+);
+
+export const trackerEntriesRelations = relations(
+  trackerEntries,
+  ({ one, many }) => ({
+    linearIssueLinks: many(trackerEntryLinearIssues),
+    user: one(users, {
+      fields: [trackerEntries.assignedId],
+      references: [users.id],
+    }),
+    trackerProject: one(trackerProjects, {
+      fields: [trackerEntries.projectId],
+      references: [trackerProjects.id],
+    }),
+    team: one(teams, {
+      fields: [trackerEntries.teamId],
+      references: [teams.id],
+    }),
   }),
-  team: one(teams, {
-    fields: [trackerEntries.teamId],
-    references: [teams.id],
-  }),
-}));
+);
 
 export const trackerProjectsRelations = relations(
   trackerProjects,

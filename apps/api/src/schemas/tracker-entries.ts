@@ -1,4 +1,5 @@
 import { z } from "@hono/zod-openapi";
+import { linearIssueIdsSchema, linearIssueRefSchema } from "./linear";
 
 export const getBillableHoursSchema = z.object({
   date: z.string(),
@@ -46,6 +47,7 @@ export const getTrackerRecordsByRangeSchema = z.object({
 });
 
 export const upsertTrackerEntriesSchema = z.object({
+  linearIssueIds: linearIssueIdsSchema.optional(),
   id: z
     .string()
     .uuid()
@@ -158,6 +160,7 @@ export const deleteTrackerEntrySchema = z.object({
 });
 
 export const trackerEntryResponseSchema = z.object({
+  linearIssues: z.array(linearIssueRefSchema).optional(),
   id: z.string().uuid().openapi({
     description: "Unique identifier of the tracker entry",
     example: "b3b6e2c2-1f2a-4e3b-9c1d-2a4b6e2c21f2",
@@ -325,6 +328,7 @@ export const createTrackerEntriesResponseSchema = z
   });
 
 export const startTimerSchema = z.object({
+  linearIssueIds: linearIssueIdsSchema.optional(),
   projectId: z
     .string()
     .uuid()
@@ -445,6 +449,7 @@ export const timerStatusSchema = z.object({
   }),
   currentEntry: z
     .object({
+      linearIssues: z.array(linearIssueRefSchema).optional(),
       id: z.string().uuid(),
       start: z.string().nullable(),
       description: z.string().nullable(),

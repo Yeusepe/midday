@@ -37,23 +37,12 @@ export function TrackerUpdateSheet() {
 
   const isOpen = update !== null && Boolean(projectId);
 
-  const { data } = useQuery(
+  const { data, isPending, error } = useQuery(
     trpc.trackerProjects.getById.queryOptions(
       { id: projectId! },
       {
         enabled: isOpen,
         staleTime: 30 * 1000, // 30 seconds - prevents excessive refetches when reopening
-        placeholderData: () => {
-          const pages = queryClient
-            .getQueriesData({
-              queryKey: trpc.trackerProjects.get.infiniteQueryKey(),
-            })
-            // @ts-expect-error
-            .flatMap(([, data]) => data?.pages ?? [])
-            .flatMap((page) => page.data ?? []);
-
-          return pages.find((d) => d.id === projectId);
-        },
       },
     ),
   );
@@ -100,7 +89,24 @@ export function TrackerUpdateSheet() {
           </SheetHeader>
 
           <ScrollArea className="h-full p-0 pb-28" hideScrollbar>
-            <TrackerProjectForm data={data} defaultCurrency={defaultCurrency} />
+            {data ? (
+              <TrackerProjectForm
+                key={data.id}
+                data={data}
+                defaultCurrency={defaultCurrency}
+              />
+            ) : (
+              <p
+                role={error ? "alert" : "status"}
+                className="text-sm text-muted-foreground"
+              >
+                {error
+                  ? "Could not load project. Please reopen it to try again."
+                  : isPending
+                    ? "Loading project…"
+                    : "Project not found."}
+              </p>
+            )}
           </ScrollArea>
         </SheetContent>
       </Sheet>

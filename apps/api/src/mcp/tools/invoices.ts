@@ -8,6 +8,12 @@ import {
   lineItemTicketSchema,
   updateInvoiceSchema,
 } from "@api/schemas/invoice";
+import {
+  buildTrackerEntryDetail,
+  durationToHours,
+  getTrackerEntryDate,
+  sortTrackerInvoiceEntries,
+} from "@api/services/tracker-invoice-details";
 import { getTrackerInvoiceTickets } from "@api/services/tracker-invoice-tickets";
 import {
   deleteInvoice,
@@ -112,64 +118,6 @@ type TrackerInvoiceEntry = {
     fullName?: string | null;
     name?: string | null;
   } | null;
-};
-
-const durationToHours = (duration?: number | null) =>
-  Math.round(((duration ?? 0) / 3600) * 100) / 100;
-
-const getTrackerEntryDate = (entry: TrackerInvoiceEntry) => {
-  if (entry.date) {
-    return entry.date;
-  }
-
-  if (!entry.start) {
-    return null;
-  }
-
-  const startDate = new Date(entry.start);
-
-  if (Number.isNaN(startDate.getTime())) {
-    return null;
-  }
-
-  return startDate.toISOString().slice(0, 10);
-};
-
-const formatTrackerEntryTime = (value?: string | Date | null) => {
-  if (!value) {
-    return null;
-  }
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return null;
-  }
-
-  return format(date, "HH:mm");
-};
-
-const buildTrackerEntryDetail = (
-  entry: TrackerInvoiceEntry,
-  fallbackTitle: string,
-) => {
-  const startTime = formatTrackerEntryTime(entry.start);
-  const stopTime = formatTrackerEntryTime(entry.stop);
-  const userName = entry.user?.fullName ?? entry.user?.name ?? null;
-  const description = [
-    startTime && stopTime ? `${startTime} - ${stopTime}` : null,
-    userName,
-  ]
-    .filter(Boolean)
-    .join(" - ");
-  const title = entry.description?.trim() || fallbackTitle;
-
-  return {
-    date: getTrackerEntryDate(entry),
-    title,
-    description: description || null,
-    hours: durationToHours(entry.duration),
-  };
 };
 
 const getTrackerEntryLineItemName = (
@@ -1943,9 +1891,6 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
             0,
           );
           const totalHours = Math.round((totalDuration / 3600) * 100) / 100;
-          const entryDetails = billableEntries.map((entry) =>
-            buildTrackerEntryDetail(entry, projectName),
-          );
           const invoiceTickets = params.includeLinearTickets
             ? await getTrackerInvoiceTickets(
                 db,
@@ -1954,16 +1899,24 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
                 billableEntries,
               )
             : undefined;
+          const orderedEntries = sortTrackerInvoiceEntries(billableEntries);
+          const entryDetails = orderedEntries.map((entry) =>
+            buildTrackerEntryDetail(
+              entry,
+              projectName,
+              invoiceTickets?.forEntry.get(entry.id),
+            ),
+          );
           const timeEntryMode = params.timeEntryMode ?? "grouped";
           const lineItems =
             timeEntryMode === "separate"
-              ? billableEntries.map((entry) => ({
+              ? orderedEntries.map((entry, entryIndex) => ({
                   name: getTrackerEntryLineItemName(entry, projectName),
                   quantity: durationToHours(entry.duration),
                   price: rate,
                   unit: "hours",
                   taxRate: undefined as number | undefined,
-                  details: [buildTrackerEntryDetail(entry, projectName)],
+                  details: [entryDetails[entryIndex]!],
                   tickets: invoiceTickets?.forEntry.get(entry.id),
                 }))
               : [

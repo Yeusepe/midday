@@ -748,6 +748,8 @@ type DraftInvoiceLineItemParams = {
     title?: string | null;
     description?: string | null;
     hours?: number | null;
+    duration?: number | null;
+    ticketIdentifiers?: string[];
   }>;
   vat?: number | null;
   tax?: number | null;

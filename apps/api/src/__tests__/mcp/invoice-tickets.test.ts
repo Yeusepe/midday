@@ -79,6 +79,14 @@ test.each([
     includeLinearTickets ? tickets : undefined,
   );
   expect(snapshot.mock.calls.length).toBe(includeLinearTickets ? 1 : 0);
+  expect(
+    saved.lineItems[0].details.map((detail: any) => detail.duration),
+  ).toEqual([3600, 7200]);
+  expect(
+    saved.lineItems[0].details.map((detail: any) => detail.ticketIdentifiers),
+  ).toEqual(
+    includeLinearTickets ? [["ENG-99"], ["ENG-99"]] : [undefined, undefined],
+  );
 });
 
 test("connector editing another invoice field preserves ticket snapshots and time details", async () => {
@@ -88,7 +96,14 @@ test("connector editing another invoice field preserves ticket snapshots and tim
       quantity: 3,
       price: 100,
       tickets,
-      details: [{ title: "Planning", hours: 3 }],
+      details: [
+        {
+          title: "Planning",
+          hours: 3,
+          duration: 10800,
+          ticketIdentifiers: ["ENG-99"],
+        },
+      ],
     },
   ];
   mocks.getInvoiceById.mockImplementation(() => ({

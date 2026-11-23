@@ -1,4 +1,5 @@
 import { calculateLineItemTotal } from "@midday/invoice/calculate";
+import { InvoiceWorkLog } from "@midday/invoice/templates/html/work-log";
 import type { LineItem } from "@midday/invoice/types";
 import { formatAmount } from "@midday/utils/format";
 import { EditorContent } from "./editor-content";
@@ -103,28 +104,7 @@ export function LineItems({
               </div>
             )}
             <div className="text-[11px] text-right">{fmt(itemTotal)}</div>
-            {!!item.tickets?.length && (
-              <section className="col-span-full mb-3 border-t border-border pt-3">
-                <h3 className="mb-2 text-[10px] font-medium uppercase tracking-wider text-[#707070]">
-                  Related tickets
-                </h3>
-                <ul className="divide-y divide-border">
-                  {item.tickets.map((ticket) => (
-                    <li
-                      key={`${ticket.identifier}-${ticket.title}`}
-                      className="grid grid-cols-[80px_minmax(0,1fr)] items-start gap-x-4 py-1.5 text-[11px] leading-relaxed"
-                    >
-                      <span className="max-w-[120px] break-words text-[#707070]">
-                        {ticket.identifier}
-                      </span>
-                      <span className="min-w-0 whitespace-pre-wrap break-words font-sans">
-                        {ticket.title}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )}
+            <InvoiceWorkLog item={item} locale={locale} />
           </div>
         );
       })}

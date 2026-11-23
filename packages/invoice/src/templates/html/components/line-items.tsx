@@ -2,6 +2,7 @@ import { formatAmount } from "@midday/utils/format";
 import type { LineItem } from "../../../types";
 import { calculateLineItemTotal } from "../../../utils/calculate";
 import { Description } from "./description";
+import { InvoiceWorkLog } from "./work-log";
 
 type Props = {
   lineItems: LineItem[];
@@ -59,7 +60,6 @@ export function LineItems({
         >
           <div className="self-start">
             <Description content={item.name} />
-            <LineItemDetails item={item} locale={locale} />
           </div>
           <div className="text-[11px] self-start">{item.quantity ?? 0}</div>
           <div className="text-[11px] self-start">
@@ -99,72 +99,7 @@ export function LineItems({
                 locale,
               })}
           </div>
-          {!!item.tickets?.length && (
-            <section className="col-span-full mb-3 border-t border-border pt-3">
-              <h3 className="mb-2 text-[10px] font-medium uppercase tracking-wider text-[#707070]">
-                Related tickets
-              </h3>
-              <ul className="divide-y divide-border">
-                {item.tickets.map((ticket, ticketIndex) => (
-                  <li
-                    key={`${ticket.identifier}-${ticketIndex}`}
-                    className="grid grid-cols-[80px_minmax(0,1fr)] items-start gap-x-4 py-1.5 text-[11px] leading-relaxed"
-                  >
-                    <span className="max-w-[120px] break-words text-[#707070]">
-                      {ticket.identifier}
-                    </span>
-                    <span className="min-w-0 whitespace-pre-wrap break-words font-sans">
-                      {ticket.title}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function LineItemDetails({ item, locale }: { item: LineItem; locale: string }) {
-  const details = item.details?.filter(
-    (detail) =>
-      detail.date || detail.title || detail.description || detail.hours != null,
-  );
-
-  if (!details?.length) {
-    return null;
-  }
-
-  return (
-    <div className="mt-2 space-y-1 text-[10px] text-[#878787]">
-      {details.map((detail, index) => (
-        <div
-          key={`${detail.date ?? ""}-${detail.title ?? ""}-${index.toString()}`}
-          className="border-l border-border pl-2"
-        >
-          <div className="flex flex-wrap gap-x-2">
-            {detail.date && (
-              <span>
-                {new Intl.DateTimeFormat(locale, {
-                  timeZone: "UTC",
-                  year: "numeric",
-                  month: "short",
-                  day: "numeric",
-                }).format(new Date(detail.date))}
-              </span>
-            )}
-            {detail.title && (
-              <span className="text-primary">{detail.title}</span>
-            )}
-            {detail.hours != null && <span>{detail.hours}h</span>}
-          </div>
-          {detail.description && (
-            <div className="whitespace-pre-wrap leading-4">
-              {detail.description}
-            </div>
-          )}
+          <InvoiceWorkLog item={item} locale={locale} />
         </div>
       ))}
     </div>

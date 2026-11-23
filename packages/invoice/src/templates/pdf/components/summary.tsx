@@ -6,6 +6,7 @@ import {
 import { formatCurrencyForPDF } from "../../../utils/pdf-format";
 
 interface SummaryProps {
+  compact?: boolean;
   amount?: number | null;
   subtotal?: number | null;
   tax?: number | null;
@@ -32,6 +33,7 @@ interface SummaryProps {
 }
 
 export function Summary({
+  compact = false,
   amount,
   subtotal,
   tax,
@@ -106,8 +108,8 @@ export function Summary({
   return (
     <View
       style={{
-        marginTop: 60,
-        marginBottom: 40,
+        marginTop: compact ? 0 : 60,
+        marginBottom: compact ? 0 : 40,
         alignItems: "flex-end",
         marginLeft: "auto",
         width: 250,

@@ -159,6 +159,8 @@ export const lineItemDetailSchema = z.object({
   title: z.string().nullable().optional(),
   description: z.string().nullable().optional(),
   hours: z.number().min(0, "Hours must be at least 0").nullable().optional(),
+  duration: z.number().int().min(0).nullable().optional(),
+  ticketIdentifiers: z.array(z.string().trim().min(1).max(100)).optional(),
 });
 
 const baseDraftLineItemSchema = z.object({

@@ -1,6 +1,5 @@
 "use client";
 
-import { ScrollArea } from "@midday/ui/scroll-area";
 import { Sheet, SheetContent, SheetHeader } from "@midday/ui/sheet";
 import { TrackerProjectForm } from "@/components/forms/tracker-project-form";
 import { useTeamQuery } from "@/hooks/use-team";
@@ -15,14 +14,12 @@ export function TrackerCreateSheet() {
 
   return (
     <Sheet open={isOpen} onOpenChange={() => setParams({ create: null })}>
-      <SheetContent>
-        <SheetHeader className="mb-8 flex justify-between items-center flex-row">
+      <SheetContent title="Create Project" className="flex flex-col">
+        <SheetHeader className="mb-8 flex shrink-0 justify-between items-center flex-row">
           <h2 className="text-xl">Create Project</h2>
         </SheetHeader>
 
-        <ScrollArea className="h-full p-0 pb-28" hideScrollbar>
-          <TrackerProjectForm defaultCurrency={defaultCurrency} />
-        </ScrollArea>
+        <TrackerProjectForm defaultCurrency={defaultCurrency} />
       </SheetContent>
     </Sheet>
   );

@@ -81,7 +81,7 @@ export function TrackerLinearProject({ projectId }: { projectId: string }) {
     connection.error;
 
   return (
-    <section className="space-y-3 border-t pt-4">
+    <section className="min-w-0 space-y-3 border-t pt-4">
       <h3 className="text-sm font-medium">Linear project</h3>
       <p className="text-xs text-muted-foreground">
         Choose a Linear project to enable ticket search for this project's time
@@ -89,18 +89,19 @@ export function TrackerLinearProject({ projectId }: { projectId: string }) {
         Payments team. Ticket details use each viewer's own Linear access.
       </p>
       {linked && (
-        <div className="flex items-center justify-between gap-2 text-sm">
+        <div className="flex min-w-0 items-center justify-between gap-2 text-sm">
           <a
             href={details.data?.url}
             target="_blank"
             rel="noreferrer"
-            className="underline"
+            className="min-w-0 break-words underline"
           >
             {details.data?.name ?? "Linked Linear project"}
           </a>
           <Button
             type="button"
             variant="ghost"
+            className="shrink-0"
             disabled={link.isPending}
             onClick={() => link.mutate({ projectId, linearProjectId: null })}
           >
@@ -110,8 +111,10 @@ export function TrackerLinearProject({ projectId }: { projectId: string }) {
       )}
       {connection.data?.connected ? (
         <>
-          <div className="flex items-center justify-between gap-2 text-xs">
-            <span>{connection.data.organization?.name}</span>
+          <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-xs">
+            <span className="w-full min-w-0 break-words">
+              {connection.data.organization?.name}
+            </span>
             <Button
               type="button"
               variant="ghost"
@@ -123,14 +126,16 @@ export function TrackerLinearProject({ projectId }: { projectId: string }) {
             <Button
               type="button"
               variant="ghost"
+              className="h-auto min-h-9 max-w-full whitespace-normal text-left"
               onClick={() => disconnect.mutate()}
               disabled={disconnect.isPending}
             >
               Disconnect your Linear account
             </Button>
           </div>
-          <div className="flex gap-2">
+          <div className="flex min-w-0 gap-2">
             <Input
+              className="min-w-0 flex-1"
               aria-label="Find a Linear project"
               placeholder="Find a Linear project"
               value={query}
@@ -139,6 +144,7 @@ export function TrackerLinearProject({ projectId }: { projectId: string }) {
             <Button
               type="button"
               variant="outline"
+              className="shrink-0"
               onClick={() => {
                 setSearch(query);
                 setAfter(undefined);
@@ -156,12 +162,12 @@ export function TrackerLinearProject({ projectId }: { projectId: string }) {
                 type="button"
                 key={item.id}
                 disabled={link.isPending}
-                className="block w-full border p-2 text-left text-sm hover:bg-accent"
+                className="block w-full min-w-0 border p-2 text-left text-sm hover:bg-accent"
                 onClick={() =>
                   link.mutate({ projectId, linearProjectId: item.id })
                 }
               >
-                <span>
+                <span className="break-words">
                   {item.name}
                   {linked?.id === item.id ? " (linked)" : ""}
                 </span>

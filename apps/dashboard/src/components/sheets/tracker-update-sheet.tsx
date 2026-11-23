@@ -18,7 +18,6 @@ import {
   DropdownMenuTrigger,
 } from "@midday/ui/dropdown-menu";
 import { Icons } from "@midday/ui/icons";
-import { ScrollArea } from "@midday/ui/scroll-area";
 import { Sheet, SheetContent, SheetHeader } from "@midday/ui/sheet";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { TrackerProjectForm } from "@/components/forms/tracker-project-form";
@@ -69,8 +68,8 @@ export function TrackerUpdateSheet() {
         open={isOpen}
         onOpenChange={() => setParams({ update: null, projectId: null })}
       >
-        <SheetContent>
-          <SheetHeader className="mb-8 flex justify-between items-center flex-row">
+        <SheetContent title="Edit Project" className="flex flex-col">
+          <SheetHeader className="mb-8 flex shrink-0 justify-between items-center flex-row">
             <h2 className="text-xl">Edit Project</h2>
 
             <DropdownMenu>
@@ -88,26 +87,24 @@ export function TrackerUpdateSheet() {
             </DropdownMenu>
           </SheetHeader>
 
-          <ScrollArea className="h-full p-0 pb-28" hideScrollbar>
-            {data ? (
-              <TrackerProjectForm
-                key={data.id}
-                data={data}
-                defaultCurrency={defaultCurrency}
-              />
-            ) : (
-              <p
-                role={error ? "alert" : "status"}
-                className="text-sm text-muted-foreground"
-              >
-                {error
-                  ? "Could not load project. Please reopen it to try again."
-                  : isPending
-                    ? "Loading project…"
-                    : "Project not found."}
-              </p>
-            )}
-          </ScrollArea>
+          {data ? (
+            <TrackerProjectForm
+              key={data.id}
+              data={data}
+              defaultCurrency={defaultCurrency}
+            />
+          ) : (
+            <p
+              role={error ? "alert" : "status"}
+              className="text-sm text-muted-foreground"
+            >
+              {error
+                ? "Could not load project. Please reopen it to try again."
+                : isPending
+                  ? "Loading project…"
+                  : "Project not found."}
+            </p>
+          )}
         </SheetContent>
       </Sheet>
 

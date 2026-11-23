@@ -9,6 +9,7 @@ import { useTemplateUpdate } from "@/hooks/use-template-update";
 import { formatAmount } from "@/utils/format";
 import type { InvoiceFormValues } from "./form-context";
 import { LabelInput } from "./label-input";
+import { LineItemTickets } from "./line-item-tickets";
 import { PercentInput } from "./percent-input";
 import { ProductAutocomplete } from "./product-autocomplete";
 import { ProductAwareAmountInput } from "./product-aware-amount-input";
@@ -382,6 +383,7 @@ function LineItemRow({
           <Icons.Add />
           <span className="text-[11px]">Add detail</span>
         </button>
+        <LineItemTickets index={index} />
       </div>
     </Reorder.Item>
   );

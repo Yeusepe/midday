@@ -99,7 +99,7 @@ export function Summary({
       : total);
 
   return (
-    <div className="w-[320px] flex flex-col">
+    <div className="w-full max-w-[320px] flex flex-col">
       <div className="flex justify-between items-center py-1">
         <span className="text-[11px] text-[#878787] font-mono">
           {subtotalLabel}

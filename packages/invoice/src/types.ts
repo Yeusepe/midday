@@ -4,10 +4,17 @@ export type LineItem = {
   price?: number;
   unit?: string;
   details?: LineItemDetail[];
+  tickets?: LineItemTicket[];
   // Optional product reference for smart autocomplete
   productId?: string;
   // Per-line-item tax rate (percentage, 0-100)
   taxRate?: number;
+};
+
+// An explicitly included, customer-visible snapshot. Never refreshed from Linear.
+export type LineItemTicket = {
+  identifier: string;
+  title: string;
 };
 
 export type LineItemDetail = {

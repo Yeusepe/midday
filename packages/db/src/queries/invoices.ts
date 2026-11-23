@@ -738,6 +738,7 @@ export async function isInvoiceNumberUsed(
 }
 
 type DraftInvoiceLineItemParams = {
+  tickets?: Array<{ identifier: string; title: string }>;
   name?: string | null; // Stringified TipTap JSONContent
   quantity?: number;
   unit?: string | null;

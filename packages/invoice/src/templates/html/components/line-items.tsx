@@ -33,13 +33,13 @@ export function LineItems({
   const maximumFractionDigits = includeDecimals ? 2 : 0;
 
   const gridCols = includeLineItemTax
-    ? "grid-cols-[1.5fr_12%_12%_12%_15%]"
-    : "grid-cols-[1.5fr_15%_15%_15%]";
+    ? "grid-cols-[minmax(0,1fr)_10%_20%_10%_24%] sm:grid-cols-[minmax(0,1.5fr)_12%_12%_12%_15%]"
+    : "grid-cols-[minmax(0,1fr)_15%_22%_24%] sm:grid-cols-[minmax(0,1.5fr)_15%_15%_15%]";
 
   return (
-    <div className="mt-5 font-mono">
+    <div className="mt-5 font-mono break-words">
       <div
-        className={`grid ${gridCols} gap-4 items-end relative group mb-2 w-full pb-1 border-b border-border`}
+        className={`grid ${gridCols} gap-2 sm:gap-4 items-end relative group mb-2 w-full pb-1 border-b border-border`}
       >
         <div className="text-[11px] text-[#878787]">{descriptionLabel}</div>
         <div className="text-[11px] text-[#878787]">{quantityLabel}</div>
@@ -55,7 +55,7 @@ export function LineItems({
       {lineItems.map((item, index) => (
         <div
           key={`line-item-${index.toString()}`}
-          className={`grid ${gridCols} gap-4 items-start relative group mb-1 w-full py-1`}
+          className={`grid ${gridCols} gap-2 sm:gap-4 items-start relative group mb-1 w-full py-1`}
         >
           <div className="self-start">
             <Description content={item.name} />
@@ -63,20 +63,24 @@ export function LineItems({
           </div>
           <div className="text-[11px] self-start">{item.quantity ?? 0}</div>
           <div className="text-[11px] self-start">
-            {currency && includeUnits && item.unit
-              ? `${formatAmount({
-                  currency,
-                  amount: item.price ?? 0,
-                  maximumFractionDigits,
-                  locale,
-                })}/${item.unit}`
-              : currency &&
-                formatAmount({
-                  currency,
-                  amount: item.price ?? 0,
-                  maximumFractionDigits,
-                  locale,
-                })}
+            {currency && (
+              <>
+                <span>
+                  {formatAmount({
+                    currency,
+                    amount: item.price ?? 0,
+                    maximumFractionDigits,
+                    locale,
+                  })}
+                </span>
+                {includeUnits && item.unit && (
+                  <span className="block text-[10px] text-[#878787] sm:inline">
+                    {" "}
+                    / {item.unit}
+                  </span>
+                )}
+              </>
+            )}
           </div>
           {includeLineItemTax && (
             <div className="text-[11px] self-start">
@@ -95,6 +99,28 @@ export function LineItems({
                 locale,
               })}
           </div>
+          {!!item.tickets?.length && (
+            <section className="col-span-full mb-3 border-t border-border pt-3">
+              <h3 className="mb-2 text-[10px] font-medium uppercase tracking-wider text-[#707070]">
+                Related tickets
+              </h3>
+              <ul className="divide-y divide-border">
+                {item.tickets.map((ticket, ticketIndex) => (
+                  <li
+                    key={`${ticket.identifier}-${ticketIndex}`}
+                    className="grid grid-cols-[80px_minmax(0,1fr)] items-start gap-x-4 py-1.5 text-[11px] leading-relaxed"
+                  >
+                    <span className="max-w-[120px] break-words text-[#707070]">
+                      {ticket.identifier}
+                    </span>
+                    <span className="min-w-0 whitespace-pre-wrap break-words font-sans">
+                      {ticket.title}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
         </div>
       ))}
     </div>
@@ -122,6 +148,7 @@ function LineItemDetails({ item, locale }: { item: LineItem; locale: string }) {
             {detail.date && (
               <span>
                 {new Intl.DateTimeFormat(locale, {
+                  timeZone: "UTC",
                   year: "numeric",
                   month: "short",
                   day: "numeric",

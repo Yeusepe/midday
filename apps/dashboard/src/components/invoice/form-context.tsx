@@ -56,6 +56,11 @@ export const invoiceTemplateSchema = z.object({
   emailButtonText: z.string().optional().nullable(),
 });
 
+export const lineItemTicketSchema = z.object({
+  identifier: z.string().trim().min(1).max(100),
+  title: z.string().trim().min(1).max(1000),
+});
+
 export const lineItemDetailSchema = z.object({
   date: z.string().nullable().optional(),
   title: z.string().nullable().optional(),
@@ -72,6 +77,7 @@ export const lineItemSchema = z.object({
   tax: z.number().min(0, "Tax must be at least 0").optional(),
   taxRate: z.number().min(0).max(100).optional().nullable(),
   details: z.array(lineItemDetailSchema).optional(),
+  tickets: z.array(lineItemTicketSchema).optional(),
 });
 
 export const recurringConfigSchema = z

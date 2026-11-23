@@ -19,6 +19,8 @@
     "./editor": "./src/editor/index.tsx",
     "./defaults": "./src/defaults.ts",
     "./calculate": "./src/utils/calculate.ts",
+    "./work-log": "./src/utils/work-log.ts",
+    "./templates/html/work-log": "./src/templates/html/components/work-log.tsx",
     "./format-to-html": "./src/templates/html/format.tsx",
     "./content": "./src/utils/content.ts",
     "./types": "./src/types.ts",

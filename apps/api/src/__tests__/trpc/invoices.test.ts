@@ -257,6 +257,15 @@ describe("tRPC: invoice.draft", () => {
           price: 150,
           vat: 0,
           tickets: [{ identifier: "ENG-99", title: "Client-approved title" }],
+          details: [
+            {
+              date: "2026-11-02",
+              title: "Planning",
+              hours: 2,
+              duration: 7200,
+              ticketIdentifiers: ["ENG-99"],
+            },
+          ],
         },
       ],
     });
@@ -265,6 +274,17 @@ describe("tRPC: invoice.draft", () => {
     expect(
       (mocks.draftInvoice.mock.calls[0]![1] as any).lineItems[0].tickets,
     ).toEqual([{ identifier: "ENG-99", title: "Client-approved title" }]);
+    expect(
+      (mocks.draftInvoice.mock.calls[0]![1] as any).lineItems[0].details,
+    ).toEqual([
+      {
+        date: "2026-11-02",
+        title: "Planning",
+        hours: 2,
+        duration: 7200,
+        ticketIdentifiers: ["ENG-99"],
+      },
+    ]);
     expect(mocks.draftInvoice).toHaveBeenCalledWith(
       expect.anything(),
       expect.objectContaining({
@@ -561,6 +581,12 @@ describe("tRPC: invoice.createFromTracker", () => {
       internalTickets.map(({ identifier, title }) => ({ identifier, title })),
     );
     expect(args.lineItems[0].tickets).toHaveLength(2);
+    const details = args.lineItems.flatMap((item: any) => item.details);
+    expect(details.map((detail: any) => detail.ticketIdentifiers)).toEqual([
+      ["FUR-10", "ENG-99"],
+      ["FUR-10"],
+    ]);
+    expect(details.map((detail: any) => detail.duration)).toEqual([3600, 7200]);
     if (timeEntryMode === "separate") {
       expect(args.lineItems[1].tickets).toEqual([
         { identifier: "FUR-10", title: "Private Linear implementation" },
@@ -581,6 +607,42 @@ describe("tRPC: invoice.createFromTracker", () => {
       "test-user-id",
       expect.any(Array),
     );
+  });
+
+  test("orders ledger sessions chronologically and retains ticket ownership", async () => {
+    const data = (await mocks.getTrackerRecordsByRange(
+      {} as any,
+      {} as any,
+    )) as any;
+    mocks.getTrackerRecordsByRange.mockImplementation(() => ({
+      ...data,
+      result: {
+        "2026-05-02": data.result["2026-05-02"],
+        "2026-05-01": data.result["2026-05-01"],
+      },
+    }));
+    const caller = createCaller(createTestContext());
+    await caller.createFromTracker({
+      projectId: "11111111-1111-4111-8111-111111111111",
+      allUninvoiced: true,
+      includeLinearTickets: true,
+    });
+    const args = mocks.draftInvoice.mock.calls[0]![1] as any;
+    expect(args.amount).toBe(300);
+    expect(args.lineItems[0].details).toEqual([
+      expect.objectContaining({
+        date: "2026-05-01",
+        title: "Planning",
+        duration: 3600,
+        ticketIdentifiers: ["FUR-10", "ENG-99"],
+      }),
+      expect.objectContaining({
+        date: "2026-05-02",
+        title: "Implementation",
+        duration: 7200,
+        ticketIdentifiers: ["FUR-10"],
+      }),
+    ]);
   });
 
   test("does not write an invoice when opted-in tickets cannot be read", async () => {

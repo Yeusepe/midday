@@ -117,6 +117,7 @@ export async function PdfTemplate(
   const hasNoteDetails = hasEditorContent(noteDetails);
   const showPaymentAndNote =
     hasPaymentDetails || Boolean(qrCode) || hasNoteDetails;
+  const hasWorkLog = lineItems.some((item) => item.details?.length);
 
   return (
     <Document>
@@ -206,14 +207,16 @@ export async function PdfTemplate(
 
         <View
           style={{
-            flex: 1,
+            ...(hasWorkLog
+              ? {}
+              : { flex: 1, justifyContent: "flex-end" as const }),
             flexDirection: "column",
-            justifyContent: "flex-end",
             marginTop: 20,
           }}
         >
           <View wrap={false}>
             <Summary
+              compact={hasWorkLog}
               amount={amount}
               tax={tax}
               vat={vat}
@@ -248,7 +251,10 @@ export async function PdfTemplate(
           </View>
 
           {showPaymentAndNote && (
-            <View wrap={false} style={{ flexDirection: "row", marginTop: 20 }}>
+            <View
+              wrap={false}
+              style={{ flexDirection: "row", marginTop: hasWorkLog ? 0 : 20 }}
+            >
               <View style={{ flex: 1, marginRight: 10 }}>
                 {hasPaymentDetails && (
                   <PaymentDetails

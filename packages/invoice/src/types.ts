@@ -22,6 +22,9 @@ export type LineItemDetail = {
   title?: string | null;
   description?: string | null;
   hours?: number | null;
+  // Exact tracked seconds for display; invoice quantities remain independent.
+  duration?: number | null;
+  ticketIdentifiers?: string[];
 };
 
 export type InvoiceProduct = {

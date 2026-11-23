@@ -2,7 +2,11 @@ import type { Config } from "tailwindcss";
 
 export default {
   darkMode: ["selector", '[data-theme="dark"]'],
-  content: ["./src/**/*.{ts,tsx}", "../../packages/ui/src/**/*.{ts,tsx}"],
+  content: [
+    "./src/**/*.{ts,tsx}",
+    "../../packages/ui/src/**/*.{ts,tsx}",
+    "../invoice/src/templates/html/components/work-log.tsx",
+  ],
   theme: {
     extend: {
       fontFamily: {

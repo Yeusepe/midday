@@ -26,6 +26,7 @@ import {
   updateEntryLinearIssues,
   verifyLinearIssueLinks,
 } from "../../../../apps/api/src/services/linear";
+import { getTrackerInvoiceTickets } from "../../../../apps/api/src/services/tracker-invoice-tickets";
 import type { Database } from "../client";
 import { draftInvoiceFromTracker } from "../queries/invoices";
 import {
@@ -515,6 +516,120 @@ describe("Personal Linear authorization and minimal retention", () => {
     expect(
       (await getEntryLinearIssues(db, teamId, userId, first.id))[0]!.title,
     ).toBeNull();
+  });
+
+  test("explicit invoice snapshots deduplicate live moved issues and survive later renames", async () => {
+    await seed();
+    liveIssues();
+    const first = await createEntry();
+    const second = await createEntry([issue.id]);
+    const entries = await Promise.all(
+      [first, second].map((entry) =>
+        getTrackerEntryById(db, { teamId, id: entry.id }),
+      ),
+    );
+    let requests = 0;
+    mockFetch((_url, options) => {
+      requests++;
+      expect(new Headers(options.headers).get("Authorization")).toBe(
+        `Bearer access-${userId}`,
+      );
+      const id = JSON.parse(String(options.body)).variables.id;
+      return Response.json({
+        data: {
+          issue:
+            id === issue.id
+              ? {
+                  ...issue,
+                  identifier: "ENG-99",
+                  title: "Moved work",
+                  project: null,
+                }
+              : issueB,
+        },
+      });
+    });
+    const before = await database.select().from(schema.trackerEntries);
+    const tickets = await getTrackerInvoiceTickets(
+      db,
+      teamId,
+      userId,
+      entries.map((entry) => entry!),
+    );
+    expect(requests).toBe(2);
+    expect(tickets.all).toEqual([
+      { identifier: "ENG-99", title: "Moved work" },
+      { identifier: "FUR-20", title: issueB.title },
+    ]);
+    expect(tickets.forEntry.get(second.id)).toEqual([tickets.all[0]!]);
+    expect(await database.select().from(schema.trackerEntries)).toEqual(before);
+    await draftInvoiceFromTracker(db, {
+      id: "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+      teamId,
+      userId,
+      token: "fixture",
+      template: { currency: "USD" },
+      invoiceNumber: "FIXTURE-SNAPSHOT",
+      issueDate: "2026-11-02",
+      dueDate: "2026-12-02",
+      amount: 200,
+      lineItems: [
+        { name: "Client work", quantity: 2, price: 100, tickets: tickets.all },
+      ],
+      trackerEntryIds: [first.id, second.id],
+      uninvoicedOnly: true,
+    });
+    const saved = await database.select().from(schema.invoices);
+    expect(saved[0]!.amount).toBe(200);
+    expect((saved[0]!.lineItems as any)[0].tickets).toEqual(tickets.all);
+    liveIssues();
+    await refreshLinearIssues(db, teamId, userId, [issue.id]);
+    expect(await database.select().from(schema.invoices)).toEqual(saved);
+    expect(
+      JSON.stringify(await database.select().from(schema.linearIssues)),
+    ).not.toMatch(/Moved work|Private|FUR-|ENG-/);
+    const billed = await database.select().from(schema.trackerEntries);
+    expect(billed.map((entry) => entry.duration)).toEqual(
+      before.map((entry) => entry.duration),
+    );
+    expect(billed.every((entry) => entry.invoiceId === saved[0]!.id)).toBe(
+      true,
+    );
+  });
+
+  test("invoice snapshots refuse unavailable and cross-workspace tickets without persisting anything", async () => {
+    await seed();
+    liveIssues();
+    const first = await createEntry();
+    const entry = (await getTrackerEntryById(db, { teamId, id: first.id }))!;
+    const before = await database.select().from(schema.trackerEntries);
+    await expect(
+      getTrackerInvoiceTickets(db, teamId, otherUser, [entry]),
+    ).rejects.toThrow("Some linked tickets");
+    mockFetch(() =>
+      Response.json({ errors: [{ extensions: { code: "FORBIDDEN" } }] }),
+    );
+    await expect(
+      getTrackerInvoiceTickets(db, teamId, userId, [entry]),
+    ).rejects.toThrow("Some linked tickets");
+    liveIssues();
+    await expect(
+      getTrackerInvoiceTickets(db, teamId, userId, [
+        {
+          ...entry,
+          linearIssues: [{ id: issue.id, organizationId: otherUser }],
+        },
+      ]),
+    ).rejects.toThrow("Some linked tickets");
+    expect(await database.select().from(schema.invoices)).toEqual([]);
+    expect(await database.select().from(schema.trackerEntries)).toEqual(before);
+    expect(
+      (
+        await getTrackerInvoiceTickets(db, teamId, otherUser, [
+          { id: first.id },
+        ])
+      ).all,
+    ).toEqual([]);
   });
 
   test("disconnect revokes the current pair only and cannot affect another user's connection", async () => {

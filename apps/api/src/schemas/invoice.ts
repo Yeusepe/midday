@@ -149,7 +149,12 @@ export const restUpsertInvoiceTemplateSchema = baseInvoiceTemplateSchema.extend(
 );
 
 // Base line item schema with common fields
-const lineItemDetailSchema = z.object({
+export const lineItemTicketSchema = z.object({
+  identifier: z.string().trim().min(1).max(100),
+  title: z.string().trim().min(1).max(1000),
+});
+
+export const lineItemDetailSchema = z.object({
   date: z.string().nullable().optional(),
   title: z.string().nullable().optional(),
   description: z.string().nullable().optional(),
@@ -164,6 +169,7 @@ const baseDraftLineItemSchema = z.object({
   tax: z.number().min(0, "Tax must be at least 0").nullable().optional(),
   taxRate: z.number().min(0).max(100).optional().nullable(),
   details: z.array(lineItemDetailSchema).optional(),
+  tickets: z.array(lineItemTicketSchema).optional(),
 });
 
 // tRPC-compatible line item schema (uses string for name field)
@@ -446,6 +452,7 @@ export const lineItemSchema = z.object({
   tax: z.number().min(0, "Tax must be at least 0").optional(),
   taxRate: z.number().min(0).max(100).optional(),
   details: z.array(lineItemDetailSchema).optional(),
+  tickets: z.array(lineItemTicketSchema).optional(),
   // Optional product reference
   productId: z.string().uuid().optional(),
 });

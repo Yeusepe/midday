@@ -6,7 +6,7 @@ Tracker projects link to Linear projects. Entries and timers can reference multi
 
 Each Payments user connects their own Linear account in each Payments team. Searches, new attachments and live details use the authenticated caller's token, including REST and MCP. Assigning an entry to another person never borrows that person's authorization. There is no shared fallback token.
 
-The database retains only stable issue/project UUIDs, organization UUIDs and entry associations. It does not persist issue identifiers, titles, URLs, descriptions, comments, project names or search results. Ordinary tracker reads return minimal references. Live detail endpoints fetch from Linear using the viewer's authorization. Inaccessible issues return null details and `unavailable: true`, without another user's cached data. Existing opaque links can still be retained or removed.
+The tracker database retains only stable issue/project UUIDs, organization UUIDs and entry associations. Tracker linking does not persist issue identifiers, titles, URLs, descriptions, comments, project names or search results. Ordinary tracker reads return minimal references. Live detail endpoints fetch from Linear using the viewer's authorization. Inaccessible issues return null details and `unavailable: true`, without another user's cached data. Existing opaque links can still be retained or removed.
 
 Connection data, including tokens and workspace display information, is AES-256-GCM encrypted in a dedicated `linear_connections` table. The encrypted payload includes and checks its Payments team/user identity. Generic app settings APIs do not expose or delete these connections. RLS and revoked database privileges block direct anonymous/authenticated-role access; API queries enforce team and user boundaries.
 
@@ -18,7 +18,7 @@ Private detail responses use `Cache-Control: private, no-store`. Browser Linear 
 
 ## Limits and incident response
 
-A database-only leak still exposes opaque identifiers and time-entry relationships, plus existing Payments data. It does not expose plaintext Linear tokens or a stored copy of ticket titles. A server compromise that also exposes the encryption key can expose OAuth grants. Linear's read permission covers the authorizing account's access, not just the project selected in Payments. Restrict access in Linear accordingly.
+A database-only leak still exposes opaque identifiers and time-entry relationships, plus existing Payments data. It does not expose plaintext Linear tokens or ticket titles from ordinary tracker linking. Tickets explicitly included on an invoice are stored with that invoice and are exposed wherever that invoice is accessible, including in a database leak. A server compromise that also exposes the encryption key can expose OAuth grants. Linear's read permission covers the authorizing account's access, not just the project selected in Payments. Restrict access in Linear accordingly.
 
 If credentials leak, revoke the application in Linear's **Security & Access > Authorized applications**, then rotate affected infrastructure secrets with a migration/re-encryption plan. Client-secret rotation alone does not revoke authorization-code token pairs. Do not replace the shared encryption key without migrating other encrypted data. Revocation cannot erase copied data, and the application cannot prevent users manually copying private text into invoice descriptions or external conversations.
 
@@ -54,7 +54,15 @@ Project reads include `linearProject: {id, organizationId}`; entry/timer reads i
 
 MCP tools: `tracker_linear_connection`, `tracker_linear_projects`, `tracker_linear_project_get`, `tracker_linear_project_link`, `tracker_linear_issues_resolve`, `tracker_entry_linear_issues_get`, `tracker_entry_linear_issues_set`, and `tracker_linear_issues_refresh`. Results include `structuredContent.data`. Existing entry create/update and timer start tools accept `linearIssueIds` too.
 
-Connector workflow: resolve in project context, request a selection if `requiresChoice` is true, then attach selected UUIDs. Read existing refs before adding/removing so other links are retained. Ticket context must remain separate from invoice text.
+Connector workflow: resolve in project context, request a selection if `requiresChoice` is true, then attach selected UUIDs. Read existing refs before adding/removing so other links are retained. Ticket context remains separate from invoice text unless the user explicitly chooses to include tickets.
+
+## Optional tickets on invoices
+
+In a tracker project's **Create Invoice** menu, enable **Include Linear tickets** to add ticket IDs and titles beneath each line item's time details. It is off by default. Grouped invoices deduplicate shared tickets; separate invoices show the tickets for each entry. In the draft, edit the displayed IDs/titles or remove individual tickets. They appear in the customer preview and PDF without adding charges or changing tracked hours.
+
+The API and Creator Payments `invoices_create_from_tracker` tool accept `includeLinearTickets: true`. This resolves stable refs with the invoicing caller's personal Linear access before creating the draft; inaccessible tickets fail creation instead of silently disappearing. `lineItems[].tickets` contains only `{identifier, title}` snapshots. Draft create/update/read paths preserve them; callers replacing line items must preserve the `tickets` field to keep it. Omit or clear that field to remove tickets from a replacement line item.
+
+Explicitly included snapshots become ordinary customer-visible invoice content, accessible to invoice recipients and Payments team members with invoice access. They are retained with the invoice, including after Linear disconnect or permission changes, and do not automatically refresh on renames or moves. No issue descriptions, comments, URLs or credentials are copied. The existing `line_items` JSONB field stores these snapshots; no new database migration or OAuth scope is required.
 
 ## Validation
 

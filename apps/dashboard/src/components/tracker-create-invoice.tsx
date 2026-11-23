@@ -3,6 +3,7 @@
 import { TZDate } from "@date-fns/tz";
 import { LogEvents } from "@midday/events/events";
 import { Calendar } from "@midday/ui/calendar";
+import { Checkbox } from "@midday/ui/checkbox";
 import {
   DropdownMenuGroup,
   DropdownMenuPortal,
@@ -30,7 +31,7 @@ import {
   subMonths,
   subWeeks,
 } from "date-fns";
-import { useState } from "react";
+import { useId, useState } from "react";
 import type { DateRange } from "react-day-picker";
 import { useInvoiceParams } from "@/hooks/use-invoice-params";
 import { useUserQuery } from "@/hooks/use-user";
@@ -94,6 +95,7 @@ const getPresetOptions = (weekStartsOnMonday: boolean): PresetOption[] => {
 };
 
 export function TrackerCreateInvoice({ projectId }: Props) {
+  const ticketOptionId = useId();
   const { setParams: setInvoiceParams } = useInvoiceParams();
   const { toast } = useToast();
   const { track } = useOpenPanel();
@@ -113,6 +115,7 @@ export function TrackerCreateInvoice({ projectId }: Props) {
     defaultPresetOption?.dateRange,
   );
   const [timeEntryMode, setTimeEntryMode] = useState<TimeEntryMode>("grouped");
+  const [includeLinearTickets, setIncludeLinearTickets] = useState(false);
   const allUninvoiced = selectedPreset === "all-uninvoiced";
 
   const createInvoiceFromTrackerMutation = useMutation(
@@ -190,6 +193,7 @@ export function TrackerCreateInvoice({ projectId }: Props) {
         projectId,
         allUninvoiced: true,
         timeEntryMode,
+        includeLinearTickets,
       });
       return;
     }
@@ -207,6 +211,7 @@ export function TrackerCreateInvoice({ projectId }: Props) {
       dateFrom: formatISO(date.from, { representation: "date" }),
       dateTo: formatISO(date.to, { representation: "date" }),
       timeEntryMode,
+      includeLinearTickets,
     });
   };
 
@@ -262,6 +267,29 @@ export function TrackerCreateInvoice({ projectId }: Props) {
                   </SelectItem>
                 </SelectContent>
               </Select>
+
+              <label
+                htmlFor={ticketOptionId}
+                className="flex max-w-[280px] cursor-pointer items-start gap-3 border-t pt-4"
+              >
+                <Checkbox
+                  id={ticketOptionId}
+                  checked={includeLinearTickets}
+                  onCheckedChange={(checked) =>
+                    setIncludeLinearTickets(checked === true)
+                  }
+                  className="mt-0.5"
+                />
+                <span className="space-y-1">
+                  <span className="block text-sm font-medium">
+                    Include Linear tickets
+                  </span>
+                  <span className="block text-xs leading-relaxed text-muted-foreground">
+                    Show ticket IDs and titles on the invoice. You can edit them
+                    in the draft.
+                  </span>
+                </span>
+              </label>
 
               <SubmitButton
                 onClick={handleCreateInvoice}

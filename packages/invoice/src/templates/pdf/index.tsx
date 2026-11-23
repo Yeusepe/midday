@@ -124,7 +124,9 @@ export async function PdfTemplate(
         wrap
         size={template.size.toUpperCase() as "LETTER" | "A4"}
         style={{
-          padding: 20,
+          paddingTop: 20,
+          paddingBottom: 20,
+          paddingHorizontal: 20,
           backgroundColor: "#fff",
           color: "#000",
           fontFamily: "Airbnb Cereal App",

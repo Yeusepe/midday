@@ -4,8 +4,11 @@ import {
   getInvoiceByIdSchema,
   getInvoicesSchema,
   invoiceSummarySchema,
+  lineItemDetailSchema,
+  lineItemTicketSchema,
   updateInvoiceSchema,
 } from "@api/schemas/invoice";
+import { getTrackerInvoiceTickets } from "@api/services/tracker-invoice-tickets";
 import {
   deleteInvoice,
   draftInvoice,
@@ -30,6 +33,7 @@ import {
   searchInvoiceNumber,
   updateInvoice,
 } from "@midday/db/queries";
+import type { LinearIssueRef } from "@midday/db/schema";
 import { calculateTotal } from "@midday/invoice/calculate";
 import { DEFAULT_TEMPLATE } from "@midday/invoice/defaults";
 import { PdfTemplate } from "@midday/invoice/templates/pdf";
@@ -98,6 +102,7 @@ async function embedLogoAsDataUrl(
 
 type TrackerInvoiceEntry = {
   id: string;
+  linearIssues?: LinearIssueRef[];
   date?: string | null;
   description?: string | null;
   duration?: number | null;
@@ -971,6 +976,13 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
             .array(
               z.object({
                 name: z.string().describe("Line item description"),
+                tickets: z
+                  .array(lineItemTicketSchema)
+                  .optional()
+                  .describe(
+                    "Customer-visible ticket snapshots. Preserve these when replacing line items; omit or empty to remove.",
+                  ),
+                details: z.array(lineItemDetailSchema).optional(),
                 quantity: z
                   .number()
                   .min(0)
@@ -1213,6 +1225,8 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
               price: item.price,
               unit: item.unit ?? null,
               taxRate: item.taxRate ?? null,
+              details: item.details,
+              tickets: item.tickets,
             })),
             subtotal: subTotal,
             amount: total,
@@ -1323,6 +1337,13 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
             .array(
               z.object({
                 name: z.string().describe("Line item description"),
+                tickets: z
+                  .array(lineItemTicketSchema)
+                  .optional()
+                  .describe(
+                    "Customer-visible ticket snapshots. Preserve these when replacing line items; omit or empty to remove.",
+                  ),
+                details: z.array(lineItemDetailSchema).optional(),
                 quantity: z.number().min(0).describe("Quantity"),
                 price: z.number().describe("Unit price"),
                 unit: z.string().optional().describe("Unit label"),
@@ -1515,6 +1536,8 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
               price: item.price ?? 0,
               unit: item.unit ?? null,
               taxRate: item.taxRate ?? null,
+              details: item.details,
+              tickets: item.tickets,
             }),
           );
 
@@ -1525,6 +1548,8 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
                 price: item.price,
                 unit: item.unit ?? null,
                 taxRate: item.taxRate ?? null,
+                details: item.details,
+                tickets: item.tickets,
               }))
             : existingLineItems;
 
@@ -1767,6 +1792,12 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
             .describe(
               "Currency code override (defaults to the project's currency)",
             ),
+          includeLinearTickets: z
+            .boolean()
+            .optional()
+            .describe(
+              "Include linked Linear ticket IDs and titles as a customer-visible snapshot. Defaults to false. Only enable when the user wants tickets on the invoice.",
+            ),
           timeEntryMode: z
             .enum(["grouped", "separate"])
             .optional()
@@ -1915,6 +1946,14 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
           const entryDetails = billableEntries.map((entry) =>
             buildTrackerEntryDetail(entry, projectName),
           );
+          const invoiceTickets = params.includeLinearTickets
+            ? await getTrackerInvoiceTickets(
+                db,
+                teamId,
+                userId,
+                billableEntries,
+              )
+            : undefined;
           const timeEntryMode = params.timeEntryMode ?? "grouped";
           const lineItems =
             timeEntryMode === "separate"
@@ -1925,6 +1964,7 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
                   unit: "hours",
                   taxRate: undefined as number | undefined,
                   details: [buildTrackerEntryDetail(entry, projectName)],
+                  tickets: invoiceTickets?.forEntry.get(entry.id),
                 }))
               : [
                   {
@@ -1934,6 +1974,7 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
                     unit: "hours",
                     taxRate: undefined as number | undefined,
                     details: entryDetails,
+                    tickets: invoiceTickets?.all,
                   },
                 ];
 
@@ -2040,6 +2081,7 @@ export const registerInvoiceTools: RegisterTools = (server, ctx) => {
               unit: item.unit ?? null,
               taxRate: item.taxRate ?? null,
               details: item.details,
+              tickets: item.tickets,
             })),
             subtotal: subTotal,
             amount: total,

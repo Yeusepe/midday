@@ -14,6 +14,7 @@ import {
   updateInvoiceSchema,
   updateScheduledInvoiceSchema,
 } from "@api/schemas/invoice";
+import { getTrackerInvoiceTickets } from "@api/services/tracker-invoice-tickets";
 import {
   createTRPCRouter,
   protectedProcedure,
@@ -47,6 +48,7 @@ import {
   searchInvoiceNumber,
   updateInvoice,
 } from "@midday/db/queries";
+import type { LinearIssueRef } from "@midday/db/schema";
 import { DEFAULT_TEMPLATE } from "@midday/invoice/defaults";
 import { verify } from "@midday/invoice/token";
 import { transformCustomerToContent } from "@midday/invoice/utils";
@@ -65,6 +67,7 @@ const trackerLineItemModeSchema = z.enum(["grouped", "separate"]);
 
 type TrackerInvoiceEntry = {
   id: string;
+  linearIssues?: LinearIssueRef[];
   date?: string | null;
   description?: string | null;
   duration?: number | null;
@@ -236,6 +239,7 @@ export const invoiceRouter = createTRPCRouter({
           dateTo: z.iso.date().optional(),
           allUninvoiced: z.boolean().optional(),
           timeEntryMode: trackerLineItemModeSchema.optional(),
+          includeLinearTickets: z.boolean().optional(),
         })
         .refine(
           (input) =>
@@ -337,6 +341,14 @@ export const invoiceRouter = createTRPCRouter({
       const entryDetails = billableEntries.map((entry) =>
         buildTrackerEntryDetail(entry, projectName),
       );
+      const invoiceTickets = input.includeLinearTickets
+        ? await getTrackerInvoiceTickets(
+            db,
+            teamId!,
+            session.user.id,
+            billableEntries,
+          )
+        : undefined;
       const lineItems =
         timeEntryMode === "separate"
           ? billableEntries.map((entry) => ({
@@ -350,6 +362,7 @@ export const invoiceRouter = createTRPCRouter({
               unit: "hours",
               vat: 0,
               details: [buildTrackerEntryDetail(entry, projectName)],
+              tickets: invoiceTickets?.forEntry.get(entry.id),
             }))
           : [
               {
@@ -359,6 +372,7 @@ export const invoiceRouter = createTRPCRouter({
                 unit: "hours",
                 vat: 0,
                 details: entryDetails,
+                tickets: invoiceTickets?.all,
               },
             ];
 

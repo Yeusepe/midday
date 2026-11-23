@@ -596,6 +596,36 @@ export async function refreshLinearIssues(
   );
 }
 
+// Invoice inclusion is explicit. Resolve with the invoicing user's access and
+// fail closed before any invoice is written if a linked issue is unavailable.
+export async function snapshotLinearIssuesForInvoice(
+  db: Database,
+  teamId: string,
+  userId: string,
+  refs: LinearIssueRef[],
+) {
+  const unique = [...new Map(refs.map((ref) => [ref.id, ref])).values()];
+  const issues = await hydrateRefs(db, teamId, userId, unique);
+  if (
+    issues.some(
+      (issue) => issue.unavailable || !issue.identifier || !issue.title,
+    )
+  ) {
+    throw new Error(
+      "Some linked tickets could not be read with your Linear account. Reconnect Linear or turn off Include Linear tickets and try again.",
+    );
+  }
+  return new Map(
+    issues.map((issue) => [
+      issue.id,
+      {
+        identifier: issue.identifier!,
+        title: issue.title!,
+      },
+    ]),
+  );
+}
+
 // Public create/update/timer routes must call this with the authenticated user,
 // independently of who is assigned to the time entry. Retained links can be
 // removed without requiring continuing access to a private Linear issue.

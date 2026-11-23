@@ -1,4 +1,5 @@
-import { beforeEach, describe, expect, test } from "bun:test";
+import { afterAll, beforeEach, describe, expect, spyOn, test } from "bun:test";
+import * as linear from "../../services/linear";
 // Import after mocking (mocks are set up via preload)
 import { createCallerFactory } from "../../trpc/init";
 import { invoiceRouter } from "../../trpc/routers/invoice";
@@ -249,10 +250,21 @@ describe("tRPC: invoice.draft", () => {
       dueDate: "2026-06-30T23:59:59.000Z",
       issueDate: "2026-06-01T00:00:00.000Z",
       template: {},
-      lineItems: [{ name: "Consulting", quantity: 2, price: 150, vat: 0 }],
+      lineItems: [
+        {
+          name: "Consulting",
+          quantity: 2,
+          price: 150,
+          vat: 0,
+          tickets: [{ identifier: "ENG-99", title: "Client-approved title" }],
+        },
+      ],
     });
 
     expect(result).toMatchObject({ id: INVOICE_ID });
+    expect(
+      (mocks.draftInvoice.mock.calls[0]![1] as any).lineItems[0].tickets,
+    ).toEqual([{ identifier: "ENG-99", title: "Client-approved title" }]);
     expect(mocks.draftInvoice).toHaveBeenCalledWith(
       expect.anything(),
       expect.objectContaining({
@@ -301,6 +313,8 @@ describe("tRPC: invoice.draft", () => {
 });
 
 describe("tRPC: invoice.createFromTracker", () => {
+  const snapshot = spyOn(linear, "snapshotLinearIssuesForInvoice");
+  afterAll(() => snapshot.mockRestore());
   const internalTickets = [
     {
       id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
@@ -317,6 +331,15 @@ describe("tRPC: invoice.createFromTracker", () => {
 
   beforeEach(() => {
     mocks.draftInvoice.mockReset();
+    snapshot.mockReset();
+    snapshot.mockResolvedValue(
+      new Map(
+        internalTickets.map(({ id, identifier, title }) => [
+          id,
+          { identifier, title },
+        ]),
+      ),
+    );
     mocks.getTrackerProjectById.mockReset();
     mocks.getTrackerRecordsByRange.mockReset();
     mocks.getNextInvoiceNumber.mockReset();
@@ -402,6 +425,7 @@ describe("tRPC: invoice.createFromTracker", () => {
       { lineItems: Array<Record<string, unknown>>; amount: number },
     ];
 
+    expect(snapshot).not.toHaveBeenCalled();
     expect(draftArgs.amount).toBe(300);
     expect(draftArgs.lineItems).toHaveLength(1);
     expect(JSON.stringify(draftArgs)).not.toMatch(
@@ -517,6 +541,59 @@ describe("tRPC: invoice.createFromTracker", () => {
               ],
       }),
     );
+  });
+
+  test.each([
+    "grouped",
+    "separate",
+  ] as const)("includes explicit ticket snapshots without changing totals (%s)", async (timeEntryMode) => {
+    const caller = createCaller(createTestContext());
+    await caller.createFromTracker({
+      projectId: "11111111-1111-4111-8111-111111111111",
+      allUninvoiced: true,
+      timeEntryMode,
+      includeLinearTickets: true,
+    });
+    const args = mocks.draftInvoice.mock.calls[0]![1] as any;
+    expect(args.amount).toBe(300);
+    expect(args.trackerEntryIds).toEqual(["entry-1", "entry-2"]);
+    expect(args.lineItems[0].tickets).toEqual(
+      internalTickets.map(({ identifier, title }) => ({ identifier, title })),
+    );
+    expect(args.lineItems[0].tickets).toHaveLength(2);
+    if (timeEntryMode === "separate") {
+      expect(args.lineItems[1].tickets).toEqual([
+        { identifier: "FUR-10", title: "Private Linear implementation" },
+      ]);
+    }
+    expect(
+      args.lineItems.reduce(
+        (sum: number, item: any) => sum + item.price * item.quantity,
+        0,
+      ),
+    ).toBe(300);
+    expect(JSON.stringify(args.lineItems)).not.toMatch(
+      /linear\.app|aaaaaaaa|bbbbbbbb/,
+    );
+    expect(snapshot).toHaveBeenCalledWith(
+      expect.anything(),
+      "test-team-id",
+      "test-user-id",
+      expect.any(Array),
+    );
+  });
+
+  test("does not write an invoice when opted-in tickets cannot be read", async () => {
+    snapshot.mockRejectedValue(new Error("Linked tickets unavailable"));
+    const caller = createCaller(createTestContext());
+    await expect(
+      caller.createFromTracker({
+        projectId: "11111111-1111-4111-8111-111111111111",
+        allUninvoiced: true,
+        includeLinearTickets: true,
+      }),
+    ).rejects.toThrow("Linked tickets unavailable");
+    expect(mocks.draftInvoice).not.toHaveBeenCalled();
   });
 
   test("does not create an empty invoice when no uninvoiced time remains", async () => {

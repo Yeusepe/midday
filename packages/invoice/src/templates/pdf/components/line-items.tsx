@@ -183,6 +183,57 @@ export function LineItems({
             locale={locale}
             width={columnWidths.description}
           />
+          {!!item.tickets?.length && (
+            <View
+              style={{
+                marginTop: 10,
+                marginBottom: 8,
+                borderTopWidth: 0.5,
+                borderTopColor: "#dedede",
+                paddingTop: 8,
+              }}
+            >
+              <Text
+                minPresenceAhead={28}
+                style={{
+                  fontSize: 8,
+                  fontWeight: 500,
+                  letterSpacing: 0.8,
+                  color: "#626262",
+                  marginBottom: 5,
+                }}
+              >
+                RELATED TICKETS
+              </Text>
+              {item.tickets.map((ticket, ticketIndex) => (
+                <View
+                  key={`${ticket.identifier}-${ticketIndex}`}
+                  wrap={false}
+                  style={{
+                    flexDirection: "row",
+                    paddingVertical: 5,
+                    borderBottomWidth: 0.5,
+                    borderBottomColor: "#ededed",
+                  }}
+                >
+                  <Text
+                    style={{
+                      width: 80,
+                      paddingRight: 12,
+                      fontSize: 8,
+                      lineHeight: 1.5,
+                      color: "#626262",
+                    }}
+                  >
+                    {ticket.identifier}
+                  </Text>
+                  <Text style={{ flex: 1, fontSize: 9, lineHeight: 1.5 }}>
+                    {ticket.title}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          )}
         </View>
       ))}
     </View>

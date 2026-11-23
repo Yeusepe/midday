@@ -38,7 +38,7 @@ beforeEach(() => {
 test("REST project list includes the saved billing setting", async () => {
   const response = await app.request("/tracker-projects");
   expect(response.status).toBe(200);
-  expect((await response.json()).data[0].billable).toBe(true);
+  expect(await response.json()).toMatchObject({ data: [{ billable: true }] });
 });
 
 test("REST updates preserve omitted billing and return its saved value", async () => {
@@ -51,5 +51,5 @@ test("REST updates preserve omitted billing and return its saved value", async (
   expect(mocks.upsertTrackerProject.mock.calls[0]![1]).not.toHaveProperty(
     "billable",
   );
-  expect((await response.json()).billable).toBe(true);
+  expect(await response.json()).toMatchObject({ billable: true });
 });

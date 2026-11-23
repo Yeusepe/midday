@@ -26,6 +26,7 @@ import {
 import { SubmitButton } from "@midday/ui/submit-button";
 import { Switch } from "@midday/ui/switch";
 import { Textarea } from "@midday/ui/textarea";
+import { useToast } from "@midday/ui/use-toast";
 import { useOpenPanel } from "@openpanel/nextjs";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
@@ -70,6 +71,7 @@ export function TrackerProjectForm({ data, defaultCurrency }: Props) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const { track } = useOpenPanel();
+  const { toast } = useToast();
   const { data: user } = useUserQuery();
   const { setParams: setTrackerParams } = useTrackerParams();
   const { setParams: setCustomerParams } = useCustomerParams();
@@ -83,16 +85,32 @@ export function TrackerProjectForm({ data, defaultCurrency }: Props) {
         }
         setLatestProjectId(result?.id ?? null);
 
+        if (result) {
+          queryClient.setQueryData(
+            trpc.trackerProjects.getById.queryKey({ id: result.id }),
+            result,
+          );
+        }
         queryClient.invalidateQueries({
-          queryKey: trpc.trackerProjects.get.infiniteQueryKey(),
+          queryKey: trpc.trackerProjects.pathKey(),
         });
 
         queryClient.invalidateQueries({
-          queryKey: trpc.trackerProjects.getById.queryKey(),
+          queryKey: trpc.trackerEntries.pathKey(),
         });
 
         // Close the tracker project form
-        setTrackerParams({ create: null });
+        setTrackerParams(
+          isEdit ? { update: null, projectId: null } : { create: null },
+        );
+        toast({ title: isEdit ? "Project updated" : "Project created" });
+      },
+      onError: (error) => {
+        toast({
+          variant: "error",
+          title: "Could not save project",
+          description: error.message,
+        });
       },
     }),
   );
@@ -135,22 +153,25 @@ export function TrackerProjectForm({ data, defaultCurrency }: Props) {
 
   useEffect(() => {
     if (data) {
-      form.reset({
-        id: data?.id,
-        name: data?.name ?? undefined,
-        description: data?.description ?? undefined,
-        rate: data?.rate ?? undefined,
-        status: data?.status ?? "in_progress",
-        billable: data?.billable ?? false,
-        estimate: data?.estimate ?? 0,
-        currency: data?.currency ?? defaultCurrency,
-        customerId: data?.customerId ?? undefined,
-        tags:
-          data?.tags?.map((tag) => ({
-            id: tag.id ?? "",
-            value: tag.name ?? "",
-          })) ?? undefined,
-      });
+      form.reset(
+        {
+          id: data?.id,
+          name: data?.name ?? undefined,
+          description: data?.description ?? undefined,
+          rate: data?.rate ?? undefined,
+          status: data?.status ?? "in_progress",
+          billable: data?.billable ?? false,
+          estimate: data?.estimate ?? 0,
+          currency: data?.currency ?? defaultCurrency,
+          customerId: data?.customerId ?? undefined,
+          tags:
+            data?.tags?.map((tag) => ({
+              id: tag.id ?? "",
+              value: tag.name ?? "",
+            })) ?? undefined,
+        },
+        { keepDirtyValues: true },
+      );
     }
   }, [data]);
 
@@ -337,24 +358,21 @@ export function TrackerProjectForm({ data, defaultCurrency }: Props) {
         </div>
 
         <Collapsible open={form.watch("billable")}>
-          <FormItem className="flex justify-between items-center">
-            <FormLabel>Billable</FormLabel>
-
-            <FormField
-              control={form.control}
-              name="billable"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-          </FormItem>
+          <FormField
+            control={form.control}
+            name="billable"
+            render={({ field }) => (
+              <FormItem className="flex justify-between items-center">
+                <FormLabel>Billable</FormLabel>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
 
           <CollapsibleContent className="space-y-2 w-full">
             <div className="flex space-x-4 mt-4">

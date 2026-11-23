@@ -160,8 +160,9 @@ export const upsertTrackerProjectSchema = z
       .boolean()
       .nullable()
       .optional()
-      .default(false)
-      .describe("Whether the project is billable")
+      .describe(
+        "Whether the project is billable; omitted updates preserve the current setting",
+      )
       .openapi({
         description: "Whether the project is billable to the customer",
         example: true,
@@ -266,6 +267,10 @@ export const trackerProjectResponseSchema = z
     estimate: z.number().nullable().openapi({
       description: "Estimated total hours required to complete the project",
       example: 120,
+    }),
+    billable: z.boolean().nullable().openapi({
+      description: "Whether the project is billable to the customer",
+      example: true,
     }),
     currency: z.string().nullable().openapi({
       description: "Currency code for the project rate in ISO 4217 format",

@@ -149,6 +149,27 @@ describe("tRPC: trackerProjects.upsert", () => {
     );
     expect(result?.id).toBe(updateId);
   });
+
+  test("does not turn billing off when an update omits billable", async () => {
+    const caller = createCaller(createTestContext());
+    await caller.upsert({ id: PROJECT_ID, name: "Renamed project" });
+
+    expect(mocks.upsertTrackerProject.mock.calls[0]![1]).not.toHaveProperty(
+      "billable",
+    );
+  });
+
+  test.each([
+    true,
+    false,
+  ])("passes an explicit billable setting (%s)", async (billable) => {
+    const caller = createCaller(createTestContext());
+    await caller.upsert({ id: PROJECT_ID, name: "Project", billable });
+
+    expect(mocks.upsertTrackerProject.mock.calls[0]![1]).toMatchObject({
+      billable,
+    });
+  });
 });
 
 describe("tRPC: trackerProjects.delete", () => {
